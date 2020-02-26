@@ -3,7 +3,7 @@ Put about realtime_data &amp; real_control
 
 Realtime_data and Real_control run in Crontab per minute.
 
-Realtime_data is getting the data from the hardware, including the Vsys, Psys, Pload, Pbat, Psolar, Prect, P_1, P_2, P_3, Vfc, Pfc, Psell, lx, lx_power, PV_tmp and SOC. 
+Realtime_data is to GET THE DATA from the hardware, including the Vsys, Psys, Pload, Pbat, Psolar, Prect, P_1, P_2, P_3, Vfc, Pfc, Psell, lx, lx_power, PV_tmp and SOC. 
 
 Get all this value by many communication protocol,
 
