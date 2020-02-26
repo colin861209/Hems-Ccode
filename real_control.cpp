@@ -6,7 +6,7 @@
 #include <mysql.h>
 #include <iostream>
 #include <errno.h>
-git test
+// function a merge to 'master'
 #include <sys/types.h>          /* See NOTES */
 #include <sys/socket.h>
 #include <netinet/in.h>
