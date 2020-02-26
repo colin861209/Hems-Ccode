@@ -19,7 +19,7 @@
 
 // to run it you may do > g++ -o ctrl real_control.cpp `mysql_config --cflags` `mysql_config --libs` to compile
 
-//real control commit
+
 #define DIO_COUNT 2
 #define HEAD 0x40 // '@'->0x40
 #define U_ADDR 0x30 // '0'->0x30  
