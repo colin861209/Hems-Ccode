@@ -6,7 +6,7 @@
 #include <mysql.h>
 #include <iostream>
 #include <errno.h>
-
+aaa
 #include <sys/types.h>          /* See NOTES */
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -19,7 +19,7 @@
 
 // to run it you may do > g++ -o ctrl real_control.cpp `mysql_config --cflags` `mysql_config --libs` to compile
 
-
+// this is for testing git push
 #define DIO_COUNT 2
 #define HEAD 0x40 // '@'->0x40
 #define U_ADDR 0x30 // '0'->0x30  
