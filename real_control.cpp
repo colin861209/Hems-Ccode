@@ -351,14 +351,14 @@ unsigned int *APP_control(int app_count,int *app_arr)
 
 unsigned char HtoA(unsigned char a)
 {
-	if (a<0x0a)
+	if (a<0x0a)	// 0x0a(hex) = 10(dec) 
 	{
   	  a = a + 0x30;    //ascii '0'-> 0x30  '1'->0x31 ....
 	  return a;
 	}
 	else
 	{
-	  a = a - 0x0a + 0x41;  //ascii 'A'-> 0x46  'B'->0x47 ....
+	  a = a - 0x0a + 0x41;  //ascii 'A'-> 0x41  'B'->0x42 ....
 	  return a;
 	}
 }
@@ -372,7 +372,7 @@ unsigned char AtoH(unsigned char a)
 	}
 	else if (a<=0x39 & a>=0x30)
 	{
-		a = a - 0x30 ;  //ascii 'A'-> 0x46  'B'->0x47 ....
+		a = a - 0x30 ;  //ascii 'A'-> 0x41  'B'->0x42 ....
 		return a;
 	}
 }
