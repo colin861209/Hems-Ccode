@@ -261,7 +261,7 @@ unsigned int *APP_control(int app_count,int *app_arr)
 
     // Decode to @AA(Data),(Data)->xxxxh Left->MSB Right->LSB
 	hex_d[0] = 0x01; hex_d[1] = 0x02; hex_d[2] = 0x04; hex_d[3] = 0x08; hex_d[4] = 0x10; hex_d[5] = 0x20; hex_d[6] = 0x40; hex_d[7] = 0x80;
-	//j=1;
+	//one for funciton get eight DIO status
 	for (j = 0; j<DIO_COUNT; j++)
 	{
 		usleep(200000);
@@ -285,8 +285,8 @@ unsigned int *APP_control(int app_count,int *app_arr)
 		//clear tmp
 		tmp = 0x00;               
 		//Defined set commend
-		unsigned char set_commend[6] = { HEAD, U_ADDR, L_ADDR + j,asc_MSB[j],asc_LSB[j],CR };
-	    //unsigned char set_commend[7] = {0x40,0x30,L_ADDR+j,0x30,0x30,0x0D}; //for test
+		unsigned char set_commend[6] = { HEAD, U_ADDR, L_ADDR + j, asc_MSB[j], asc_LSB[j], CR };
+	    // For test: unsigned char set_commend[6] = {0x40,0x30,L_ADDR+j,0x34,0x32,0x0D}; @04 3432
         printf("Addr:%x\n",L_ADDR+j);
         //Submit commend
         tx_count = write(fd,&set_commend,6);
