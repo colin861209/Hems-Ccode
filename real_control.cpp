@@ -275,7 +275,7 @@ unsigned int *APP_control(int app_count,int *app_arr)
 		printf("0x%x ", tmp >> 4);     //ex: 0x42-> 0x4
 		printf("0x%x\n", tmp & 0x0f);   //ex: 0x42-> 0x2
 
-	    //ASCII to HEX
+	    // HEX to ASCII
 		asc_MSB[j] = HtoA(tmp >> 4);
 		asc_LSB[j] = HtoA(tmp & 0x0f);
 
