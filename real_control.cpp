@@ -365,12 +365,12 @@ unsigned char HtoA(unsigned char a)
 
 unsigned char AtoH(unsigned char a)
 {
-	if (a<=0x46 & a>=0x41)
+	if (0x46>=a & a>=0x41)
 	{
 		a = a -0x41+0x0a ;    //ascii '0'-> 0x30  '1'->0x31 ....
 		return a;
 	}
-	else if (a<=0x39 & a>=0x30)
+	else if (0x39>=a & a>=0x30)
 	{
 		a = a - 0x30 ;  //ascii 'A'-> 0x41  'B'->0x42 ....
 		return a;
