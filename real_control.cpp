@@ -36,7 +36,7 @@ int UART_set();
 // common parameter
 int i = 0, j = 0,fd = 0;
 
-
+//
 int main(void)
 {
 	/*============================initial UART==================================*/
