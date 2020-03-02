@@ -1,7 +1,8 @@
 ## hems-Ccode
-Put about realtime_data &amp; real_control
+Introduce about realtime_data &amp; real_control
 
 Realtime_data and Real_control run in Crontab per minute.
+*Realtime_data*(put the value into DB /per minutes) -> *GLPK*(find the best energe using result) -> *Real_control*(control the recitfier and application load /per minutes)
 
 1\. Realtime_Data.cpp
 
