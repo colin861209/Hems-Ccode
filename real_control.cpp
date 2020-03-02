@@ -292,7 +292,7 @@ unsigned int *APP_control(int app_count,int *app_arr)
         tx_count = write(fd, &set_commend, 6);
         //delay
 		usleep(200000); 
-		//recieve data     
+		//recieve data
         rx_count = read(fd,rx_buf,6);
 		//print result
         printf("Trans DATA:\n");
@@ -308,7 +308,7 @@ unsigned int *APP_control(int app_count,int *app_arr)
 
 
 		//Defined get commend
-        unsigned char get_state[4] = { HEAD, U_ADDR, L_ADDR+j, CR };~
+        unsigned char get_state[4] = { HEAD, U_ADDR, L_ADDR+j, CR };
         //Submit commend
 		tx_count = write(fd, &get_state, 4);
  		//Delay
@@ -326,7 +326,7 @@ unsigned int *APP_control(int app_count,int *app_arr)
             
 		//Decode from DIO
 		unsigned char add_sum =0;
-        add_sum=AtoH(rx_buf[2])|(AtoH(rx_buf[1])<<4); //ex: 0x01 0x20 ->0x21
+        add_sum=AtoH(rx_buf[2])|(AtoH(rx_buf[1])<<4); //ex: 0x34(4) 0x33(3) -> 0x4 | 0x30 -> 0x34
 		for (i =0;i<(8);i++)
 		{
 	 		printf("value:%x\n",(add_sum & hex_d[i])/hex_d[i]);
@@ -367,12 +367,12 @@ unsigned char AtoH(unsigned char a)
 {
 	if (0x46>=a & a>=0x41)
 	{
-		a = a -0x41+0x0a ;    //ascii '0'-> 0x30  '1'->0x31 ....
+		a = a -0x41+0x0a ;  //ascii 'A'-> 0x41  'B'->0x42 ....
 		return a;
 	}
 	else if (0x39>=a & a>=0x30)
 	{
-		a = a - 0x30 ;  //ascii 'A'-> 0x41  'B'->0x42 ....
+		a = a - 0x30 ;  //ascii '0'-> 0x30  '1'->0x31 ....
 		return a;
 	}
 }
