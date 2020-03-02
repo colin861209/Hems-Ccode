@@ -283,13 +283,13 @@ unsigned int *APP_control(int app_count,int *app_arr)
 		printf("0x%x\n ", asc_LSB[j]);   //ex: 0x2-> 0x32
 
 		//clear tmp
-		tmp = 0x00;               
+		tmp = 0x00;
 		//Defined set commend
 		unsigned char set_commend[6] = { HEAD, U_ADDR, L_ADDR+j, asc_MSB[j], asc_LSB[j], CR };
 	    // For test: unsigned char set_commend[6] = {0x40,0x30,L_ADDR+j,0x34,0x32,0x0D}; @043432, @05xxxx
         printf("Addr:%x\n",L_ADDR+j);
         //Submit commend
-        tx_count = write(fd,&set_commend,6);
+        tx_count = write(fd, &set_commend, 6);
         //delay
 		usleep(200000); 
 		//recieve data     
@@ -304,13 +304,13 @@ unsigned int *APP_control(int app_count,int *app_arr)
 		//clean rx_buf
         memset(rx_buf, '\0', 6);
 		//delay time (must have)
-        usleep(200000);               
+        usleep(200000);
 
 
 		//Defined get commend
-        unsigned char get_state[4] = { HEAD, U_ADDR, L_ADDR + j,CR };
+        unsigned char get_state[4] = { HEAD, U_ADDR, L_ADDR+j, CR };~
         //Submit commend
-		tx_count = write(fd,&get_state,4);
+		tx_count = write(fd, &get_state, 4);
  		//Delay
 		usleep(200000);
 		//sleep(1);
