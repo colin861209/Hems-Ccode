@@ -332,8 +332,8 @@ unsigned int *APP_control(int app_count,int *app_arr)
 	 		printf("value:%x\n",(add_sum & hex_d[i])/hex_d[i]);
         	rx_get[i+j*8]= ((add_sum & hex_d[i])/hex_d[i]);
 		}
-		 printf("add_sum:0x%x\n",add_sum);
-		//clean rx_buf  
+		printf("add_sum:0x%x\n",add_sum);
+		//clean rx_buf
  		memset(rx_buf, '\0', 6);
 	}
 	//set not use
