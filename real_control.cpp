@@ -329,6 +329,7 @@ unsigned int *APP_control(int app_count,int *app_arr)
         add_sum=AtoH(rx_buf[2])|(AtoH(rx_buf[1])<<4); //ex: 0x34(4) 0x33(3) -> 0x4 | 0x30 -> 0x34
 		for (i =0;i<(8);i++)
 		{
+			// get binary 0, 1 after submit the commend, to check the data
 	 		printf("value:%x\n",(add_sum & hex_d[i])/hex_d[i]);
         	rx_get[i+j*8]= ((add_sum & hex_d[i])/hex_d[i]);
 		}
