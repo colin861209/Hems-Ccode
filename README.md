@@ -7,8 +7,6 @@ Realtime_data is to GET THE DATA from the hardware, including the Vsys, Psys, Pl
 
 Get all this value by many communication protocol,
 
-=> use Modbus RTU to get the lx & lx power & tempture,
-
-=> use Modbus TCP/IP to get the Vsys, Psys, Pload, Pbat, Psolar, Prect, P_1, P_2, P_3
-
-=> use Mysql to get the Fuel Cell and Sell Power.
+* use Modbus RTU to get the lx & lx power & tempture,
+* use Modbus TCP/IP to get the Vsys, Psys, Pload, Pbat, Psolar, Prect, P_1, P_2, P_3
+* use Mysql to get the Fuel Cell and Sell Power.
