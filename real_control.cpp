@@ -285,8 +285,8 @@ unsigned int *APP_control(int app_count,int *app_arr)
 		//clear tmp
 		tmp = 0x00;               
 		//Defined set commend
-		unsigned char set_commend[6] = { HEAD, U_ADDR, L_ADDR + j, asc_MSB[j], asc_LSB[j], CR };
-	    // For test: unsigned char set_commend[6] = {0x40,0x30,L_ADDR+j,0x34,0x32,0x0D}; @04 3432
+		unsigned char set_commend[6] = { HEAD, U_ADDR, L_ADDR+j, asc_MSB[j], asc_LSB[j], CR };
+	    // For test: unsigned char set_commend[6] = {0x40,0x30,L_ADDR+j,0x34,0x32,0x0D}; @043432, @05xxxx
         printf("Addr:%x\n",L_ADDR+j);
         //Submit commend
         tx_count = write(fd,&set_commend,6);
