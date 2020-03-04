@@ -17,7 +17,8 @@
 #include <termios.h>        //Used for UART
 #include <mysql/mysql.h>
 
-// to run it you may do > g++ -o fc_control fc_control.cpp `mysql_config --cflags` `mysql_config --libs` to compile
+// to run it you may do below
+// g++ -o fc_control fc_control.cpp `mysql_config --cflags` `mysql_config --libs` to compile
 
 //註解 by Lee_you_cheng
 #define DIO_COUNT 2
@@ -27,10 +28,6 @@
 #define CR 0x0D    // '/r'->0x0D
 #define SAFE_TARGET_POWER 4300 //the highest power limit
 
-// unsigned int *APP_control(int app_count, int *app_arr);
-// unsigned char HtoA(unsigned char a);
-// unsigned char AtoH(unsigned char a);
-// void Rectifier_control(unsigned char high, unsigned char low);
 unsigned short calc_crc(unsigned char *, int ); //modbusRTU CRC Check function
 float serial_wr(unsigned char *,int); //modbusRTU connect function
 int uchar_size(unsigned char *); 
@@ -61,9 +58,9 @@ int main(void)
 {	
 	/*=============================variable======================================*/
 
-	int power_status=0,power_enable=0;
+	int power_status=0, power_enable=0;
 	char sql_buffer[1024] = {0};
-	float target_power=0.0,target_current=0.0,now_power=0.0,now_voltage=0.0,now_current=0.0,set_voltage=0.0,set_current=0.0;
+	float target_power=0.0, target_current=0.0, now_power=0.0, now_voltage=0.0, now_current=0.0, set_voltage=0.0, set_current=0.0;
 
 
 	/*============================initial UART==================================*/
@@ -325,7 +322,7 @@ unsigned short calc_crc(unsigned char *buf, int length)
    return ((crc & 0xFF00) >> 8)|((crc & 0x0FF) << 8 );
 }
 
-float serial_wr(unsigned char *cmd_buf,int cmd_length)
+float ｚserial_wr(unsigned char *cmd_buf,int cmd_length)
 {
 	usleep(300000);
 	int tx_count=0,rx_count=0;
