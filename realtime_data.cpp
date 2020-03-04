@@ -88,8 +88,8 @@ int main()
 	}
 	else//monitor_now內有data 從前一比抓資料
 	{
-	printf("Row data has existed ...\n");
-	snprintf(sql_buffer, sizeof(sql_buffer),"select * FROM `monitor_now`  WHERE datetime = (SELECT max(datetime) as time FROM monitor_now )");
+		printf("Row data has existed ...\n");
+		snprintf(sql_buffer, sizeof(sql_buffer),"select * FROM `monitor_now`  WHERE datetime = (SELECT max(datetime) as time FROM monitor_now )");
 	}  
 
 	mysql_query(mysql_con,sql_buffer);
@@ -118,11 +118,11 @@ int main()
 	//now_t 就是現在的timeblock
 	if (((now_time.tm_min) % (60 / divide)) != 0)
 	{
-			now_t = (now_time.tm_hour) * divide + (int)((now_time.tm_min) / (60 / divide));
+		now_t = (now_time.tm_hour) * divide + (int)((now_time.tm_min) / (60 / divide));
 	}
 	else
 	{
-			now_t = (now_time.tm_hour) * divide + (int)((now_time.tm_min) / (60 / divide));
+		now_t = (now_time.tm_hour) * divide + (int)((now_time.tm_min) / (60 / divide));
 	}
 	printf("now period:%d\n",now_t);
 
@@ -138,17 +138,17 @@ int main()
  //first get SOCi
  if(now_t==prev_t)//for caculate sum of SOC
  {
-	 mysql_query(mysql_con," select `SOC` FROM `monitor_now` WHERE datetime = (SELECT min(datetime) as time FROM monitor_now )");
+	mysql_query(mysql_con," select `SOC` FROM `monitor_now` WHERE datetime = (SELECT min(datetime) as time FROM monitor_now )");
 	mysql_result = mysql_store_result(mysql_con);
 	if(mysql_row = mysql_fetch_row(mysql_result))
 	{SOC = atof(mysql_row[0]);}
  }
  else
  {
-	 mysql_query(mysql_con," select `SOC` FROM `monitor_now` WHERE datetime = (SELECT max(datetime) as time FROM monitor_now )");
+	mysql_query(mysql_con," select `SOC` FROM `monitor_now` WHERE datetime = (SELECT max(datetime) as time FROM monitor_now )");
 	mysql_result = mysql_store_result(mysql_con);
-				if(mysql_row = mysql_fetch_row(mysql_result))
-				{SOC = atof(mysql_row[0]);}
+	if(mysql_row = mysql_fetch_row(mysql_result))
+	{SOC = atof(mysql_row[0]);}
  }
 
 
@@ -275,7 +275,7 @@ int get_orion()
 
 			if(socket_timeout ==1)
 			{
-				break;//if timeout then exit loop    
+				break; //if timeout then exit loop    
 			}      
 			tmp=((recv_buf[9]<<8)|recv_buf[10]);
 			if(tmp==0x7fff)
@@ -286,15 +286,15 @@ int get_orion()
 		} 
 		if(socket_timeout!=1) //if no timeout then do below
 		{    
-			Vsys=data[13]/100.0; 
 			Pload=data[0]/10.0*Vsys;
 			// Pbat=data[1]/10.0*Vsys;  // because have some measure errror..so below function instead 
-			Psys=data[3];
 			Prect=data[2]/10.0*Vsys;
-			Psolar=data[10]+data[11];
+			Psys=data[3];
 			P_1=data[4]/10.0*Vsys;
 			P_2=data[5]/10.0*Vsys;
 			P_3=data[6]/10.0*Vsys;
+			Psolar=data[10]+data[11];
+			Vsys=data[13]/100.0; 
 
 			Pbat=Prect+Psolar+Pfc-Pload-Psell;
 
