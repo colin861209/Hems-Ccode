@@ -48,7 +48,7 @@ int UART_err=0;
 	unsigned char cmd_get_status[6] = {0x11,0x03,0x01,0x07,0x00,0x01};
 	unsigned char cmd_set_v[6] = {0x11,0x06,0x00,0x03,0x15,0x18};	//54V(constant)
 	unsigned char cmd_set_i[6] = {0x11,0x06,0x00,0x05,0x00,0x0A};	//0.1A
-unsigned char cmd_set_i[6] = {11,06,00,05,00,10};
+
 	// serial_wr(cmd_on,sizeof(cmd_on)/sizeof(cmd_on[0]));
 	// serial_wr(cmd_off,sizeof(cmd_off)/sizeof(cmd_off[0]));
 	// serial_wr(cmd_get_v,sizeof(cmd_get_v)/sizeof(cmd_get_v[0]));
