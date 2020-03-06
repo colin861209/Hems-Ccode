@@ -1,7 +1,7 @@
 ## hems-Ccode
-Introduce about realtime_data &amp; real_control
+Introduce about realtime_data &amp; real_control &amp; fc_control
 
-Realtime_data and Real_control run in Crontab per minute.
+Realtime_data and Real_control run in Crontab 1 minute.
 + SPEC
 + *Realtime_data*(put the value into DB /per minutes) -> 
 + *GLPK*(find the best energe using result) -> 
