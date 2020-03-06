@@ -23,3 +23,11 @@ Real_control most important thing is to *Control the DIO* and *Power of Rectifie
 * use Modbus ASCII to control the DIO status
 * DIO is digital input/output, and we use it to control the application load.
 * use Modbus TCP/IP to control the each one power of rectifier.
+***
+3\. Fc_control.cpp
+
+Fc_control is try to let FC getting target power and coding to let FC current increase.
+
+* use Modbus RTU to get & set the FC control value.
+* FC voltage is setting a constant 54V.
+* Set the target power than FC control the current to track the target.
