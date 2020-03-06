@@ -17,15 +17,17 @@
 #include <termios.h>        //Used for UART
 #include <mysql/mysql.h>
 
-// to run it you may do below
-// g++ -o fc_control fc_control.cpp `mysql_config --cflags` `mysql_config --libs` to compile
-
-//註解 by Lee_you_cheng
-#define DIO_COUNT 2
-#define HEAD 0x40 // '@'->0x40
-#define U_ADDR 0x30 // '0'->0x30  
-#define L_ADDR 0x34 // '4'->0x34   ID is from 4 ,5,6.....
-#define CR 0x0D    // '/r'->0x0D
+/* 
+to run it you may do below
+g++ -o fc_control fc_control.cpp `mysql_config --cflags` `mysql_config --libs` 
+to compile 
+*/
+// below define is not be used
+// #define DIO_COUNT 2
+// #define HEAD 0x40 // '@'->0x40
+// #define U_ADDR 0x30 // '0'->0x30  
+// #define L_ADDR 0x34 // '4'->0x34   ID is from 4 ,5,6.....
+// #define CR 0x0D    // '/r'->0x0D
 #define SAFE_TARGET_POWER 4300 //the highest power limit
 
 unsigned short calc_crc(unsigned char *, int ); //modbusRTU CRC Check function
@@ -46,7 +48,7 @@ int UART_err=0;
 	unsigned char cmd_get_status[6] = {0x11,0x03,0x01,0x07,0x00,0x01};
 	unsigned char cmd_set_v[6] = {0x11,0x06,0x00,0x03,0x15,0x18};	//54V(constant)
 	unsigned char cmd_set_i[6] = {0x11,0x06,0x00,0x05,0x00,0x0A};	//0.1A
-
+unsigned char cmd_set_i[6] = {11,06,00,05,00,10};
 	// serial_wr(cmd_on,sizeof(cmd_on)/sizeof(cmd_on[0]));
 	// serial_wr(cmd_off,sizeof(cmd_off)/sizeof(cmd_off[0]));
 	// serial_wr(cmd_get_v,sizeof(cmd_get_v)/sizeof(cmd_get_v[0]));
@@ -105,36 +107,36 @@ int main(void)
 	/*=======================initial commend====================*/
 	if(power_enable!=1)  //force to shutdown
 	{
-		 printf("Power on setting is disabled, DCDC will shutdown and exit program... \n");
-		 serial_wr(cmd_off,sizeof(cmd_off)/sizeof(cmd_off[0]));
-		 //clean mysql value 
-		 power_status=0;set_current=0;now_voltage=0;now_current=0;now_power=0;
-		 snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE fc_control SET value=%d WHERE parameter_id=%d ", power_status,2);
-    	 mysql_query(mysql_con, sql_buffer);
-    	 snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE fc_control SET value=%.2f WHERE parameter_id=%d ", set_current,4);
-    	 mysql_query(mysql_con, sql_buffer);
-    	 snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE fc_control SET value=%.2f WHERE parameter_id=%d ", now_voltage,6);
-    	 mysql_query(mysql_con, sql_buffer);
-    	 snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE fc_control SET value=%.2f WHERE parameter_id=%d ", now_current,7);
-    	 mysql_query(mysql_con, sql_buffer);
-    	 snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE fc_control SET value=%.2f WHERE parameter_id=%d ", now_power,8);
-    	 mysql_query(mysql_con, sql_buffer);
-		 return -1;
+		printf("Power on setting is disabled, DCDC will shutdown and exit program... \n");
+		serial_wr(cmd_off,sizeof(cmd_off)/sizeof(cmd_off[0]));
+		//clean mysql value 
+		power_status=0; set_current=0; now_voltage=0; now_current=0; now_power=0;
+		snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE fc_control SET value=%d WHERE parameter_id=%d ", power_status,2);
+		mysql_query(mysql_con, sql_buffer);
+		snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE fc_control SET value=%.2f WHERE parameter_id=%d ", set_current,4);
+		mysql_query(mysql_con, sql_buffer);
+		snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE fc_control SET value=%.2f WHERE parameter_id=%d ", now_voltage,6);
+		mysql_query(mysql_con, sql_buffer);
+		snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE fc_control SET value=%.2f WHERE parameter_id=%d ", now_current,7);
+		mysql_query(mysql_con, sql_buffer);
+		snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE fc_control SET value=%.2f WHERE parameter_id=%d ", now_power,8);
+		mysql_query(mysql_con, sql_buffer);
+		return -1;
 	}
 
 	if(power_status!=1) //if power on , than don't have to repeat set.
 	{
 		printf("Beginning of power on, so initial the value... \n");
-		serial_wr(cmd_set_v,sizeof(cmd_set_v)/sizeof(cmd_set_v[0]));
-	 	serial_wr(cmd_set_i,sizeof(cmd_set_i)/sizeof(cmd_set_i[0]));
+		serial_wr(cmd_set_v,sizeof(cmd_set_v)/sizeof(cmd_set_v[0]));  //( cmd_length is 6*2/2 = 6)
+	 	serial_wr(cmd_set_i,sizeof(cmd_set_i)/sizeof(cmd_set_i[0]));  //( cmd_length is 6*2/2 = 6)
 	 	power_status=(int)(serial_wr(cmd_on,sizeof(cmd_on)/sizeof(cmd_on[0])));
-	if(power_status==0)
+		if(power_status==0)
     	{
-		printf("DCDC doesn't get source power,so can't establish the connet, let the power status as off...  \n");
-		return -1;
+			printf("DCDC doesn't get source power,so can't establish the connet, let the power status as off...  \n");
+			return -1;
     	}
-    	else
-    	{power_status=1;}
+    	else {power_status=1;}
+
     	snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE fc_control SET value=%d WHERE parameter_id=%d ", power_status,2);
     	mysql_query(mysql_con, sql_buffer);
 	}
@@ -242,7 +244,7 @@ int main(void)
     		snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE fc_control SET value=%.2f WHERE parameter_id=%d ", now_power,8);
     		mysql_query(mysql_con, sql_buffer);
 		
-		usleep(4500000);
+			usleep(4500000);
     		sleep(1);	//every step have 1 sec delay, let FC work successful.
     		increase_time++;
 		}
@@ -263,12 +265,12 @@ int UART_set()
 	memset (&tty, 0, sizeof tty);
 
 	/* Error Handling */
-	 if ( tcgetattr ( fd, &tty ) != 0 )
+	if ( tcgetattr ( fd, &tty ) != 0 )
  	{
-  	 printf("UART get bad connection, please check the wire or plug\n");
-  	 std::cout << "Error " << errno << " from tcgetattr: " << strerror(errno) << std::endl;
-  	 UART_err=1;
-  	 return -1;
+		printf("UART get bad connection, please check the wire or plug\n");
+		std::cout << "Error " << errno << " from tcgetattr: " << strerror(errno) << std::endl;
+		UART_err=1;
+		return -1;
  	}
 
 	/* Save old tty parameters */
@@ -296,33 +298,33 @@ int UART_set()
 	tcflush( fd, TCIFLUSH );
 	if ( tcsetattr ( fd, TCSANOW, &tty ) != 0)
 	{
- 	  std::cout << "Error " << errno << " from tcsetattr" << std::endl;
- 	  UART_err=1;
+		std::cout << "Error " << errno << " from tcsetattr" << std::endl;
+		UART_err=1;
 	}
 }
 
 
 unsigned short calc_crc(unsigned char *buf, int length)
 {
-   unsigned short crc = 0xFFFF;
-   int i,j;
-   unsigned char LSB;
+	unsigned short crc = 0xFFFF;
+	int i,j;
+	unsigned char LSB;
     for (i = 0; i < length; i++)
     {
-      crc ^= buf[i];
-        for (j = 0; j < 8; j++)
-        {
-           LSB= crc & 1;
-           crc = crc >> 1;
-                  
-           if (LSB)
-           { crc ^= 0xA001; }
-        }
+		crc ^= buf[i];
+		for (j = 0; j < 8; j++)
+		{
+			LSB= crc & 1;
+			crc = crc >> 1;
+					
+			if (LSB)
+			{ crc ^= 0xA001; }
+		}
     }
-   return ((crc & 0xFF00) >> 8)|((crc & 0x0FF) << 8 );
+	return ((crc & 0xFF00) >> 8)|((crc & 0x0FF) << 8 );
 }
 
-float ｚserial_wr(unsigned char *cmd_buf,int cmd_length)
+float serial_wr(unsigned char *cmd_buf,int cmd_length)
 {
 	usleep(300000);
 	int tx_count=0,rx_count=0;
