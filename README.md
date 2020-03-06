@@ -26,7 +26,7 @@ Real_control most important thing is to *Control the DIO* and *Power of Rectifie
 ***
 3\. Fc_control.cpp
 
-Fc_control is try to let FC getting target power and coding to let FC current increase.
+Fc_control is try to generate the power from Mysql.
 
 * use Modbus RTU to get & set the FC control value.
 * FC voltage is setting a constant 54V.
