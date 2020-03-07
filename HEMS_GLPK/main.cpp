@@ -70,7 +70,7 @@ int main(void)
 
 
 	//SELECT column_name FROM `column` WHERE `column_name` BETWEEN 'A0' AND 'A95'
-	// ------------------------------- Start of Get value from load_list & LP_BASE_PARM than Update value back ------------------------------- //
+	// ------------------------------- Start to Get value from load_list & LP_BASE_PARM than Update value back ------------------------------- //
 	// MARK: each of loads number in table 'load_list'
 	snprintf(sql_buffer, sizeof(sql_buffer), "SELECT count(*) AS numcols FROM load_list WHERE group_id=1 "); // 可中斷 interrupt_num = 12
 	mysql_query(mysql_con, sql_buffer);
@@ -100,7 +100,7 @@ int main(void)
 
 	// MARK: s_time => last time execute 2020-0x-0x => time_tmp[3] = {2020, 03, 06} 
 	//		to check whether same day or not, 
-	//  	if different,then enforce start up one_schedule => same day =0 (一日排程)
+	//  	if different,then enforce start up one_schedule => same day = 0 (一日排程)
 	for (i = 1; i <= 17; i++)
 	{
 		snprintf(sql_buffer, sizeof(sql_buffer), "select value from LP_BASE_PARM where parameter_id = '%d'", i);
@@ -203,102 +203,107 @@ int main(void)
 	printf("\n");
 	// ------------------------------- END of Get value from load_list & LP_BASE_PARM than Update value back ------------------------------- //
 
-		float *price = new float[24];
-		float **INT_power = NEW2D(interrupt_num, 4, float);
-		float **UNINT_power = NEW2D(uninterrupt_num, 4, float);
-		float **VAR_power = NEW2D(varying_num, 9, float);
+	// ------------------------------- Start to Put Mysql data into Matrix ------------------------------- //
+	float *price = new float[24];
+	float **INT_power = NEW2D(interrupt_num, 4, float);
+	float **UNINT_power = NEW2D(uninterrupt_num, 4, float);
+	float **VAR_power = NEW2D(varying_num, 9, float);
 
-		for (i = 0; i < app_count; i++)
+	// MARK: get all application(interrupt-> uninterrupt-> varying) into array position
+	for (i = 0; i < app_count; i++)
+	{
+		snprintf(sql_buffer, sizeof(sql_buffer), "select number from load_list WHERE group_id<>0 ORDER BY group_id ASC,number ASC LIMIT %d,1", i);
+		mysql_query(mysql_con, sql_buffer);
+		mysql_result = mysql_store_result(mysql_con);
+		mysql_row = mysql_fetch_row(mysql_result);
+		position[i] = atoi(mysql_row[j]);
+		//printf("xxxxxxx:%d\n", position[i]);
+		mysql_free_result(mysql_result);
+	}
+
+	// MARK: get each interrupt application column value into multidimesional array INT_power
+	for (i = 1; i < interrupt_num + 1; i++)    
+	{
+		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT start_time, end_time, operation_time, power1 FROM load_list WHERE group_id = 1 ORDER BY number ASC LIMIT %d,1", i-1);
+		mysql_query(mysql_con, sql_buffer);
+		mysql_result = mysql_store_result(mysql_con);
+		mysql_row = mysql_fetch_row(mysql_result);
+		for (j = 0; j < 4; j++)
 		{
-			snprintf(sql_buffer, sizeof(sql_buffer), "select number from load_list WHERE group_id<>0 ORDER BY group_id ASC,number ASC LIMIT %d,1", i);
-			mysql_query(mysql_con, sql_buffer);
-			mysql_result = mysql_store_result(mysql_con);
-			mysql_row = mysql_fetch_row(mysql_result);
-			position[i] = atoi(mysql_row[j]);
-			//printf("xxxxxxx:%d\n", position[i]);
-			mysql_free_result(mysql_result);
+			INT_power[i - 1][j] = atof(mysql_row[j]);
+			//	printf("%.2f    ", INT_power[i - 1][j]);
 		}
+		//printf("\n");
+		mysql_free_result(mysql_result);
+	}
 
-		//����Uapp�Ѽ�
-		for (i = 1; i < interrupt_num + 1; i++)    //�i���_
+	// MARK: get each uninterrupt application column value into multidimesional array UNINT_power
+	for (i = 1; i < uninterrupt_num + 1; i++)   
+	{
+		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT start_time, end_time, operation_time, power1 FROM load_list WHERE group_id = 2 ORDER BY number ASC LIMIT %d,1", i-1);
+		mysql_query(mysql_con, sql_buffer);
+		mysql_result = mysql_store_result(mysql_con);
+		mysql_row = mysql_fetch_row(mysql_result);
+		for (j = 0; j < 4; j++)
 		{
-			snprintf(sql_buffer, sizeof(sql_buffer), "SELECT start_time, end_time,operation_time ,power1 FROM load_list WHERE group_id = 1 ORDER BY number ASC LIMIT %d,1", i-1);
-			mysql_query(mysql_con, sql_buffer);
-			mysql_result = mysql_store_result(mysql_con);
-			mysql_row = mysql_fetch_row(mysql_result);
-			for (j = 0; j < 4; j++)
-			{
-				INT_power[i - 1][j] = atof(mysql_row[j]);
-				//	printf("%.2f    ", INT_power[i - 1][j]);
-			}
-			//printf("\n");
-			mysql_free_result(mysql_result);
+			UNINT_power[i - 1][j] = atof(mysql_row[j]);
+			//printf("%.2f    ", UNINT_power[i - 1][j]);
 		}
+		//printf("\n");
+		mysql_free_result(mysql_result);
+	}
 
-		for (i = 1; i < uninterrupt_num + 1; i++)   //���i���_
+	// MARK: get each varying application column value into multidimesional array VAR_power
+	for (i = 1; i < varying_num + 1; i++)
+	{
+	
+		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT start_time, end_time, operation_time, power1, power2, power3,block1, block2, block3 FROM load_list WHERE group_id = 3 ORDER BY number ASC LIMIT %d,1", i-1);
+		mysql_query(mysql_con, sql_buffer);
+		mysql_result = mysql_store_result(mysql_con);
+		mysql_row = mysql_fetch_row(mysql_result);
+		for (j = 0; j < 9; j++)
 		{
-			snprintf(sql_buffer, sizeof(sql_buffer), "SELECT start_time, end_time,operation_time ,power1 FROM load_list WHERE group_id = 2 ORDER BY number ASC LIMIT %d,1",i-1);
-			mysql_query(mysql_con, sql_buffer);
-			mysql_result = mysql_store_result(mysql_con);
-			mysql_row = mysql_fetch_row(mysql_result);
-			for (j = 0; j < 4; j++)
-			{
-				UNINT_power[i - 1][j] = atof(mysql_row[j]);
-				//printf("%.2f    ", UNINT_power[i - 1][j]);
-			}
-			//printf("\n");
-			mysql_free_result(mysql_result);
+			VAR_power[i - 1][j] = atof(mysql_row[j]);
+			//printf("%.2f    ", VAR_power[i - 1][j]);
 		}
+		//printf("\n");
+		mysql_free_result(mysql_result);
+	}
 
-		for (i = 1; i < varying_num + 1; i++)   //�ܰʫ�
-		{
-		
-			snprintf(sql_buffer, sizeof(sql_buffer), "SELECT start_time, end_time,operation_time,power1,power2,power3,block1,block2,block3 FROM load_list WHERE group_id = 3 ORDER BY number ASC LIMIT %d,1", i-1);
-			mysql_query(mysql_con, sql_buffer);
-			mysql_result = mysql_store_result(mysql_con);
-			mysql_row = mysql_fetch_row(mysql_result);
-			for (j = 0; j < 9; j++)
-			{
-				VAR_power[i - 1][j] = atof(mysql_row[j]);
-				//printf("%.2f    ", VAR_power[i - 1][j]);
-			}
-			//printf("\n");
-			mysql_free_result(mysql_result);
-		}
+	// MARK: get each hour price value into array price
+	for (i = 1; i < 25; i++)
+	{
+		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT price_value FROM price WHERE price_period = %d", i-1);
+		mysql_query(mysql_con, sql_buffer);
+		mysql_result = mysql_store_result(mysql_con);
+		mysql_row = mysql_fetch_row(mysql_result);
+		price[i-1] = atof(mysql_row[0]);
+		memset(sql_buffer, 0, sizeof(sql_buffer));
+		mysql_free_result(mysql_result);
+	}
+	// MARK: interrupt_num = 12
+	int *interrupt_start = new int[interrupt_num];
+	int *interrupt_end = new int[interrupt_num];
+	int *interrupt_ot = new int[interrupt_num];
+	int *interrupt_reot = new int[interrupt_num];
+	float *interrupt_p = new float[interrupt_num];
 
-		//������e�q��
-		for (i = 1; i < 25; i++)
-		{
-			snprintf(sql_buffer, sizeof(sql_buffer), "SELECT price_value FROM price WHERE price_period = %d", i-1);
-			mysql_query(mysql_con, sql_buffer);
-			mysql_result = mysql_store_result(mysql_con);
-			mysql_row = mysql_fetch_row(mysql_result);
-			price[i-1] = atof(mysql_row[0]);					//������ˮɨ�
-			memset(sql_buffer, 0, sizeof(sql_buffer));
-			mysql_free_result(mysql_result);
-		}
-
-		/*===========================���t�ʺA�}�C�j�p=================================*/
-		int *interrupt_start = new int[interrupt_num];
-		int *interrupt_end = new int[interrupt_num];
-		int *interrupt_ot = new int[interrupt_num];
-		int *interrupt_reot = new int[interrupt_num];
-		float *interrupt_p = new float[interrupt_num];
-
+		// MARK: uninterrupt_num = 2
 		int *uninterrupt_start = new int[uninterrupt_num];
 		int *uninterrupt_end = new int[uninterrupt_num];
 		int *uninterrupt_ot = new int[uninterrupt_num];
 		int *uninterrupt_reot = new int[uninterrupt_num];
 		float *uninterrupt_p = new float[uninterrupt_num];
-		int *uninterrupt_flag = new int[uninterrupt_num];				//�X��
+		int *uninterrupt_flag = new int[uninterrupt_num];				
 
+		// MARK: varying_num = 1
 		int *varying_start = new int[varying_num];
 		int *varying_end = new int[varying_num];
 		int *varying_ot = new int[varying_num];
 		int *varying_reot = new int[varying_num];
 		int **varying_t_pow = NEW2D(varying_num, 3, int);
 		float **varying_p_pow = NEW2D(varying_num, 3, float);
-		int *varying_flag = new int[varying_num];				//�X��
+		int *varying_flag = new int[varying_num];
 
 
 	/*===========================�N�}�C��l��=================================*/
