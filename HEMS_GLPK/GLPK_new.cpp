@@ -25,7 +25,7 @@
 
 void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *interrupt_reot, float *interrupt_p, int *uninterrupt_start, int *uninterrupt_end, int *uninterrupt_ot, int *uninterrupt_reot, float *uninterrupt_p, int *uninterrupt_flag, int *varying_start, int *varying_end, int *varying_ot, int *varying_reot, int *varying_flag, int **varying_t_pow, float **varying_p_pow, int app_count, float *price, int *position)
 {
-	/*============================Àò¨ú·í«e¨t²Î®É¶¡(Get system's time)==================================*/
+	/*============================ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½eï¿½tï¿½Î®É¶ï¿½(Get system's time)==================================*/
 	//vs2015
 	// time_t t = time(NULL);
 	// struct tm now_time;
@@ -33,8 +33,8 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	//linux
 	time_t t = time(NULL);
 	struct tm now_time = *localtime(&t);
-//
-	/*============================¸ê®Æ®wÅª¨ú¦s¨ú¸ê®Æ(Database access data)===================================*/
+
+	/*============================ï¿½ï¿½Æ®wÅªï¿½ï¿½ï¿½sï¿½ï¿½ï¿½ï¿½ï¿½(Database access data)===================================*/
 	MYSQL *mysql_con = mysql_init(NULL);
 	MYSQL_RES *mysql_result;
 	MYSQL_ROW mysql_row;
@@ -50,7 +50,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	mysql_set_character_set(mysql_con, "utf8");
 	char sql_buffer[2000] = { 0 };
 
-	int *buff = new int[app_count];								//¦s©ñ³Ñ¾l°õ¦æ¦¸¼Æ(The number of remaining executions)
+	int *buff = new int[app_count];								//ï¿½sï¿½ï¿½Ñ¾lï¿½ï¿½ï¿½æ¦¸ï¿½ï¿½(The number of remaining executions)
 	for (i = 0; i < app_count; i++)
 	{
 		buff[i] = 0;
@@ -69,9 +69,9 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	printf("sample:%d", noo);
 
 
-	/*============================== ¤Ó¶§¯à°}¦C() ============================== */
-	float solar[24] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.6, 0.8, 1.6, 1.4, 2.1, 2.5, 2.8, 2.7, 1.9, 2.0, 1.4, 0.8, 0.2, 0.0, 0.0, 0.0, 0.0, 0.0 };		//´¸¤Ñ¤Ó¶§¯à  (Sunny Solar)
-//float solar[24] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2, 0.5, 0.6, 0.9, 1.3, 1.5, 1.8, 1.6, 0.9, 0.6, 0.3, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };			//³±¤Ñ¤Ó¶§¯à  (Cloudy Solar)
+	/*============================== ï¿½Ó¶ï¿½ï¿½ï¿½}ï¿½C() ============================== */
+	float solar[24] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.6, 0.8, 1.6, 1.4, 2.1, 2.5, 2.8, 2.7, 1.9, 2.0, 1.4, 0.8, 0.2, 0.0, 0.0, 0.0, 0.0, 0.0 };		//ï¿½ï¿½ï¿½Ñ¤Ó¶ï¿½ï¿½ï¿½  (Sunny Solar)
+//float solar[24] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2, 0.5, 0.6, 0.9, 1.3, 1.5, 1.8, 1.6, 0.9, 0.6, 0.3, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };			//ï¿½ï¿½ï¿½Ñ¤Ó¶ï¿½ï¿½ï¿½  (Cloudy Solar)
 //float solar[24] = { 0.0 };
 	float *price2 = new float[time_block];
 	//float *solar2 = new float[time_block];
@@ -94,7 +94,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	//}
 
 
-	for (int x = 0; x < 24; x++)							//±N¤Ó¶§¯à»P¹q»ù¸ê°T¥Ñ24­Ó=>96­Ó(¨C¤p®É=>¨C15¤ÀÄÁ) (Transform the Price and PV power array from 24 to 96)  
+	for (int x = 0; x < 24; x++)							//ï¿½Nï¿½Ó¶ï¿½ï¿½ï¿½Pï¿½qï¿½ï¿½ï¿½ï¿½Tï¿½ï¿½24ï¿½ï¿½=>96ï¿½ï¿½(ï¿½Cï¿½pï¿½ï¿½=>ï¿½C15ï¿½ï¿½ï¿½ï¿½) (Transform the Price and PV power array from 24 to 96)  
 	{
 		for (int y = x*divide; y < (x*divide) + divide; y++)
 		{
@@ -216,7 +216,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	//	solar2[i] = 0.0;
 	//}
 
-	/*=============================Åª¨ú¥Ø«e¥i¨Ï¥Îªº¹q¦ÀSOC(Read now available battery SOC)=============================*/
+	/*=============================Åªï¿½ï¿½ï¿½Ø«eï¿½iï¿½Ï¥Îªï¿½ï¿½qï¿½ï¿½SOC(Read now available battery SOC)=============================*/
 	if (sample_time != 0)
 	{
 		//snprintf(sql_buffer, sizeof(sql_buffer), "SELECT value FROM soc_block_value WHERE time = (SELECT max(time) as time FROM soc_block_value)");
@@ -225,7 +225,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		mysql_result = mysql_store_result(mysql_con);
 		mysql_row = mysql_fetch_row(mysql_result);
 		if ((atof(mysql_row[0]) / 100.0) < 1.00)
-	    	{SOC_ini = atof(mysql_row[0]);}					//Àò¨ú¦¹¨è¥i¨Ï¥Î¤§¹q¦ÀSOC
+	    	{SOC_ini = atof(mysql_row[0]);}					//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½iï¿½Ï¥Î¤ï¿½ï¿½qï¿½ï¿½SOC
 		//SOC_ini = 0.78;
 		printf("NOW REAL SOC:%f", SOC_ini);
 		memset(sql_buffer, 0, sizeof(sql_buffer));
@@ -245,7 +245,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		mysql_free_result(mysql_result);
 	}
 
-	/*=========================ÀË¬d¤£¥i¤¤Â_­t¸ü¬O§_¤w°õ¦æ(Check the uninterrupt load whether it have been run)=============================*/
+	/*=========================ï¿½Ë¬dï¿½ï¿½ï¿½iï¿½ï¿½ï¿½_ï¿½tï¿½ï¿½ï¿½Oï¿½_ï¿½wï¿½ï¿½ï¿½ï¿½(Check the uninterrupt load whether it have been run)=============================*/
 	int flag = 0;
 
 	if (sample_time != 0)
@@ -263,7 +263,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			{
 				flag += atoi(mysql_row[j]);
 			}
-			uninterrupt_flag[i] = flag;			//¤£¥i¤¤Â_­t¸ü»²§UÅÜ¼Æ¤§ºX¼Ð, 0:¥¼¶}©l°õ¦æ, 1:¤w¶}©l°õ¦æ(¬°1¥Nªí«e¤@¨è³]³Æ¤w¶}±Ò)
+			uninterrupt_flag[i] = flag;			//ï¿½ï¿½ï¿½iï¿½ï¿½ï¿½_ï¿½tï¿½ï¿½ï¿½ï¿½ï¿½Uï¿½Ü¼Æ¤ï¿½ï¿½Xï¿½ï¿½, 0:ï¿½ï¿½ï¿½}ï¿½lï¿½ï¿½ï¿½ï¿½, 1:ï¿½wï¿½}ï¿½lï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½1ï¿½Nï¿½ï¿½ï¿½eï¿½@ï¿½ï¿½]ï¿½Æ¤wï¿½}ï¿½ï¿½)
 			mysql_free_result(mysql_result);    //The flag of the uninterrupted load auxiliary variable, 0: not started, 1: started execution (1 for the first time the device is turned on)
 		}
 		for (i = 0; i < varying_num; i++)
@@ -279,12 +279,12 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			{
 				flag += atoi(mysql_row[j]);
 			}
-			varying_flag[i] = flag;			//ÅÜ°Ê­t¸ü»²§UÅÜ¼ÆºX¼Ð, 0:¥¼¶}©l°õ¦æ, 1:¤w¶}©l°õ¦æ,   ¬°1¥Nªí«e¤@¨è³]³Æ¤w¶}±Ò
+			varying_flag[i] = flag;			//ï¿½Ü°Ê­tï¿½ï¿½ï¿½ï¿½ï¿½Uï¿½Ü¼ÆºXï¿½ï¿½, 0:ï¿½ï¿½ï¿½}ï¿½lï¿½ï¿½ï¿½ï¿½, 1:ï¿½wï¿½}ï¿½lï¿½ï¿½ï¿½ï¿½,   ï¿½ï¿½1ï¿½Nï¿½ï¿½ï¿½eï¿½@ï¿½ï¿½]ï¿½Æ¤wï¿½}ï¿½ï¿½
 			mysql_free_result(mysql_result);//The flag of the varying load auxiliary variable, 0: not started, 1: started execution (1 for the first time the device is turned on)
 		}
 	}
 
-	/*====================±o¨ì¦bsample_time¥H«e³]³Æ¤w°õ¦æªº¦¸¼Æ(Get the number of times the device was executed before sample_time)=======================*/
+	/*====================ï¿½oï¿½ï¿½bsample_timeï¿½Hï¿½eï¿½]ï¿½Æ¤wï¿½ï¿½ï¿½æªºï¿½ï¿½ï¿½ï¿½(Get the number of times the device was executed before sample_time)=======================*/
 	int coun = 0;
 
 	if (sample_time != 0)
@@ -307,8 +307,8 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		}
 		mysql_free_result(mysql_result);
 	}
-	/*============================ ­pºâ®a¹q³Ñ¾l°õ¦æ®É¶¡(Calculate the remaining execution time of appliances)==============================*/
-	for (i = 0; i < interrupt_num; i++)									//¥i¤¤Â_­t¸ü (Interrupt load)
+	/*============================ ï¿½pï¿½ï¿½aï¿½qï¿½Ñ¾lï¿½ï¿½ï¿½ï¿½É¶ï¿½(Calculate the remaining execution time of appliances)==============================*/
+	for (i = 0; i < interrupt_num; i++)									//ï¿½iï¿½ï¿½ï¿½_ï¿½tï¿½ï¿½ (Interrupt load)
 	{
 		if ((interrupt_ot[i] - buff[i]) == interrupt_ot[i])
 		{
@@ -325,11 +325,11 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	}
 	for (j = 0; j < uninterrupt_num; j++)
 	{
-		if (uninterrupt_flag[j] == 0)									//¤£¥i¤¤Â_­t¸ü©|¥¼±Ò°Ê (Uninterrupted load has not yet started)
+		if (uninterrupt_flag[j] == 0)									//ï¿½ï¿½ï¿½iï¿½ï¿½ï¿½_ï¿½tï¿½ï¿½ï¿½|ï¿½ï¿½ï¿½Ò°ï¿½ (Uninterrupted load has not yet started)
 		{
 			uninterrupt_reot[j] = uninterrupt_ot[j];
 		}
-		if (uninterrupt_flag[j] == 1)									//¤£¥i¤¤Â_­t¸ü¤w±Ò°Ê(«h­×§ï­t¸ü°_¨´®É¶¡)(Uninterrupted load is started (modify load start time))
+		if (uninterrupt_flag[j] == 1)									//ï¿½ï¿½ï¿½iï¿½ï¿½ï¿½_ï¿½tï¿½ï¿½ï¿½wï¿½Ò°ï¿½(ï¿½hï¿½×§ï¿½tï¿½ï¿½ï¿½_ï¿½ï¿½ï¿½É¶ï¿½)(Uninterrupted load is started (modify load start time))
 		{
 			if (((uninterrupt_ot[j] - buff[j + interrupt_num]) < uninterrupt_ot[j]) && ((uninterrupt_ot[j] - buff[j + interrupt_num]) > 0))
 			{
@@ -347,11 +347,11 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	}
 	for (k = 0; k < varying_num; k++)
 	{
-		if (varying_flag[k] == 0)									//ÅÜ°Ê­t¸ü©|¥¼±Ò°Ê (Varying load has not yet started)
+		if (varying_flag[k] == 0)									//ï¿½Ü°Ê­tï¿½ï¿½ï¿½|ï¿½ï¿½ï¿½Ò°ï¿½ (Varying load has not yet started)
 		{
 			varying_reot[k] = varying_ot[k];
 		}
-		if (varying_flag[k] == 1)									//ÅÜ°Ê­t¸ü¤w±Ò°Ê(«h­×§ï­t¸ü°_¨´®É¶¡)(Varying load is started (modify load start time))
+		if (varying_flag[k] == 1)									//ï¿½Ü°Ê­tï¿½ï¿½ï¿½wï¿½Ò°ï¿½(ï¿½hï¿½×§ï¿½tï¿½ï¿½ï¿½_ï¿½ï¿½ï¿½É¶ï¿½)(Varying load is started (modify load start time))
 		{
 			if (((varying_ot[k] - buff[k + interrupt_num + uninterrupt_num]) < varying_ot[k]) && ((varying_ot[k] - buff[k + interrupt_num + uninterrupt_num]) > 0))
 			{
@@ -367,7 +367,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			}
 		}
 	}
-	/*=========================ÅÜ°Ê­t¸üµ²ºcªì©l¤Æ(Structure initialization of varying load)=============================*/
+	/*=========================ï¿½Ü°Ê­tï¿½ï¿½ï¿½ï¿½ï¿½cï¿½ï¿½lï¿½ï¿½(Structure initialization of varying load)=============================*/
 
 	int **varying_t_d;
 	float **varying_p_d;
@@ -384,7 +384,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			varying_p_d[i][m] = 0.0;
 		}
 	}
-	/*========================ÅÜ°Ê­t¸ü¯Ó¯à¼Ò«¬(Energy consumption model of varying load)==============================*/
+	/*========================ï¿½Ü°Ê­tï¿½ï¿½ï¿½Ó¯ï¿½Ò«ï¿½(Energy consumption model of varying load)==============================*/
 	for (i = 0; i < varying_num; i++)
 	{
 		for (j = 0; j < varying_t_pow[i][0]; j++)
@@ -404,7 +404,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		}
 	}
 
-	/*======================== ÅÜ°Ê«¬°_°W®Éµ{ÅÜ¼Æ(Start and end period variable of varying load) =========================== */
+	/*======================== ï¿½Ü°Ê«ï¿½ï¿½_ï¿½Wï¿½Éµ{ï¿½Ü¼ï¿½(Start and end period variable of varying load) =========================== */
 	for (i = 0; i < varying_num; i++)
 	{
 		if ((varying_end[i] - sample_time) >= 0)
@@ -426,7 +426,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		}
 	}
 
-	/*======================== ÅÜ°Ê«¬¥\²v³Ì¤j­È(maximum power of varying load) =========================== */
+	/*======================== ï¿½Ü°Ê«ï¿½ï¿½\ï¿½vï¿½Ì¤jï¿½ï¿½(maximum power of varying load) =========================== */
 	double *varying_p_max = new double[varying_num];
 	for (i = 0; i < varying_num; i++)
 	{
@@ -442,26 +442,26 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		//printf("varying_p_max:%f\n", varying_p_max[i]);
 	}
 
-	/*========================«Å§i®a¹q­Ó§O®É¬qÅÜ¼Æ¯x°}(Define appliances for individual time variables matrix)==============================*/
+	/*========================ï¿½Å§iï¿½aï¿½qï¿½Ó§Oï¿½É¬qï¿½Ü¼Æ¯xï¿½}(Define appliances for individual time variables matrix)==============================*/
 	//	float *s = new float[time_block - sample_time];
 	float *s = new float[time_block];
-	/*============================Á`³W¹º¥\²v¯x°}(Total planning power matrix)====================================*/
-	float **power1 = NEW2D((((time_block - sample_time) * 200) + app_count + 1), (variable * (time_block - sample_time)), float);		//A¯x°}
+	/*============================ï¿½`ï¿½Wï¿½ï¿½ï¿½\ï¿½vï¿½xï¿½}(Total planning power matrix)====================================*/
+	float **power1 = NEW2D((((time_block - sample_time) * 200) + app_count + 1), (variable * (time_block - sample_time)), float);		//Aï¿½xï¿½}
 
-	/*============================GLPK°Ñ¼Æ¯x°}©w¸q(GLPK parameter matrix definition)==================================*/
+	/*============================GLPKï¿½Ñ¼Æ¯xï¿½}ï¿½wï¿½q(GLPK parameter matrix definition)==================================*/
 	glp_prob *mip;
 	int *ia = new int[((((time_block - sample_time) * 200) + app_count + 1) * (variable * (time_block - sample_time))) + 1]; 			//Row
 	int *ja = new int[((((time_block - sample_time) * 200) + app_count + 1) * (variable * (time_block - sample_time))) + 1];			//Column
 	double *ar = new double[((((time_block - sample_time) * 200) + app_count + 1) * (variable * (time_block - sample_time))) + 1];		//structural variable
 
-	/*==============================GLPKÅÜ¼Æ«Å§i(GLPK variable definition)=====================================*/
+	/*==============================GLPKï¿½Ü¼Æ«Å§i(GLPK variable definition)=====================================*/
 	mip = glp_create_prob();
 	glp_set_prob_name(mip, "hardware_algorithm_case");
 	glp_set_obj_dir(mip, GLP_MIN);
 	glp_add_rows(mip, (((time_block - sample_time) * 200) + app_count + 1));
 	glp_add_cols(mip, (variable * (time_block - sample_time)));
 
-	/*===============================ªì©l¤Æ¯x°}(initial the matrix)======================================*/
+	/*===============================ï¿½ï¿½lï¿½Æ¯xï¿½}(initial the matrix)======================================*/
 	for (m = 0; m < (((time_block - sample_time) * 200) + app_count + 1); m++)
 	{
 		for (n = 0; n < (variable * (time_block - sample_time)); n++)
@@ -470,7 +470,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		}
 	}
 
-	/*===============================¿U®Æ¹q¦À«D½u©Ê¯S©Ê¦±½u(fuel cell's non-linear curve setting)======================================*/
+	/*===============================ï¿½Uï¿½Æ¹qï¿½ï¿½ï¿½Dï¿½uï¿½Ê¯Sï¿½Ê¦ï¿½ï¿½u(fuel cell's non-linear curve setting)======================================*/
 	//piecewise
 
 	int piecewise_num;
@@ -513,9 +513,9 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 
 
 
-	/*=============================­­¨î¦¡«Y¼Æ(Constraints coefficient)============================================*/
-	//­­¨î¦¡-®a®x­t¸ü³Ì§C¯Ó¯à(Household load minimum energy consumption)
-	for (h = 0; h < interrupt_num; h++)												//¥i¤¤Â_­t¸ü(Interrupt load)
+	/*=============================ï¿½ï¿½ï¿½î¦¡ï¿½Yï¿½ï¿½(Constraints coefficient)============================================*/
+	//ï¿½ï¿½ï¿½î¦¡-ï¿½aï¿½xï¿½tï¿½ï¿½ï¿½Ì§Cï¿½Ó¯ï¿½(Household load minimum energy consumption)
+	for (h = 0; h < interrupt_num; h++)												//ï¿½iï¿½ï¿½ï¿½_ï¿½tï¿½ï¿½(Interrupt load)
 	{
 		if ((interrupt_end[h] - sample_time) >= 0)
 		{
@@ -535,7 +535,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			}
 		}
 	}
-	for (h = 0; h < uninterrupt_num; h++)											//¤£¥i¤¤Â_­t¸ü(uninterrupt load)
+	for (h = 0; h < uninterrupt_num; h++)											//ï¿½ï¿½ï¿½iï¿½ï¿½ï¿½_ï¿½tï¿½ï¿½(uninterrupt load)
 	{
 		if (uninterrupt_flag[h] == 0)
 		{
@@ -558,7 +558,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			}
 		}
 	}
-	for (h = 0; h < varying_num; h++)											//ÅÜ°Ê­t¸ü(varying load)
+	for (h = 0; h < varying_num; h++)											//ï¿½Ü°Ê­tï¿½ï¿½(varying load)
 	{
 		if (varying_flag[h] == 0)
 		{
@@ -582,7 +582,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		}
 	}
 
-	//¨M©w¬O§_¿é¥X¥«¹q(Decide whether to buy electricity from utility)
+	//ï¿½Mï¿½wï¿½Oï¿½_ï¿½ï¿½Xï¿½ï¿½ï¿½q(Decide whether to buy electricity from utility)
 	for (i = 0; i < (time_block - sample_time); i++)
 	{
 		power1[app_count + i][i*variable + app_count] = 1.0;
@@ -592,7 +592,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		power1[app_count + i][i*variable + (app_count + 1)] = -Pgrid_max;
 	}
 
-	//¨M©w¬O§_½æ¹q	//if no sell
+	//ï¿½Mï¿½wï¿½Oï¿½_ï¿½ï¿½q	//if no sell
 	for (i = 0; i < (time_block - sample_time); i++)
 	{
 		power1[(time_block - sample_time) + app_count + i][i*variable + app_count + 5] = 1.0;
@@ -602,13 +602,13 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		power1[(time_block - sample_time) + app_count + i][i*variable + (app_count + 1)] = Psell_max;
 	}
 
-	//­­¨î¹j¤ÑSOC¥²¶·¤j©óªùÂe­È(Limit the next day SOC must be greater than the threshold)
+	//ï¿½ï¿½ï¿½ï¿½jï¿½ï¿½SOCï¿½ï¿½ï¿½ï¿½ï¿½jï¿½ï¿½ï¿½ï¿½eï¿½ï¿½(Limit the next day SOC must be greater than the threshold)
 	for (i = 0; i < (time_block - sample_time); i++)
 	{
 		power1[(time_block - sample_time) * 2 + app_count][i*variable + (app_count + 2)] = 1.0;
 	}
 
-	//­pºâ¤U¤@¨èSOC(Calculate the next moment SOC)
+	//ï¿½pï¿½ï¿½Uï¿½@ï¿½ï¿½SOC(Calculate the next moment SOC)
 	for (i = 0; i < (time_block - sample_time); i++)
 	{
 		for (j = 0; j <= i; j++)
@@ -618,8 +618,8 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		power1[(time_block - sample_time) * 2 + app_count + 1 + i][i*variable + (app_count + 6)] = Cbat * Vsys / delta_T;				//SOC
 	}
 
-	//¥­¿Å¦¡(Balanced function)
-	for (h = 0; h < interrupt_num; h++)															//¥i¤¤Â_­t¸ü(Interrupt load)
+	//ï¿½ï¿½ï¿½Å¦ï¿½(Balanced function)
+	for (h = 0; h < interrupt_num; h++)															//ï¿½iï¿½ï¿½ï¿½_ï¿½tï¿½ï¿½(Interrupt load)
 	{
 		if ((interrupt_end[h] - sample_time) >= 0)
 		{
@@ -639,7 +639,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			}
 		}
 	}
-	for (h = 0; h < uninterrupt_num; h++)														//¤£¥i¤¤Â_­t¸ü(uninterrupt load)
+	for (h = 0; h < uninterrupt_num; h++)														//ï¿½ï¿½ï¿½iï¿½ï¿½ï¿½_ï¿½tï¿½ï¿½(uninterrupt load)
 	{
 		if ((uninterrupt_end[h] - sample_time) >= 0)
 		{
@@ -659,7 +659,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			}
 		}
 	}
-	for (h = 0; h < varying_num; h++)														//ÅÜ°Ê­t¸ü¯Ó¯à(varying load)
+	for (h = 0; h < varying_num; h++)														//ï¿½Ü°Ê­tï¿½ï¿½ï¿½Ó¯ï¿½(varying load)
 	{
 		if ((varying_end[h] - sample_time) >= 0)
 		{
@@ -681,38 +681,38 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	}
 	for (i = 0; i < (time_block - sample_time); i++)
 	{
-		power1[(time_block - sample_time) * 3 + app_count + 1 + i][i*variable + app_count] = -1.0;							//¥«¹q(grid power)
+		power1[(time_block - sample_time) * 3 + app_count + 1 + i][i*variable + app_count] = -1.0;							//ï¿½ï¿½ï¿½q(grid power)
 	}
 	for (i = 0; i < (time_block - sample_time); i++)
 	{
-		power1[(time_block - sample_time) * 3 + app_count + 1 + i][i*variable + (app_count + 2)] = 1.0;						//¹q¦À(PESS)
+		power1[(time_block - sample_time) * 3 + app_count + 1 + i][i*variable + (app_count + 2)] = 1.0;						//ï¿½qï¿½ï¿½(PESS)
 	}
 	for (i = 0; i < (time_block - sample_time); i++)
 	{
-		power1[(time_block - sample_time) * 3 + app_count + 1 + i][i*variable + (app_count + 5)] = 1.0;						//ÃB¥~¹q¤O(sell power)
+		power1[(time_block - sample_time) * 3 + app_count + 1 + i][i*variable + (app_count + 5)] = 1.0;						//ï¿½Bï¿½~ï¿½qï¿½O(sell power)
 	}	//if no sell
 
 	for (i = 0; i < (time_block - sample_time); i++)
 	{
-		power1[(time_block - sample_time) * 3 + app_count + 1 + i][i*variable + (app_count + 9)] = -1.0;							//¿U®Æ¹q¦À(fuel cell)
+		power1[(time_block - sample_time) * 3 + app_count + 1 + i][i*variable + (app_count + 9)] = -1.0;							//ï¿½Uï¿½Æ¹qï¿½ï¿½(fuel cell)
 	}
 
 
-	//¥R¹q­­¨î¦¡(Charge limit)
+	//ï¿½Rï¿½qï¿½ï¿½ï¿½î¦¡(Charge limit)
 		for (i = 0; i < (time_block - sample_time); i++)
 	{
 	power1[(time_block - sample_time) * 4 + app_count + 1 + i][i*variable + (app_count + 3)] = 1.0;						//Pess +
 	power1[(time_block - sample_time) * 4 + app_count + 1 + i][i*variable + (app_count + 7)] = -Pbat_max;				//Z
 	}
 
-	//©ñ¹q­­¨î¦¡(Discharge limit)
+	//ï¿½ï¿½qï¿½ï¿½ï¿½î¦¡(Discharge limit)
 	for (i = 0; i < (time_block - sample_time); i++)
 	{
 	power1[(time_block - sample_time) * 5 + app_count + 1 + i][i*variable + (app_count + 4)] = 1.0;						//Pess -
 	power1[(time_block - sample_time) * 5 + app_count + 1 + i][i*variable + (app_count + 7)] = Pbat_min;					//Z
 	}
 
-	//¹q¦À¥\²v(Battery power)
+	//ï¿½qï¿½ï¿½ï¿½\ï¿½v(Battery power)
 	for (i = 0; i < (time_block - sample_time); i++)
 	{
 	power1[(time_block - sample_time) * 6 + app_count + 1 + i][i*variable + (app_count + 2)] = 1.0;						//Pess
@@ -763,12 +763,12 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 
 
 	int counter;
-	//¤£¥i¤¤Â_­t¸ü¤§»²§UÅÜ¼Æ(Uninterrupted load of auxiliary variables), sum = 1
+	//ï¿½ï¿½ï¿½iï¿½ï¿½ï¿½_ï¿½tï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Uï¿½Ü¼ï¿½(Uninterrupted load of auxiliary variables), sum = 1
 	counter = 0;
 	for (h = 0; h < uninterrupt_num; h++)
 	{
-		if (uninterrupt_flag[h] == 0)										//¦b¤£¥i¤¤Â_­t¸ü¥¼±Ò°Ê®É¡A¥H¤£¥i¤¤Â_¤è¦¡¶ñ¯x°}(When the uninterruptible load is not started, use the original way to fill the matrix)
-		{																	//­Y¤w±Ò°Ê´N±j­¢±N±Æµ{°_¨´®É¶¡ ±q "start®É¨è" ¨ì "start®É¨è + ³Ñ¤U¶·°õ¦æ®É¶¡"
+		if (uninterrupt_flag[h] == 0)										//ï¿½bï¿½ï¿½ï¿½iï¿½ï¿½ï¿½_ï¿½tï¿½ï¿½ï¿½ï¿½ï¿½Ò°Ê®É¡Aï¿½Hï¿½ï¿½ï¿½iï¿½ï¿½ï¿½_ï¿½è¦¡ï¿½ï¿½xï¿½}(When the uninterruptible load is not started, use the original way to fill the matrix)
+		{																	//ï¿½Yï¿½wï¿½Ò°Ê´Nï¿½jï¿½ï¿½ï¿½Nï¿½Æµ{ï¿½_ï¿½ï¿½ï¿½É¶ï¿½ ï¿½q "startï¿½É¨ï¿½" ï¿½ï¿½ "startï¿½É¨ï¿½ + ï¿½Ñ¤Uï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É¶ï¿½"
 			if ((uninterrupt_end[h] - sample_time) >= 0)                    //If it is already started, it will force the schedule to start from "start time" to "start time + left to be executed"
 			{
 				if ((uninterrupt_start[h] - sample_time) >= 0)
@@ -789,11 +789,11 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			counter += 1;
 		}
 	}
-	//ÅÜ°Ê­t¸ü¤§»²§UÅÜ¼Æ(Varying load of auxiliary variables), sum = 1
+	//ï¿½Ü°Ê­tï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Uï¿½Ü¼ï¿½(Varying load of auxiliary variables), sum = 1
 	for (h = 0; h < varying_num; h++)
 	{
-		if (varying_flag[h] == 0)										//¦bÅÜ°Ê­t¸ü¥¼±Ò°Ê®É¡A¥H¤£¥i¤¤Â_¤è¦¡¶ñ¯x°}(When the varying load is not started, use the original way to fill the matrix)
-		{																//­Y¤w±Ò°Ê´N±j­¢±N±Æµ{°_¨´®É¶¡ ±q "start®É¨è" ¨ì "start®É¨è + ³Ñ¤U¶·°õ¦æ®É¶¡"
+		if (varying_flag[h] == 0)										//ï¿½bï¿½Ü°Ê­tï¿½ï¿½ï¿½ï¿½ï¿½Ò°Ê®É¡Aï¿½Hï¿½ï¿½ï¿½iï¿½ï¿½ï¿½_ï¿½è¦¡ï¿½ï¿½xï¿½}(When the varying load is not started, use the original way to fill the matrix)
+		{																//ï¿½Yï¿½wï¿½Ò°Ê´Nï¿½jï¿½ï¿½ï¿½Nï¿½Æµ{ï¿½_ï¿½ï¿½ï¿½É¶ï¿½ ï¿½q "startï¿½É¨ï¿½" ï¿½ï¿½ "startï¿½É¨ï¿½ + ï¿½Ñ¤Uï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É¶ï¿½"
 			if ((varying_end[h] - sample_time) >= 0)	                ////If it is already started, it will force the schedule to start from "start time" to "start time + left to be executed"
 			{
 				if ((varying_start[h] - sample_time) >= 0)
@@ -819,9 +819,9 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	n = 0+ piecewise_num;
 	for (h = 0; h < uninterrupt_num; h++)
 	{
-		if (uninterrupt_flag[h] == 0)										//¦b¤£¥i¤¤Â_­t¸ü¥¼±Ò°Ê®É
+		if (uninterrupt_flag[h] == 0)										//ï¿½bï¿½ï¿½ï¿½iï¿½ï¿½ï¿½_ï¿½tï¿½ï¿½ï¿½ï¿½ï¿½Ò°Ê®ï¿½
 		{
-			//¤£¥i¤¤Â_­t¸ü¨Mµ¦ÅÜ¼Æ
+			//ï¿½ï¿½ï¿½iï¿½ï¿½ï¿½_ï¿½tï¿½ï¿½ï¿½Mï¿½ï¿½ï¿½Ü¼ï¿½
 			for (k = (10 + n), m = 0; k < (10 + n) + uninterrupt_reot[h], m < uninterrupt_reot[h]; k++, m++)
 			{
 				if ((uninterrupt_end[h] - sample_time) >= 0)
@@ -830,23 +830,23 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 					{
 						for (i = (uninterrupt_start[h] - sample_time); i <= ((uninterrupt_end[h] - uninterrupt_reot[h] + 1) - sample_time); i++)
 						{
-							power1[(time_block - sample_time) * k + app_count + 2 + counter + i][(i + m)*variable + h + interrupt_num] = 1.0;									//¤£¥i¤¤Â_­t¸ü¨Mµ¦ÅÜ¼Æ
-							power1[(time_block - sample_time) * k + app_count + 2 + counter + i][i*variable + h + (variable - uninterrupt_num - (varying_num * 2))] = -1.0;	//¤£¥i¤¤Â_­t¸ü¤G¤¸»²§UÅÜ¼Æ
+							power1[(time_block - sample_time) * k + app_count + 2 + counter + i][(i + m)*variable + h + interrupt_num] = 1.0;									//ï¿½ï¿½ï¿½iï¿½ï¿½ï¿½_ï¿½tï¿½ï¿½ï¿½Mï¿½ï¿½ï¿½Ü¼ï¿½
+							power1[(time_block - sample_time) * k + app_count + 2 + counter + i][i*variable + h + (variable - uninterrupt_num - (varying_num * 2))] = -1.0;	//ï¿½ï¿½ï¿½iï¿½ï¿½ï¿½_ï¿½tï¿½ï¿½ï¿½Gï¿½ï¿½ï¿½ï¿½ï¿½Uï¿½Ü¼ï¿½
 						}
 					}
 					else if ((uninterrupt_start[h] - sample_time) < 0)
 					{
 						for (i = 0; i <= ((uninterrupt_end[h] - uninterrupt_reot[h] + 1) - sample_time); i++)
 						{
-							power1[(time_block - sample_time) * k + app_count + 2 + counter + i][(i + m)*variable + h + interrupt_num] = 1.0;									//¤£¥i¤¤Â_­t¸ü¨Mµ¦ÅÜ¼Æ
-							power1[(time_block - sample_time) * k + app_count + 2 + counter + i][i*variable + h + (variable - uninterrupt_num - (varying_num * 2))] = -1.0;	//¤£¥i¤¤Â_­t¸ü¤G¤¸»²§UÅÜ¼Æ
+							power1[(time_block - sample_time) * k + app_count + 2 + counter + i][(i + m)*variable + h + interrupt_num] = 1.0;									//ï¿½ï¿½ï¿½iï¿½ï¿½ï¿½_ï¿½tï¿½ï¿½ï¿½Mï¿½ï¿½ï¿½Ü¼ï¿½
+							power1[(time_block - sample_time) * k + app_count + 2 + counter + i][i*variable + h + (variable - uninterrupt_num - (varying_num * 2))] = -1.0;	//ï¿½ï¿½ï¿½iï¿½ï¿½ï¿½_ï¿½tï¿½ï¿½ï¿½Gï¿½ï¿½ï¿½ï¿½ï¿½Uï¿½Ü¼ï¿½
 						}
 					}
 				}
 			}
 			n += uninterrupt_reot[h];
 		}
-		//¦b¤£¥i¤¤Â_­t¸ü¤w±Ò°Ê®É(¦]°_¨´®É¶¡¤w³Q±j­¢­×§ï)
+		//ï¿½bï¿½ï¿½ï¿½iï¿½ï¿½ï¿½_ï¿½tï¿½ï¿½ï¿½wï¿½Ò°Ê®ï¿½(ï¿½]ï¿½_ï¿½ï¿½ï¿½É¶ï¿½ï¿½wï¿½Qï¿½jï¿½ï¿½ï¿½×§ï¿½)
 		if (uninterrupt_flag[h] == 1)
 		{
 			if ((uninterrupt_end[h] - sample_time) >= 0)
@@ -855,7 +855,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 				{
 					for (i = 0; i <= (uninterrupt_end[h] - sample_time); i++)
 					{
-						power1[(time_block - sample_time) * (10 + n) + app_count + 2 + counter + i][i * variable + h + interrupt_num] = 1.0;										//¤£¥i¤¤Â_­t¸ü¨Mµ¦ÅÜ¼Æ
+						power1[(time_block - sample_time) * (10 + n) + app_count + 2 + counter + i][i * variable + h + interrupt_num] = 1.0;										//ï¿½ï¿½ï¿½iï¿½ï¿½ï¿½_ï¿½tï¿½ï¿½ï¿½Mï¿½ï¿½ï¿½Ü¼ï¿½
 					}
 				}
 				n += 1;
@@ -864,9 +864,9 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	}
 	for (h = 0; h < varying_num; h++)
 	{
-		if (varying_flag[h] == 0)										//¦bÅÜ°Ê­t¸ü¥¼±Ò°Ê®É
+		if (varying_flag[h] == 0)										//ï¿½bï¿½Ü°Ê­tï¿½ï¿½ï¿½ï¿½ï¿½Ò°Ê®ï¿½
 		{
-			//ÅÜ°Ê­t¸ü¨Mµ¦ÅÜ¼Æ
+			//ï¿½Ü°Ê­tï¿½ï¿½ï¿½Mï¿½ï¿½ï¿½Ü¼ï¿½
 			for (k = (10 + n), m = 0; k < (10 + n) + varying_reot[h], m < varying_reot[h]; k++, m++)
 			{
 				if ((varying_end[h] - sample_time) >= 0)
@@ -875,23 +875,23 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 					{
 						for (i = (varying_start[h] - sample_time); i <= ((varying_end[h] - varying_reot[h] + 1) - sample_time); i++)
 						{
-							power1[(time_block - sample_time) * k + app_count + 2 + counter + i][(i + m)*variable + h + (interrupt_num + uninterrupt_num)] = 1.0;				//ÅÜ°Ê­t¸ü¨Mµ¦ÅÜ¼Æ
-							power1[(time_block - sample_time) * k + app_count + 2 + counter + i][i*variable + h + (variable - (varying_num * 2))] = -1.0;					//ÅÜ°Ê­t¸ü¤G¤¸»²§UÅÜ¼Æ
+							power1[(time_block - sample_time) * k + app_count + 2 + counter + i][(i + m)*variable + h + (interrupt_num + uninterrupt_num)] = 1.0;				//ï¿½Ü°Ê­tï¿½ï¿½ï¿½Mï¿½ï¿½ï¿½Ü¼ï¿½
+							power1[(time_block - sample_time) * k + app_count + 2 + counter + i][i*variable + h + (variable - (varying_num * 2))] = -1.0;					//ï¿½Ü°Ê­tï¿½ï¿½ï¿½Gï¿½ï¿½ï¿½ï¿½ï¿½Uï¿½Ü¼ï¿½
 						}
 					}
 					else if ((varying_start[h] - sample_time) < 0)
 					{
 						for (i = 0; i <= ((varying_end[h] - varying_reot[h] + 1) - sample_time); i++)
 						{
-							power1[(time_block - sample_time) * k + app_count + 2 + counter + i][(i + m)*variable + h + (interrupt_num + uninterrupt_num)] = 1.0;				//ÅÜ°Ê­t¸ü¨Mµ¦ÅÜ¼Æ
-							power1[(time_block - sample_time) * k + app_count + 2 + counter + i][i*variable + h + (variable - (varying_num * 2))] = -1.0;					//ÅÜ°Ê­t¸ü¤G¤¸»²§UÅÜ¼Æ
+							power1[(time_block - sample_time) * k + app_count + 2 + counter + i][(i + m)*variable + h + (interrupt_num + uninterrupt_num)] = 1.0;				//ï¿½Ü°Ê­tï¿½ï¿½ï¿½Mï¿½ï¿½ï¿½Ü¼ï¿½
+							power1[(time_block - sample_time) * k + app_count + 2 + counter + i][i*variable + h + (variable - (varying_num * 2))] = -1.0;					//ï¿½Ü°Ê­tï¿½ï¿½ï¿½Gï¿½ï¿½ï¿½ï¿½ï¿½Uï¿½Ü¼ï¿½
 						}
 					}
 				}
 			}
 			n += varying_reot[h];
 		}
-		//¦bÅÜ°Ê­t¸ü¤w±Ò°Ê®É(¦]°_¨´®É¶¡¤w³Q±j­¢­×§ï)
+		//ï¿½bï¿½Ü°Ê­tï¿½ï¿½ï¿½wï¿½Ò°Ê®ï¿½(ï¿½]ï¿½_ï¿½ï¿½ï¿½É¶ï¿½ï¿½wï¿½Qï¿½jï¿½ï¿½ï¿½×§ï¿½)
 		if (varying_flag[h] == 1)
 		{
 			if ((varying_end[h] - sample_time) >= 0)
@@ -900,7 +900,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 				{
 					for (i = 0; i <= (varying_end[h] - sample_time); i++)
 					{
-						power1[(time_block - sample_time) * (10 + n) + app_count + 2 + counter + i][i*variable + h + (interrupt_num + uninterrupt_num)] = 1.0;					//ÅÜ°Ê­t¸ü¨Mµ¦ÅÜ¼Æ
+						power1[(time_block - sample_time) * (10 + n) + app_count + 2 + counter + i][i*variable + h + (interrupt_num + uninterrupt_num)] = 1.0;					//ï¿½Ü°Ê­tï¿½ï¿½ï¿½Mï¿½ï¿½ï¿½Ü¼ï¿½
 					}
 				}
 				n += 1;
@@ -909,7 +909,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	}
 
 
-	//ÅÜ°Ê«¬­t¸ü¯Ó¯àPa
+	//ï¿½Ü°Ê«ï¿½ï¿½tï¿½ï¿½ï¿½Ó¯ï¿½Pa
 	for (h = 0; h < varying_num; h++)
 	{
 		if (varying_flag[h] == 0)
@@ -923,7 +923,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 						for (i = (varying_start[h] - sample_time); i <= ((varying_end[h] - varying_reot[h] + 1) - sample_time); i++)
 						{
 							power1[(time_block - sample_time) * k + app_count + 2 + counter + i][(i * variable) + h + (variable - (varying_num * 2))] = -1.0 * (((float)varying_t_d[h][i]) * (varying_p_d[h][m]));
-							power1[(time_block - sample_time) * k + app_count + 2 + counter + i][((i + m) * variable) + h + (variable - varying_num)] = 1.0;    //»²§UÅÜ¼ÆPa 
+							power1[(time_block - sample_time) * k + app_count + 2 + counter + i][((i + m) * variable) + h + (variable - varying_num)] = 1.0;    //ï¿½ï¿½ï¿½Uï¿½Ü¼ï¿½Pa 
 						}
 					}
 					else if ((varying_start[h] - sample_time) < 0)
@@ -931,7 +931,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 						for (i = 0; i <= ((varying_end[h] - varying_reot[h] + 1) - sample_time); i++)
 						{
 							power1[(time_block - sample_time) * k + app_count + 2 + counter + i][(i * variable) + h + (variable - (varying_num * 2))] = -1.0 * (((float)varying_t_d[h][i]) * (varying_p_d[h][m]));
-							power1[(time_block - sample_time) * k + app_count + 2 + counter + i][((i + m) * variable) + h + (variable - varying_num)] = 1.0;    //»²§UÅÜ¼ÆPa 
+							power1[(time_block - sample_time) * k + app_count + 2 + counter + i][((i + m) * variable) + h + (variable - varying_num)] = 1.0;    //ï¿½ï¿½ï¿½Uï¿½Ü¼ï¿½Pa 
 						}
 					}
 				}
@@ -940,7 +940,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		}
 		if (varying_flag[h] == 1)
 		{
-			//hÂX¼W			
+			//hï¿½Xï¿½W			
 			if ((varying_end[h] - sample_time) >= 0)
 			{
 				if ((varying_start[h] - sample_time) >= 0)
@@ -948,7 +948,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 					for (i = (varying_start[h] - sample_time); i <= (varying_end[h] - sample_time); i++)
 					{
 						power1[(time_block - sample_time) * (10 + n) + app_count + 2 + counter + i][(i * variable) + h + interrupt_num + uninterrupt_num] = -1.0 * ((float)(varying_t_d[h][i]) * (varying_p_d[h][i + buff[h + interrupt_num + uninterrupt_num]]));
-						power1[(time_block - sample_time) * (10 + n) + app_count + 2 + counter + i][(i * variable) + h + (variable - varying_num)] = 1.0;    //»²§UÅÜ¼ÆPa 
+						power1[(time_block - sample_time) * (10 + n) + app_count + 2 + counter + i][(i * variable) + h + (variable - varying_num)] = 1.0;    //ï¿½ï¿½ï¿½Uï¿½Ü¼ï¿½Pa 
 					}
 				}
 				else if ((varying_start[h] - sample_time) < 0)
@@ -956,7 +956,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 					for (i = 0; i <= (varying_end[h] - sample_time); i++)
 					{
 						power1[(time_block - sample_time) * (10 + n) + app_count + 2 + counter + i][(i * variable) + h + interrupt_num + uninterrupt_num] = -1.0 * ((float)(varying_t_d[h][i]) * (varying_p_d[h][i + buff[h + interrupt_num + uninterrupt_num]]));
-						power1[(time_block - sample_time) * (10 + n) + app_count + 2 + counter + i][(i * variable) + h + (variable - varying_num)] = 1.0;    //»²§UÅÜ¼ÆPa 
+						power1[(time_block - sample_time) * (10 + n) + app_count + 2 + counter + i][(i * variable) + h + (variable - varying_num)] = 1.0;    //ï¿½ï¿½ï¿½Uï¿½Ü¼ï¿½Pa 
 					}
 				}
 			}
@@ -966,16 +966,16 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 
 
 
-	/*==============================«Å§i­­¨î¦¡±ø¥ó½d³ò(row)===============================*/
-	//GLPKÅª¦C±q1¶}©l
-	//­­¨î¦¡-®a®x­t¸ü³Ì§C¯Ó¯à
-	for (i = 1; i <= interrupt_num; i++)								//¥i¤¤Â_­t¸ü(Interrupt load)
+	/*==============================ï¿½Å§iï¿½ï¿½ï¿½î¦¡ï¿½ï¿½ï¿½ï¿½dï¿½ï¿½(row)===============================*/
+	//GLPKÅªï¿½Cï¿½q1ï¿½}ï¿½l
+	//ï¿½ï¿½ï¿½î¦¡-ï¿½aï¿½xï¿½tï¿½ï¿½ï¿½Ì§Cï¿½Ó¯ï¿½
+	for (i = 1; i <= interrupt_num; i++)								//ï¿½iï¿½ï¿½ï¿½_ï¿½tï¿½ï¿½(Interrupt load)
 	{
 		glp_set_row_name(mip, i, "");
 		//glp_set_row_bnds(mip, i, GLP_LO, ((float)interrupt_reot[i - 1]), 0.0);
 		glp_set_row_bnds(mip, i, GLP_LO, ((float)interrupt_reot[i - 1]), 0.0);//ok
 	}
-	for (i = 1; i <= uninterrupt_num; i++)								//¤£¥i¤¤Â_­t¸ü
+	for (i = 1; i <= uninterrupt_num; i++)								//ï¿½ï¿½ï¿½iï¿½ï¿½ï¿½_ï¿½tï¿½ï¿½
 	{
 		if (uninterrupt_flag[i] == 0)
 		{
@@ -984,7 +984,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		    glp_set_row_bnds(mip, i + interrupt_num, GLP_LO, ((float)uninterrupt_reot[i - 1]), ((float)uninterrupt_reot[i - 1]));//ok
 		}
 	}
-	for (i = 1; i <= varying_num; i++)								//ÅÜ°Ê­t¸ü
+	for (i = 1; i <= varying_num; i++)								//ï¿½Ü°Ê­tï¿½ï¿½
 	{
 		if (varying_flag[i] == 0)
 		{
@@ -995,21 +995,21 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		}
 	}
 
-	//¨M©w¬O§_¿é¥X¥«¹q
+	//ï¿½Mï¿½wï¿½Oï¿½_ï¿½ï¿½Xï¿½ï¿½ï¿½q
 	for (i = 1; i <= (time_block - sample_time); i++)
 	{
 		glp_set_row_name(mip, (app_count + i), "");
 		glp_set_row_bnds(mip, (app_count + i), GLP_UP, 0.0, 0.0);
 	}
 
-	//if no sell//¨M©w¬O§_½æ¹q
+	//if no sell//ï¿½Mï¿½wï¿½Oï¿½_ï¿½ï¿½q
 	for (i = 1; i <= (time_block - sample_time); i++)
 	{
 		glp_set_row_name(mip, ((time_block - sample_time) + app_count + i), "");
 		glp_set_row_bnds(mip, ((time_block - sample_time) + app_count + i), GLP_UP, 0.0, Psell_max);
 	}
 
-	//­­¨î¹j¤ÑSOC¥²¶·¤j©óªùÂe­È (1)
+	//ï¿½ï¿½ï¿½ï¿½jï¿½ï¿½SOCï¿½ï¿½ï¿½ï¿½ï¿½jï¿½ï¿½ï¿½ï¿½eï¿½ï¿½ (1)
 	glp_set_row_name(mip, ((time_block - sample_time) * 2 + app_count + 1), "");
 	if (sample_time == 0)
 	{
@@ -1017,42 +1017,42 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	}
 	else
 	{
-		glp_set_row_bnds(mip, ((time_block - sample_time) * 2 + app_count + 1), GLP_DB, ((SOC_thres - SOC_ini) * Cbat * Vsys) / delta_T, ((0.89 - SOC_ini) * Cbat * Vsys) / delta_T); //¤ñ¸û¯à°÷¸Ñªº¥X¨Ó
-		//glp_set_row_bnds(mip, ((time_block - sample_time) * 2 + app_count + 1), GLP_DB, ((0.6 - SOC_ini) * Cbat * Vsys) / delta_T, ((0.89 - SOC_ini) * Cbat * Vsys) / delta_T); //¤ñ¸û¯à°÷¸Ñªº¥X¨Ó
+		glp_set_row_bnds(mip, ((time_block - sample_time) * 2 + app_count + 1), GLP_DB, ((SOC_thres - SOC_ini) * Cbat * Vsys) / delta_T, ((0.89 - SOC_ini) * Cbat * Vsys) / delta_T); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñªï¿½ï¿½Xï¿½ï¿½
+		//glp_set_row_bnds(mip, ((time_block - sample_time) * 2 + app_count + 1), GLP_DB, ((0.6 - SOC_ini) * Cbat * Vsys) / delta_T, ((0.89 - SOC_ini) * Cbat * Vsys) / delta_T); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñªï¿½ï¿½Xï¿½ï¿½
 	}
 	
 
-	//­­¨î¤U¤@¨èSOC
+	//ï¿½ï¿½ï¿½ï¿½Uï¿½@ï¿½ï¿½SOC
 	for (i = 1; i <= (time_block - sample_time); i++)
 	{
 		glp_set_row_name(mip, ((time_block - sample_time) * 2 + app_count + 1 + i), "");
 		glp_set_row_bnds(mip, ((time_block - sample_time) * 2 + app_count + 1 + i), GLP_FX, (SOC_ini * Cbat * Vsys / delta_T), (SOC_ini * Cbat * Vsys / delta_T));
 	}
 
-	//¥­¿Å¦¡
+	//ï¿½ï¿½ï¿½Å¦ï¿½
 	for (i = 1; i <= (time_block - sample_time); i++)
 	{
 		glp_set_row_name(mip, ((time_block - sample_time) * 3 + app_count + 1 + i), "");
-		//glp_set_row_bnds(mip, ((time_block - sample_time) * 3 + app_count + 1 + i), GLP_FX, solar2[i - 1 + sample_time], solar2[i - 1 + sample_time]);  //¤ñ¸ûÄY­VÅÜ¼Æmax­È¤Ó¤p·|¸Ñ¤£¥X¨Ó
-		//glp_set_row_bnds(mip, ((time_block - sample_time) * 3 + app_count + 1 + i), GLP_UP, solar2[i - 1 + sample_time], solar2[i - 1 + sample_time]);    //¥Î©óÅÜ¼Æmax­È¥i¥H¥ô·N§ïÅÜ®É
-		glp_set_row_bnds(mip, ((time_block - sample_time) * 3 + app_count + 1 + i), GLP_DB, -0.0001, solar2[i - 1 + sample_time]);    //¤£·|¶Ã©ñ¹q
+		//glp_set_row_bnds(mip, ((time_block - sample_time) * 3 + app_count + 1 + i), GLP_FX, solar2[i - 1 + sample_time], solar2[i - 1 + sample_time]);  //ï¿½ï¿½ï¿½ï¿½Yï¿½Vï¿½Ü¼ï¿½maxï¿½È¤Ó¤pï¿½|ï¿½Ñ¤ï¿½ï¿½Xï¿½ï¿½
+		//glp_set_row_bnds(mip, ((time_block - sample_time) * 3 + app_count + 1 + i), GLP_UP, solar2[i - 1 + sample_time], solar2[i - 1 + sample_time]);    //ï¿½Î©ï¿½ï¿½Ü¼ï¿½maxï¿½È¥iï¿½Hï¿½ï¿½ï¿½Nï¿½ï¿½ï¿½Ü®ï¿½
+		glp_set_row_bnds(mip, ((time_block - sample_time) * 3 + app_count + 1 + i), GLP_DB, -0.0001, solar2[i - 1 + sample_time]);    //ï¿½ï¿½ï¿½|ï¿½Ã©ï¿½q
 	}
 
-	//¥R¹q­­¨î¦¡
+	//ï¿½Rï¿½qï¿½ï¿½ï¿½î¦¡
 	for (i = 1; i <= (time_block - sample_time); i++)
 	{
 	glp_set_row_name(mip, ((time_block - sample_time) * 4 + app_count + 1 + i), "");
 	glp_set_row_bnds(mip, ((time_block - sample_time) * 4 + app_count + 1 + i), GLP_UP, 0.0, 0.0);
 	}
 
-	//©ñ¹q­­¨î¦¡
+	//ï¿½ï¿½qï¿½ï¿½ï¿½î¦¡
 	for (i = 1; i <= (time_block - sample_time); i++)
 	{
 	glp_set_row_name(mip, ((time_block - sample_time) * 5 + app_count + 1 + i), "");
 	glp_set_row_bnds(mip, ((time_block - sample_time) * 5 + app_count + 1 + i), GLP_UP, 0.0, Pbat_min);
 	}
 
-	//¹q¦À¥\²v
+	//ï¿½qï¿½ï¿½ï¿½\ï¿½v
 	for (i = 1; i <= (time_block - sample_time); i++)
 	{
 	glp_set_row_name(mip, ((time_block - sample_time) * 6 + app_count + 1 + i), "");
@@ -1096,7 +1096,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	{
 		if (uninterrupt_flag[h] == 0)
 		{
-			//¤£¥i¤¤Â_­t¸ü¤§»²§UÅÜ¼Æ, sum = 1
+			//ï¿½ï¿½ï¿½iï¿½ï¿½ï¿½_ï¿½tï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Uï¿½Ü¼ï¿½, sum = 1
 			glp_set_row_name(mip, ((time_block - sample_time) * (10 + piecewise_num) + app_count + 2 + counter), "");
 			glp_set_row_bnds(mip, ((time_block - sample_time) * (10 + piecewise_num) + app_count + 2 + counter), GLP_FX, 1.0, 1.0);
 
@@ -1107,7 +1107,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	{
 		if (varying_flag[h] == 0)
 		{
-			//ÅÜ°Ê­t¸ü¤§»²§UÅÜ¼Æ, sum = 1
+			//ï¿½Ü°Ê­tï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Uï¿½Ü¼ï¿½, sum = 1
 			glp_set_row_name(mip, ((time_block - sample_time) * (10 + piecewise_num) + app_count + 2 + counter), "");
 			glp_set_row_bnds(mip, ((time_block - sample_time) * (10 + piecewise_num) + app_count + 2 + counter), GLP_FX, 1.0, 1.0);
 
@@ -1120,7 +1120,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	{
 		if (uninterrupt_flag[h] == 0)
 		{
-			//¤£¥i¤¤Â_­t¸ü¨Mµ¦ÅÜ¼Æ
+			//ï¿½ï¿½ï¿½iï¿½ï¿½ï¿½_ï¿½tï¿½ï¿½ï¿½Mï¿½ï¿½ï¿½Ü¼ï¿½
 			for (k = (10 + n); k < (10 + n) + uninterrupt_reot[h]; k++)
 			{
 				for (i = ((time_block - sample_time)*k + app_count + 2 + counter); i < ((time_block - sample_time)*(k + 1) + app_count + 2 + counter); i++)
@@ -1153,7 +1153,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	{
 		if (varying_flag[h] == 0)
 		{
-			//ÅÜ°Ê­t¸ü¨Mµ¦ÅÜ¼Æ
+			//ï¿½Ü°Ê­tï¿½ï¿½ï¿½Mï¿½ï¿½ï¿½Ü¼ï¿½
 			for (k = (10 + n); k < (10 + n) + varying_reot[h]; k++)
 			{
 				for (i = ((time_block - sample_time)*k + app_count + 2 + counter); i < ((time_block - sample_time)*(k + 1) + app_count + 2 + counter); i++)
@@ -1180,7 +1180,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		}
 	}
 
-	//ÅÜ°Ê«¬­t¸ü¯Ó¯àPa	
+	//ï¿½Ü°Ê«ï¿½ï¿½tï¿½ï¿½ï¿½Ó¯ï¿½Pa	
 	for (h = 0; h < varying_num; h++)
 	{
 		if (varying_flag[h] == 0)
@@ -1206,17 +1206,17 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		}
 	}
 
-	/*==============================«Å§i¨Mµ¦ÅÜ¼Æ(column)================================*/
+	/*==============================ï¿½Å§iï¿½Mï¿½ï¿½ï¿½Ü¼ï¿½(column)================================*/
 	for (i = 0; i < (time_block - sample_time); i++)
 	{
 		for (j = 1; j <= app_count; j++)
 		{
-			glp_set_col_bnds(mip, (j + i*variable), GLP_DB, 0.0, 1.0);															//­t¸ü¨Mµ¦ÅÜ¼Æ
+			glp_set_col_bnds(mip, (j + i*variable), GLP_DB, 0.0, 1.0);															//ï¿½tï¿½ï¿½ï¿½Mï¿½ï¿½ï¿½Ü¼ï¿½
 			glp_set_col_kind(mip, (j + i*variable), GLP_BV);
 		}
-		glp_set_col_bnds(mip, ((app_count + 1) + i*variable), GLP_DB, 0.0, Pgrid_max);									      //¨M©w¥«¹q¿é¥X¥\²v   ¤@©w­n¤j©óÁ`­t¸ü¥\²v¤~¤£·|¦³¤Ó¤j°ÝÃD
+		glp_set_col_bnds(mip, ((app_count + 1) + i*variable), GLP_DB, 0.0, Pgrid_max);									      //ï¿½Mï¿½wï¿½ï¿½ï¿½qï¿½ï¿½Xï¿½\ï¿½v   ï¿½@ï¿½wï¿½nï¿½jï¿½ï¿½ï¿½`ï¿½tï¿½ï¿½ï¿½\ï¿½vï¿½~ï¿½ï¿½ï¿½|ï¿½ï¿½ï¿½Ó¤jï¿½ï¿½ï¿½D
 		glp_set_col_kind(mip, ((app_count + 1) + i*variable), GLP_CV);
-		glp_set_col_bnds(mip, ((app_count + 2) + i*variable), GLP_DB, 0.0, 1.0);												//¨M©w¥«¹q¬O§_¿é¥X¤G¤¸»²§UÅÜ¼Æ
+		glp_set_col_bnds(mip, ((app_count + 2) + i*variable), GLP_DB, 0.0, 1.0);												//ï¿½Mï¿½wï¿½ï¿½ï¿½qï¿½Oï¿½_ï¿½ï¿½Xï¿½Gï¿½ï¿½ï¿½ï¿½ï¿½Uï¿½Ü¼ï¿½
 		glp_set_col_kind(mip, ((app_count + 2) + i*variable), GLP_BV);
 		glp_set_col_bnds(mip, ((app_count + 3) + i*variable), GLP_DB, -Pbat_min, Pbat_max);										//Pess
 		glp_set_col_kind(mip, ((app_count + 3) + i*variable), GLP_CV);
@@ -1224,10 +1224,10 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		glp_set_col_kind(mip, ((app_count + 4) + i*variable), GLP_CV);
 		glp_set_col_bnds(mip, ((app_count + 5) + i*variable), GLP_FR, 0.0, Pbat_min);											//Pess -
 		glp_set_col_kind(mip, ((app_count + 5) + i*variable), GLP_CV);
-		//glp_set_col_bnds(mip, ((app_count + 6) + i*variable), GLP_DB, 0.0, Psell_max);							                //ÃB¥~¹q¤O//if no sell
-		glp_set_col_bnds(mip, ((app_count + 6) + i*variable), GLP_DB, -0.00000000001, Psell_max);							                //ÃB¥~¹q¤O//if no sell
+		//glp_set_col_bnds(mip, ((app_count + 6) + i*variable), GLP_DB, 0.0, Psell_max);							                //ï¿½Bï¿½~ï¿½qï¿½O//if no sell
+		glp_set_col_bnds(mip, ((app_count + 6) + i*variable), GLP_DB, -0.00000000001, Psell_max);							                //ï¿½Bï¿½~ï¿½qï¿½O//if no sell
 		glp_set_col_kind(mip, ((app_count + 6) + i*variable), GLP_CV);
-		glp_set_col_bnds(mip, ((app_count + 7) + i*variable), GLP_DB, SOC_min, SOC_max);										//¹q¦ÀSOC //if no sell
+		glp_set_col_bnds(mip, ((app_count + 7) + i*variable), GLP_DB, SOC_min, SOC_max);										//ï¿½qï¿½ï¿½SOC //if no sell
 		glp_set_col_kind(mip, ((app_count + 7) + i*variable), GLP_CV);
 		glp_set_col_bnds(mip, ((app_count + 8) + i*variable), GLP_DB, 0.0, 1.0);												//Z
 		glp_set_col_kind(mip, ((app_count + 8) + i*variable), GLP_BV);
@@ -1252,37 +1252,37 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 
 		for (j = 1; j <= uninterrupt_num; j++)
 		{
-			glp_set_col_bnds(mip, ((app_count + 11 + piecewise_num * 2 + j) + i*variable), GLP_DB, 0.0, 1.0);	                 //¤£¥i¤¤Â_­t¸ü»²§U¤G¤¸ÅÜ¼Æ
+			glp_set_col_bnds(mip, ((app_count + 11 + piecewise_num * 2 + j) + i*variable), GLP_DB, 0.0, 1.0);	                 //ï¿½ï¿½ï¿½iï¿½ï¿½ï¿½_ï¿½tï¿½ï¿½ï¿½ï¿½ï¿½Uï¿½Gï¿½ï¿½ï¿½Ü¼ï¿½
 			glp_set_col_kind(mip, ((app_count + 11 + piecewise_num * 2 + j) + i*variable), GLP_BV);
 		}
 
 		for (j = 1; j <= varying_num; j++)
 		{
-			glp_set_col_bnds(mip, ((app_count + 11 + piecewise_num * 2 + uninterrupt_num + j) + i*variable), GLP_DB, 0.0, 1.0);						//ÅÜ°Ê­t¸ü»²§U¤G¤¸ÅÜ¼Æ
+			glp_set_col_bnds(mip, ((app_count + 11 + piecewise_num * 2 + uninterrupt_num + j) + i*variable), GLP_DB, 0.0, 1.0);						//ï¿½Ü°Ê­tï¿½ï¿½ï¿½ï¿½ï¿½Uï¿½Gï¿½ï¿½ï¿½Ü¼ï¿½
 			glp_set_col_kind(mip, ((app_count + 11 + piecewise_num * 2 + uninterrupt_num + j) + i*variable), GLP_BV);
 		}
 
 		for (j = 1; j <= varying_num; j++)
 		{
-			//glp_set_col_bnds(mip, ((app_count + 11 + piecewise_num * 2 + uninterrupt_num + varying_num + j) + i*variable), GLP_LO, 0.0, 0.0);		//ÅÜ°Ê­t¸ü¯Ó¯àÅÜ¼ÆPa
+			//glp_set_col_bnds(mip, ((app_count + 11 + piecewise_num * 2 + uninterrupt_num + varying_num + j) + i*variable), GLP_LO, 0.0, 0.0);		//ï¿½Ü°Ê­tï¿½ï¿½ï¿½Ó¯ï¿½ï¿½Ü¼ï¿½Pa
 			//glp_set_col_kind(mip, ((app_count + 11 + piecewise_num * 2 + uninterrupt_num + varying_num + j) + i*variable), GLP_CV);
-			glp_set_col_bnds(mip, ((app_count + 11 + piecewise_num * 2 + uninterrupt_num + varying_num + j) + i*variable), GLP_DB, 0.0, varying_p_max[j - 1]);				//ÅÜ°Ê­t¸ü¯Ó¯àÅÜ¼ÆPa	
+			glp_set_col_bnds(mip, ((app_count + 11 + piecewise_num * 2 + uninterrupt_num + varying_num + j) + i*variable), GLP_DB, 0.0, varying_p_max[j - 1]);				//ï¿½Ü°Ê­tï¿½ï¿½ï¿½Ó¯ï¿½ï¿½Ü¼ï¿½Pa	
 			glp_set_col_kind(mip, ((app_count + 11 + piecewise_num * 2 + uninterrupt_num + varying_num + j) + i*variable), GLP_CV);
 		}
 
 	}
 
-	/*==============================«Å§i¥Ø¼Ð¦¡°Ñ¼Æ(column)===============================*/
+	/*==============================ï¿½Å§iï¿½Ø¼Ð¦ï¿½ï¿½Ñ¼ï¿½(column)===============================*/
 	for (j = 0; j < (time_block - sample_time); j++)
 	{
-		glp_set_obj_coef(mip, ((app_count + 1) + j*variable), price2[j + sample_time] * delta_T);							//³æ¥Ø¼Ðcost(¨BÆJ¤@)
-		glp_set_obj_coef(mip, ((app_count + 6) + j*variable), price2[j + sample_time] * delta_T * (-1));					//³æ¥Ø¼Ðcost(¨BÆJ¤@)
+		glp_set_obj_coef(mip, ((app_count + 1) + j*variable), price2[j + sample_time] * delta_T);							//ï¿½ï¿½Ø¼ï¿½cost(ï¿½Bï¿½Jï¿½@)
+		glp_set_obj_coef(mip, ((app_count + 6) + j*variable), price2[j + sample_time] * delta_T * (-1));					//ï¿½ï¿½Ø¼ï¿½cost(ï¿½Bï¿½Jï¿½@)
 		//glp_set_obj_coef(mip, ((app_count + 11) + j*variable), 0.1 / 0.04 * delta_T);
 		glp_set_obj_coef(mip, ((app_count + 11) + j*variable), Hydro_Price / Hydro_Cons * delta_T);
 		//glp_set_obj_coef(mip, ((app_count + 10 )+ j*variable), 0.06/0.04/0.35 * delta_T );        //FC cost
 	}
 
-	/*==============================GLPK¼g¤J¯x°}(ia,ja,ar)===============================*/
+	/*==============================GLPKï¿½gï¿½Jï¿½xï¿½}(ia,ja,ar)===============================*/
 	for (i = 0; i < (((time_block - sample_time) * 200) + app_count + 1); i++)
 	{
 		for (j = 0; j < (variable * (time_block - sample_time)); j++)
@@ -1292,7 +1292,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			ar[i*((time_block - sample_time)*variable) + j + 1] = power1[i][j];
 		}
 	}
-	/*==============================GLPKÅª¨ú¸ê®Æ¯x°}====================================*/
+	/*==============================GLPKÅªï¿½ï¿½ï¿½ï¿½Æ¯xï¿½}====================================*/
 	glp_load_matrix(mip, (((time_block - sample_time) * 200) + app_count + 1)*(variable * (time_block - sample_time)), ia, ja, ar);
 
 	glp_iocp parm;
@@ -1301,22 +1301,22 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	//parm.tm_lim = 60000;
         
 	parm.presolve = GLP_ON;
-        //not cloudy
+	//not cloudy
 	//parm.ps_heur = GLP_ON;
-        //parm.bt_tech = GLP_BT_BPH;
+	//parm.bt_tech = GLP_BT_BPH;
 	//parm.br_tech = GLP_BR_PCH;
 
 	//cloud
 	//parm.gmi_cuts = GLP_ON;
 	//parm.ps_heur = GLP_ON;
-        //parm.bt_tech = GLP_BT_BFS;
+	//parm.bt_tech = GLP_BT_BFS;
 	//parm.br_tech = GLP_BR_PCH;         
 
 
 	parm.gmi_cuts = GLP_ON;
-        parm.fp_heur = GLP_ON;
-        parm.bt_tech = GLP_BT_BFS;
-        parm.br_tech = GLP_BR_PCH;
+	parm.fp_heur = GLP_ON;
+	parm.bt_tech = GLP_BT_BFS;
+	parm.br_tech = GLP_BR_PCH;
 
 
 	int err = glp_intopt(mip, &parm);
@@ -1336,7 +1336,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	}
 
 
-	/*==============================±N¨Mµ¦ÅÜ¼Æµ²ªG¿é¥X==================================*/
+	/*==============================ï¿½Nï¿½Mï¿½ï¿½ï¿½Ü¼Æµï¿½ï¿½Gï¿½ï¿½X==================================*/
 	step1_bill = 0.0, step1_sell = 0.0, step1_PESS = 0.0;
 
 	//get now time that can used in the real experiment
@@ -1350,6 +1350,14 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	}
 	printf("sample:%d", noo);
 
+	// MARK: sample time = 0 
+	// 		UPDATE 1st ~ app_count load's now timeblock 0/1 status to table 'now_status'
+	//  	INSERT 1st ~ app_count id, status, schedule now timeblock 0/1 status to table 'control_history'
+	//  	INSERT 1st ~ variable load's all timeblock 0/1 status to table 'control_status'
+	// MARK: sample time != 0 
+	//  	SELECT 1st ~ variable load's all timeblock 0/1 status from table 'control_status' put into s[k]
+	//  	
+	// 
 	for (i = 1; i <= variable; i++)
 	{
 		h = i;
@@ -1424,8 +1432,8 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 
 
 	//update now_state
-	float now_grid[96] = { 0.0 },varying_grid[96] = {0.0}, cost[96] = { 0.0 }, sell[96] = { 0.0 }, FC_cost[96] = { 0.0 },Hydrogen_com[96] = { 0.0 },FC_every_cost[96] = { 0.0 };
-	float now_power_result = 0.0, var_grid_result = 0.0, opt_cost_result = 0.0, opt_sell_result = 0.0,  opt_FC_cost_result = 0.0, opt_Hydrogen_result = 0.0, price_sum_now_power=0.0;
+	float now_grid[96] = {0.0}, varying_grid[96] = {0.0}, cost[96] = {0.0}, sell[96] = {0.0}, FC_cost[96] = {0.0}, Hydrogen_com[96] = {0.0}, FC_every_cost[96] = {0.0};
+	float now_power_result = 0.0, var_grid_result = 0.0, opt_cost_result = 0.0, opt_sell_result = 0.0, opt_FC_cost_result = 0.0, opt_Hydrogen_result = 0.0, price_sum_now_power=0.0;
 
 	//get all_grid cost(use the time varing price)
 	for (j = 0; j < (time_block - sample_time); j++)
@@ -1455,9 +1463,9 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 				varying_grid[j + sample_time] += (float)(glp_mip_col_val(mip, i + variable*j))*s[j]* price2[j + sample_time] * delta_T;
 			}		
 		}
-					//printf("now_power_result:%f\n", now_grid[j + sample_time]);
-			now_power_result += now_grid[j + sample_time];     //now_power_result¡÷ just all the comsumption energy(for no varying price and coculate leter).
-   			var_grid_result += varying_grid[j + sample_time];  //var_power_result¡÷ comsumption energy*price.
+		//printf("now_power_result:%f\n", now_grid[j + sample_time]);
+		now_power_result += now_grid[j + sample_time];     //now_power_resultï¿½ï¿½ just all the comsumption energy(for no varying price and coculate leter).
+		var_grid_result += varying_grid[j + sample_time];  //var_power_resultï¿½ï¿½ comsumption energy*price.
 	}
 
 	h = app_count + 1;//cost
@@ -1505,8 +1513,12 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 
 
 
-
-	// update to sql
+	// MARK: sample time = 0
+	// 		UPDATE parameter_id 18.now_power_result, 19.var_grid_result, 20.opt_cost_result, 21.opt_sell_result, 22.opt_FC_cost_result, 23.opt_Hydrogen_result to table 'LP_BASE_PARM'  
+	// 		INSERT control_id 1.now_grid, 2.varying_grid, 3.cost ,4.sell, 5.FC_cost, 6.Hydrogen_com, 7.FC_every_cost to talbe 'cost'
+	// MARK: sample time != 0
+	// 		UPDATE parameter_id 19.var_grid_result, 20.opt_cost_result, 21.opt_sell_result, 22.opt_FC_cost_result, 23.opt_Hydrogen_result to table 'LP_BASE_PARM'  
+	// 		UPDATE control_id 1.now_grid, 2.varying_grid, 3.cost ,4.sell, 5.FC_cost, 6.Hydrogen_com, 7.FC_every_cost to talbe 'cost'
 	if (sample_time == 0)
 	{	
 		//now grid 
@@ -1698,9 +1710,9 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	}
 
 
-	//NOW taipower cost
-	//float tmp_power[6] = { 0.0 };
-/*	if (now_power_result <= (120.0 / 30.0))
+/* 	NOW taipower cost
+	float tmp_power[6] = { 0.0 };
+	if (now_power_result <= (120.0 / 30.0))
 	{
 		price_sum_now_power = now_power_result*P_1;
 	}
@@ -1725,6 +1737,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		price_sum_now_power = (120.0 / 30.0)*P_1 + ((330.0 - 120.0) / 30.0)*P_2 + ((500.0 - 330.0) / 30.0)*P_3 + ((700.0 - 500.0) / 30.0)*P_4 + ((1000.0 - 700.0) / 30.0)*P_5 + (now_power_result - (1000.0 / 30.0))*P_6;
 	}*/
 
+	// MARK: UPDATE price_sum_now_power (after now_power_result calculated) to table 'LP_BASE_PARM'
 	printf("Now power result:%f\n",now_power_result);
 	if (now_power_result <= (120.0 / 30.0))
 	{
@@ -1736,19 +1749,19 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	}
 	else if ((now_power_result > (330.0 / 30.0)) & (now_power_result <= 500.0 / 30.0))
 	{
-		price_sum_now_power = (120.0 * P_1 + (330.0 - 120.0) * P_2 + (now_power_result*30.0 - 330.0)*P_3)/30.0;
+		price_sum_now_power = (120.0*P_1 + (330.0 - 120.0)*P_2 + (now_power_result*30.0 - 330.0) *P_3)/30.0;
 	}
 	else if ((now_power_result > (500.0 / 30.0)) & (now_power_result <= 700.0 / 30.0))
 	{
-		price_sum_now_power = (120.0 *P_1 + (330.0 - 120.0) *P_2 + (500.0 - 330.0) *P_3 + (now_power_result*30.0 - 500.0)*P_4)/30.0;
+		price_sum_now_power = (120.0*P_1 + (330.0 - 120.0)*P_2 + (500.0 - 330.0)*P_3 + (now_power_result*30.0 - 500.0) *P_4) /30.0;
 	}
 	else if ((now_power_result > (700.0 / 30.0)) & (now_power_result <= 1000.0 / 30.0))
 	{
-		price_sum_now_power = (120.0 * P_1 + (330.0 - 120.0)*P_2 + (500.0 - 330.0) *P_3 + (700.0 - 500.0)*P_4 + (now_power_result*30.0 - 700.0 )*P_5)/30.0;
+		price_sum_now_power = (120.0*P_1 + (330.0 - 120.0)*P_2 + (500.0 - 330.0)*P_3 + (700.0 - 500.0)*P_4 + (now_power_result*30.0 - 700.0)*P_5) /30.0;
 	}
 	else if (now_power_result > (1000.0 / 30.0))
 	{
-		price_sum_now_power = (120.0 *P_1 + (330.0 - 120.0) *P_2 + (500.0 - 330.0) *P_3 + (700.0 - 500.0) *P_4 + (1000.0 - 700.0) *P_5 + (now_power_result*30.0 - 1000.0 )*P_6)/30.0;
+		price_sum_now_power = (120.0*P_1 + (330.0 - 120.0)*P_2 + (500.0 - 330.0)*P_3 + (700.0 - 500.0)*P_4 + (1000.0 - 700.0)*P_5 + (now_power_result*30.0 - 1000.0)*P_6) /30.0;
 	}
 	snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE LP_BASE_PARM SET value = %f WHERE parameter_id = 18 ", price_sum_now_power);
 	mysql_query(mysql_con, sql_buffer);
