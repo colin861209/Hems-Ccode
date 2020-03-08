@@ -392,7 +392,7 @@ int main(void)
 		{
 			printf(" *********real_time mode**********\n");
 
-			snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE real_status");      //clean control_status;
+			snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE real_status");      //clean real_status;
 			mysql_query(mysql_con, sql_buffer);
 
 			if (((now_time.tm_min) % (60 / divide)) != 0)
@@ -418,15 +418,13 @@ int main(void)
 		else
 		{
 			printf(" *********one_day mode**********\n");
-			//snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE SOC");                 //clean SOC;
-			//mysql_query(mysql_con, sql_buffer);
 			snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE control_status");      //clean control_status;
 			mysql_query(mysql_con, sql_buffer);
-			snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE real_status");      //clean control_status;
+			snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE real_status");      //clean real_status;
 			mysql_query(mysql_con, sql_buffer);
-			snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE cost");      //clean control_status;
+			snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE cost");      //clean cost;
 			mysql_query(mysql_con, sql_buffer);
-			snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE solar_fake");      //clean control_status;
+			snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE solar_fake");      //clean solar_fake;
 			mysql_query(mysql_con, sql_buffer);
 			sample_time = 0;
 			real_time = 1;    //if you don't want do real_time,please commend it.
