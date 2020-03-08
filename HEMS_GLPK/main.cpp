@@ -343,53 +343,48 @@ int main(void)
 		}
 	}
 
+		
+	// All the time has been converted to 96blocks, so multiply "divide". 
+	for (i = 0; i < interrupt_num; i++)
+	{
+		interrupt_start[i] = ((int)(INT_power[i][0] * divide));
+		interrupt_end[i] = ((int)(INT_power[i][1] * divide))-1;
+		interrupt_ot[i] = ((int)(INT_power[i][2] * divide));
+		interrupt_p[i] = INT_power[i][3];
+		printf("%d  %d   %d  %.3f  ", interrupt_start[i], interrupt_end[i], interrupt_ot[i], interrupt_p[i]);
+		printf("\n");
+	}
+	for (i = 0; i < uninterrupt_num; i++)
+	{
+		uninterrupt_start[i] = ((int)(UNINT_power[i][0] * divide));
+		uninterrupt_end[i] = ((int)(UNINT_power[i][1] * divide))-1;
+		uninterrupt_ot[i] = ((int)(UNINT_power[i][2] * divide));
+		uninterrupt_p[i] = UNINT_power[i][3];
+		printf("%d  %d   %d  %.3f  ", uninterrupt_start[i], uninterrupt_end[i], uninterrupt_ot[i], uninterrupt_p[i]);
+		printf("\n");
+	}
 
-		/*===========================�]�w�]�ư_���ɶ��P�\�v=============================*/
-		//���G�Ҧ����ɶ��w�ഫ��96block �ҥH���έ��Hdivide(All the time has been converted to 96block so do not multiply "divide")
-		for (i = 0; i < interrupt_num; i++)
+	for (i = 0; i < varying_num; i++)
+	{
+		varying_start[i] = ((int)(VAR_power[i][0] * divide)); // varying_start[0] = 9
+		varying_end[i] = ((int)(VAR_power[i][1] * divide))-1;	// varying_end[0] = 14
+		varying_ot[i] = ((int)(VAR_power[i][2] * divide));	// varying_ot[0] = 1
+		printf("%d  %d   %d  ", varying_start[i], varying_end[i], varying_ot[i]);
+		for (j = 0; j < 3; j++)
 		{
-			interrupt_start[i] = ((int)(INT_power[i][0] * divide));
-			//interrupt_end[i] = ((int)(INT_power[i][1] * divide));
-			interrupt_end[i] = ((int)(INT_power[i][1] * divide))-1;
-			interrupt_ot[i] = ((int)(INT_power[i][2] * divide));
-			interrupt_p[i] = INT_power[i][3];
-			printf("%d  %d   %d  %.3f  ", interrupt_start[i], interrupt_end[i], interrupt_ot[i], interrupt_p[i]);
-			printf("\n");
+			varying_p_pow[i][j] = VAR_power[i][3 + j];	// varying_p_pow[0][0~3] = [0.4, 0.5, 0.6] (kW)
+			printf("%.3f ", varying_p_pow[i][j]);
 		}
-		for (i = 0; i < uninterrupt_num; i++)
+		for (j = 0; j < 3; j++)
 		{
-			uninterrupt_start[i] = ((int)(UNINT_power[i][0] * divide));
-			//uninterrupt_end[i] = ((int)(UNINT_power[i][1] * divide));
-			uninterrupt_end[i] = ((int)(UNINT_power[i][1] * divide))-1;
-			uninterrupt_ot[i] = ((int)(UNINT_power[i][2] * divide));
-			uninterrupt_p[i] = UNINT_power[i][3];
-			printf("%d  %d   %d  %.3f  ", uninterrupt_start[i], uninterrupt_end[i], uninterrupt_ot[i], uninterrupt_p[i]);
+			varying_t_pow[i][j] = ((int)(VAR_power[i][6 + j] * divide));	// varying_t_pow[0][0~3] = [1, 2, 1] (timeblock)
 
-			printf("\n");
+			printf("%d ", varying_t_pow[i][j]);
 		}
+		printf("\n");
+	}
 
-		for (i = 0; i < varying_num; i++)
-		{
-			varying_start[i] = ((int)(VAR_power[i][0] * divide));
-			//varying_end[i] = ((int)(VAR_power[i][1] * divide));
-			varying_end[i] = ((int)(VAR_power[i][1] * divide))-1;
-			varying_ot[i] = ((int)(VAR_power[i][2] * divide));
-			printf("%d  %d   %d  ", varying_start[i], varying_end[i], varying_ot[i]);
-			for (j = 0; j < 3; j++)
-			{
-				varying_p_pow[i][j] = VAR_power[i][3 + j];    //�ܰʫ��ĥ|���ܼƶ}�l
-				printf("%.3f ", varying_p_pow[i][j]);
-			}
-			for (j = 0; j < 3; j++)
-			{
-				varying_t_pow[i][j] = ((int)(VAR_power[i][6 + j] * divide));       //�ܰʫ��ĤC���ܼƶ}�l
-
-				printf("%d ", varying_t_pow[i][j]);
-			}
-			printf("\n");
-		}
-
-		delete[] INT_power, UNINT_power, VAR_power;
+	delete[] INT_power, UNINT_power, VAR_power;
 
 
 		//clean table (if at one_schedule)
