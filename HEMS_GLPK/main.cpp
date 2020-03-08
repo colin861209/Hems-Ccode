@@ -146,7 +146,7 @@ int main(void)
 	//send parameter to variable number
 	time_block = base_par[0]; // = 96
 	app_count = interrupt_num + uninterrupt_num + varying_num;	// 12+2+1 = 15
-	ponit_num = 5;
+	ponit_num = 5; // ASK
 	variable = app_count + 9 + uninterrupt_num + (varying_num*2) + 2 + 2*(ponit_num-1);	// 15+9+2+(1*2)+2+2*(5-1) = 38
 	divide = (time_block / 24); // = 4
 	delta_T = 1.0 / (float)divide; // = 0.25
@@ -154,11 +154,11 @@ int main(void)
 	Cbat = base_par[6];	// = 0.318
 	SOC_min = base_par[7];	// = 0.6
 	SOC_max = base_par[8];	// = 0.9
-	SOC_thres = base_par[9];	// 0.7
+	SOC_thres = base_par[9];	// = 0.7
 	//Pbat_max = 0.1*Vsys*Cbat;
 	//Pbat_min = 0.1*Vsys*Cbat;
 	Pbat_max = 1.2;
-	Pbat_min = 1.2;
+	Pbat_min = 1.2; // ASK
 	Pfc_max = 5.13;
 	//Pfc_max = 0.0;
 
@@ -175,12 +175,13 @@ int main(void)
 	base_par[10] = Pbat_max;
 	base_par[11] = Pbat_min;
 
-	//��s�Ѽ�
+	/* non use
 	for (i = 1; i <= 13; i++)
 	{
 		snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE LP_BASE_PARM SET value = '%f' WHERE  PARM_id = '%d'", base_par[i - 1], i);
 		mysql_query(mysql_con, sql_buffer);
-	}
+	}*/
+
 	printf("************system state************* \n");
 	printf("time block:%d\n", time_block);
 	printf("interrupt numbers:%d\n", interrupt_num);
@@ -205,14 +206,14 @@ int main(void)
 
 	// ------------------------------- Start to Put Mysql data into Matrix ------------------------------- //
 	float *price = new float[24];
-	float **INT_power = NEW2D(interrupt_num, 4, float);
-	float **UNINT_power = NEW2D(uninterrupt_num, 4, float);
-	float **VAR_power = NEW2D(varying_num, 9, float);
+	float **INT_power = NEW2D(interrupt_num, 4, float);	// INT_power[interrupt_num][4]
+	float **UNINT_power = NEW2D(uninterrupt_num, 4, float);	// UNINT_power[uninterrupt_num][4]
+	float **VAR_power = NEW2D(varying_num, 9, float);	// VAR_power[varying_num][4]
 
 	// MARK: get all application(interrupt-> uninterrupt-> varying) into array position
 	for (i = 0; i < app_count; i++)
 	{
-		snprintf(sql_buffer, sizeof(sql_buffer), "select number from load_list WHERE group_id<>0 ORDER BY group_id ASC,number ASC LIMIT %d,1", i);
+		snprintf(sql_buffer, sizeof(sql_buffer), "select number from load_list WHERE group_id<>0 ORDER BY group_id ASC, number ASC LIMIT %d,1", i);
 		mysql_query(mysql_con, sql_buffer);
 		mysql_result = mysql_store_result(mysql_con);
 		mysql_row = mysql_fetch_row(mysql_result);
@@ -222,7 +223,8 @@ int main(void)
 	}
 
 	// MARK: get each interrupt application column value into multidimesional array INT_power
-	for (i = 1; i < interrupt_num + 1; i++)    
+	// 		Unit: start_time, end_time, operation_time (hour), power1, power2, power3 (KW), block1, block2, block3 (timeblock)
+	for (i = 1; i < interrupt_num + 1; i++)
 	{
 		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT start_time, end_time, operation_time, power1 FROM load_list WHERE group_id = 1 ORDER BY number ASC LIMIT %d,1", i-1);
 		mysql_query(mysql_con, sql_buffer);
@@ -256,8 +258,7 @@ int main(void)
 	// MARK: get each varying application column value into multidimesional array VAR_power
 	for (i = 1; i < varying_num + 1; i++)
 	{
-	
-		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT start_time, end_time, operation_time, power1, power2, power3,block1, block2, block3 FROM load_list WHERE group_id = 3 ORDER BY number ASC LIMIT %d,1", i-1);
+		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT start_time, end_time, operation_time, power1, power2, power3, block1, block2, block3 FROM load_list WHERE group_id = 3 ORDER BY number ASC LIMIT %d,1", i-1);
 		mysql_query(mysql_con, sql_buffer);
 		mysql_result = mysql_store_result(mysql_con);
 		mysql_row = mysql_fetch_row(mysql_result);
@@ -282,61 +283,65 @@ int main(void)
 		mysql_free_result(mysql_result);
 	}
 	// MARK: interrupt_num = 12
+	// 	reot: remain operation time
+	//  flag: for the application won't close after open 
+	//  t_pow: the varying application each timeblock
+	//  p_pow: the varying application each power
 	int *interrupt_start = new int[interrupt_num];
 	int *interrupt_end = new int[interrupt_num];
 	int *interrupt_ot = new int[interrupt_num];
 	int *interrupt_reot = new int[interrupt_num];
 	float *interrupt_p = new float[interrupt_num];
 
-		// MARK: uninterrupt_num = 2
-		int *uninterrupt_start = new int[uninterrupt_num];
-		int *uninterrupt_end = new int[uninterrupt_num];
-		int *uninterrupt_ot = new int[uninterrupt_num];
-		int *uninterrupt_reot = new int[uninterrupt_num];
-		float *uninterrupt_p = new float[uninterrupt_num];
-		int *uninterrupt_flag = new int[uninterrupt_num];				
+	// MARK: uninterrupt_num = 2
+	int *uninterrupt_start = new int[uninterrupt_num];
+	int *uninterrupt_end = new int[uninterrupt_num];
+	int *uninterrupt_ot = new int[uninterrupt_num];
+	int *uninterrupt_reot = new int[uninterrupt_num];
+	float *uninterrupt_p = new float[uninterrupt_num];
+	int *uninterrupt_flag = new int[uninterrupt_num];				
 
-		// MARK: varying_num = 1
-		int *varying_start = new int[varying_num];
-		int *varying_end = new int[varying_num];
-		int *varying_ot = new int[varying_num];
-		int *varying_reot = new int[varying_num];
-		int **varying_t_pow = NEW2D(varying_num, 3, int);
-		float **varying_p_pow = NEW2D(varying_num, 3, float);
-		int *varying_flag = new int[varying_num];
+	// MARK: varying_num = 1
+	int *varying_start = new int[varying_num];
+	int *varying_end = new int[varying_num];
+	int *varying_ot = new int[varying_num];
+	int *varying_reot = new int[varying_num];
+	int **varying_t_pow = NEW2D(varying_num, 3, int);
+	float **varying_p_pow = NEW2D(varying_num, 3, float);
+	int *varying_flag = new int[varying_num];
 
 
-	/*===========================�N�}�C��l��=================================*/
-		for (i = 0; i < interrupt_num; i++)
+	// initialize all matrix
+	for (i = 0; i < interrupt_num; i++)
+	{
+		interrupt_start[i] = 0;
+		interrupt_end[i] = 0;
+		interrupt_ot[i] = 0;
+		interrupt_reot[i] = 0;
+		interrupt_p[i] = 0.0;
+	}
+	for (j = 0; j < uninterrupt_num; j++)
+	{
+		uninterrupt_start[j] = 0;
+		uninterrupt_end[j] = 0;
+		uninterrupt_ot[j] = 0;
+		uninterrupt_reot[j] = 0;
+		uninterrupt_p[j] = 0.0;
+		uninterrupt_flag[j] = 0;
+	}
+	for (k = 0; k < varying_num; k++)
+	{
+		varying_start[k] = 0;
+		varying_end[k] = 0;
+		varying_ot[k] = 0;
+		varying_reot[k] = 0;
+		varying_flag[k] = 0;
+		for (j = 0; j < 3; j++)
 		{
-			interrupt_start[i] = 0;
-			interrupt_end[i] = 0;
-			interrupt_ot[i] = 0;
-			interrupt_reot[i] = 0;
-			interrupt_p[i] = 0.0;
+			varying_t_pow[k][j] = 0;
+			varying_p_pow[k][j] = 0.0;
 		}
-		for (j = 0; j < uninterrupt_num; j++)
-		{
-			uninterrupt_start[j] = 0;
-			uninterrupt_end[j] = 0;
-			uninterrupt_ot[j] = 0;
-			uninterrupt_reot[j] = 0;
-			uninterrupt_p[j] = 0.0;
-			uninterrupt_flag[j] = 0;
-		}
-		for (k = 0; k < varying_num; k++)
-		{
-			varying_start[k] = 0;
-			varying_end[k] = 0;
-			varying_ot[k] = 0;
-			varying_reot[k] = 0;
-			varying_flag[k] = 0;
-			for (j = 0; j < 3; j++)
-			{
-				varying_t_pow[k][j] = 0;
-				varying_p_pow[k][j] = 0.0;
-			}
-		}
+	}
 
 
 		/*===========================�]�w�]�ư_���ɶ��P�\�v=============================*/
