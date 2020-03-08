@@ -146,7 +146,7 @@ int main(void)
 	//send parameter to variable number
 	time_block = base_par[0]; // = 96
 	app_count = interrupt_num + uninterrupt_num + varying_num;	// 12+2+1 = 15
-	ponit_num = 5; // ASK
+	ponit_num = 5; 
 	variable = app_count + 9 + uninterrupt_num + (varying_num*2) + 2 + 2*(ponit_num-1);	// 15+9+2+(1*2)+2+2*(5-1) = 38
 	divide = (time_block / 24); // = 4
 	delta_T = 1.0 / (float)divide; // = 0.25
@@ -158,7 +158,7 @@ int main(void)
 	//Pbat_max = 0.1*Vsys*Cbat;
 	//Pbat_min = 0.1*Vsys*Cbat;
 	Pbat_max = 1.2;
-	Pbat_min = 1.2; // ASK
+	Pbat_min = 1.2; 
 	Pfc_max = 5.13;
 	//Pfc_max = 0.0;
 
@@ -427,7 +427,7 @@ int main(void)
 			snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE solar_fake");      //clean solar_fake;
 			mysql_query(mysql_con, sql_buffer);
 			sample_time = 0;
-			real_time = 1;    //if you don't want do real_time,please commend it.
+			real_time = 1;    //if you don't want do real_time, please commend it.
 			//SOC_ini = SOC_thres;
 			snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE LP_BASE_PARM SET value = %d WHERE parameter_id = 15 ", real_time);
 			mysql_query(mysql_con, sql_buffer);
