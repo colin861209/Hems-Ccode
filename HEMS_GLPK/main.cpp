@@ -388,85 +388,87 @@ int main(void)
 
 
 		//clean table (if at one_schedule)
-		if( same_day== 1 && real_time==1)
+	// MARK: if in the same day, only clean the 'real_status' table
+	if( same_day== 1 && real_time==1)
+	{
+		printf(" *********real_time mode**********\n");
+
+		snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE real_status");      //clean real_status;
+		mysql_query(mysql_con, sql_buffer);
+
+		if (((now_time.tm_min) % (60 / divide)) != 0)
 		{
-			printf(" *********real_time mode**********\n");
-
-			snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE real_status");      //clean real_status;
-			mysql_query(mysql_con, sql_buffer);
-
-			if (((now_time.tm_min) % (60 / divide)) != 0)
-			{
-				sample_time = (now_time.tm_hour) * divide + (int)((now_time.tm_min) / (60/divide))+1 ;
-			}
-			else
-			{
-				sample_time = (now_time.tm_hour) * divide + (int)((now_time.tm_min) / (60 / divide)) ;
-			}
-			printf("sample_time:%d\n", sample_time);
-			//if(sample_time!=96)
-			//{ 
-			//snprintf(sql_buffer, sizeof(sql_buffer), "SELECT A%d FROM control_status WHERE equip_id = %d ", sample_time,app_count+7 );//������ˮɨ誺SOC
-			//mysql_query(mysql_con, sql_buffer);
-			//mysql_result = mysql_store_result(mysql_con);
-			//mysql_row = mysql_fetch_row(mysql_result);
-			//SOC_ini = atof(mysql_row[0]);
-			//mysql_free_result(mysql_result);
-			//}
-
+			sample_time = (now_time.tm_hour) * divide + (int)((now_time.tm_min) / (60/divide))+1 ;
 		}
 		else
 		{
-			printf(" *********one_day mode**********\n");
-			snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE control_status");      //clean control_status;
-			mysql_query(mysql_con, sql_buffer);
-			snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE real_status");      //clean real_status;
-			mysql_query(mysql_con, sql_buffer);
-			snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE cost");      //clean cost;
-			mysql_query(mysql_con, sql_buffer);
-			snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE solar_fake");      //clean solar_fake;
-			mysql_query(mysql_con, sql_buffer);
-			sample_time = 0;
-			real_time = 1;    //if you don't want do real_time, please commend it.
-			//SOC_ini = SOC_thres;
-			snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE LP_BASE_PARM SET value = %d WHERE parameter_id = 15 ", real_time);
-			mysql_query(mysql_con, sql_buffer);
+			sample_time = (now_time.tm_hour) * divide + (int)((now_time.tm_min) / (60 / divide)) ;
 		}
+		printf("sample_time:%d\n", sample_time);
+		//if(sample_time!=96)
+		//{ 
+		//snprintf(sql_buffer, sizeof(sql_buffer), "SELECT A%d FROM control_status WHERE equip_id = %d ", sample_time,app_count+7 );//������ˮɨ誺SOC
+		//mysql_query(mysql_con, sql_buffer);
+		//mysql_result = mysql_store_result(mysql_con);
+		//mysql_row = mysql_fetch_row(mysql_result);
+		//SOC_ini = atof(mysql_row[0]);
+		//mysql_free_result(mysql_result);
+		//}
+	}
+
+	// MARK: in each one day first time run this code, we clean the four table below, then update the real_time value to 1
+	else
+	{
+		printf(" *********one_day mode**********\n");
+		snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE control_status");      //clean control_status;
+		mysql_query(mysql_con, sql_buffer);
+		snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE real_status");      //clean real_status;
+		mysql_query(mysql_con, sql_buffer);
+		snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE cost");      //clean cost;
+		mysql_query(mysql_con, sql_buffer);
+		snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE solar_fake");      //clean solar_fake;
+		mysql_query(mysql_con, sql_buffer);
+		sample_time = 0;
+		real_time = 1;    //if you don't want do real_time, please commend it.
+		//SOC_ini = SOC_thres;
+		snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE LP_BASE_PARM SET value = %d WHERE parameter_id = 15 ", real_time);
+		mysql_query(mysql_con, sql_buffer);
+	}
 		
 
-		//done and update_date
-		snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE LP_BASE_PARM SET value = '%d-%02d-%02d' WHERE parameter_id = 17 ", now_time.tm_year + 1900, now_time.tm_mon + 1, now_time.tm_mday);
-		mysql_query(mysql_con, sql_buffer);
+	//MARK: done and update_date
+	snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE LP_BASE_PARM SET value = '%d-%02d-%02d' WHERE parameter_id = 17 ", now_time.tm_year + 1900, now_time.tm_mon + 1, now_time.tm_mday);
+	mysql_query(mysql_con, sql_buffer);
 
 
-		if (sample_time != 96)
-		{
-			GLPK(interrupt_start, interrupt_end, interrupt_ot, interrupt_reot, interrupt_p, uninterrupt_start, uninterrupt_end, uninterrupt_ot, uninterrupt_reot, uninterrupt_p, uninterrupt_flag, varying_start, varying_end, varying_ot, varying_reot, varying_flag, varying_t_pow, varying_p_pow, app_count, price, position);
-		}
-		else 
-		{
-			sample_time = 0;
-			real_time = 1;    //if you don't want do real_time,please commend it.
-			snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE LP_BASE_PARM SET value = %d WHERE parameter_id = 15 ", real_time);
-			mysql_query(mysql_con, sql_buffer);
-			GLPK(interrupt_start, interrupt_end, interrupt_ot, interrupt_reot, interrupt_p, uninterrupt_start, uninterrupt_end, uninterrupt_ot, uninterrupt_reot, uninterrupt_p, uninterrupt_flag, varying_start, varying_end, varying_ot, varying_reot, varying_flag, varying_t_pow, varying_p_pow, app_count, price, position);
-		}
+	if (sample_time != 96)
+	{
+		GLPK(interrupt_start, interrupt_end, interrupt_ot, interrupt_reot, interrupt_p, uninterrupt_start, uninterrupt_end, uninterrupt_ot, uninterrupt_reot, uninterrupt_p, uninterrupt_flag, varying_start, varying_end, varying_ot, varying_reot, varying_flag, varying_t_pow, varying_p_pow, app_count, price, position);
+	}
+	else 
+	{
+		sample_time = 0;
+		real_time = 1;    //if you don't want do real_time,please commend it.
+		snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE LP_BASE_PARM SET value = %d WHERE parameter_id = 15 ", real_time);
+		mysql_query(mysql_con, sql_buffer);
+		GLPK(interrupt_start, interrupt_end, interrupt_ot, interrupt_reot, interrupt_p, uninterrupt_start, uninterrupt_end, uninterrupt_ot, uninterrupt_reot, uninterrupt_p, uninterrupt_flag, varying_start, varying_end, varying_ot, varying_reot, varying_flag, varying_t_pow, varying_p_pow, app_count, price, position);
+	}
 
 
-		//other function
-		snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE control_status SET parameter_id = '%d' WHERE  control_id = '%d'", 1, app_count + 1);
-		mysql_query(mysql_con, sql_buffer);
-		snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE control_status SET parameter_id = '%d' WHERE  control_id = '%d'", 2, app_count + 3);
-		mysql_query(mysql_con, sql_buffer);
-		snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE control_status SET parameter_id = '%d' WHERE  control_id = '%d'", 3, app_count + 7);
-		mysql_query(mysql_con, sql_buffer);
-		snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE control_status SET parameter_id = '%d' WHERE  control_id = '%d'", 4, app_count + 6);
-		mysql_query(mysql_con, sql_buffer);
-		snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE control_status SET parameter_id = '%d' WHERE  control_id = '%d'", 5, app_count + 10);
-		mysql_query(mysql_con, sql_buffer);
+	//MARK: after finish the GLPK, update other value into control_status
+	snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE control_status SET parameter_id = '%d' WHERE  control_id = '%d'", 1, app_count + 1);
+	mysql_query(mysql_con, sql_buffer);
+	snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE control_status SET parameter_id = '%d' WHERE  control_id = '%d'", 2, app_count + 3);
+	mysql_query(mysql_con, sql_buffer);
+	snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE control_status SET parameter_id = '%d' WHERE  control_id = '%d'", 3, app_count + 7);
+	mysql_query(mysql_con, sql_buffer);
+	snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE control_status SET parameter_id = '%d' WHERE  control_id = '%d'", 4, app_count + 6);
+	mysql_query(mysql_con, sql_buffer);
+	snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE control_status SET parameter_id = '%d' WHERE  control_id = '%d'", 5, app_count + 10);
+	mysql_query(mysql_con, sql_buffer);
 
 
-		mysql_close(mysql_con);
+	mysql_close(mysql_con);
 
 	system("pause");
 	return 0;
