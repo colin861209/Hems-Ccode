@@ -9,7 +9,7 @@
 
 extern float step1_bill;        //用於步驟一計算電費
 extern float step1_sell;        //用於步驟一計算電費
-extern float step1_PESS;	    //用於步驟一計算PESS-值
+extern float step1_PESS;	      //用於步驟一計算PESS-值
 
 
 extern int sample_time;         //第___個取樣時間
@@ -30,16 +30,16 @@ extern double z;
 extern int interrupt_num;       //可中斷負載數量
 extern int *interrupt_start;    //可中斷負載排程啟始時刻
 extern int *interrupt_end;      //可中斷負載排程中止時刻
-extern int *interrupt_ot;	    //可中斷負載預計執行時間
+extern int *interrupt_ot;	      //可中斷負載預計執行時間
 extern int *interrupt_reot;	    //可中斷負載剩餘執行時間
 extern float *interrupt_p;	    //可中斷負載固定耗能
 
 
 extern int uninterrupt_num;     //不可中斷負載數量
 extern int *uninterrupt_start;  //不可中斷負載排程啟始時刻
-extern int *uninterrupt_end;	//不可中斷負載排程中止時刻
+extern int *uninterrupt_end;	  //不可中斷負載排程中止時刻
 extern int *uninterrupt_ot;	    //不可中斷負載預計執行時間
-extern int *uninterrupt_reot;	//不可中斷負載剩餘執行時間
+extern int *uninterrupt_reot;	  //不可中斷負載剩餘執行時間
 extern float *uninterrupt_p;    //不可中斷負載固定耗能
 
 
