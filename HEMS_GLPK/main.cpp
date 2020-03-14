@@ -18,9 +18,10 @@ int time_block = 0, app_count = 0, variable = 0, divide = 0, sample_time = 0, sa
 float Cbat = 0.0, Vsys = 0.0, SOC_ini = 0.0, SOC_min = 0.0, SOC_max = 0.0
 , SOC_thres = 0.0, Pbat_min = 0.0, Pbat_max = 0.0, Pgrid_max = 0.0, Psell_max, Delta_battery = 0.0, Pfc_max = 0.0;
 
+
 float step1_bill = 0.0, step1_sell = 0.0, step1_PESS = 0.0;			//用於步驟一計算電費
 
-																	// app parameter
+// app parameter
 int interrupt_num = 0, uninterrupt_num = 0, varying_num = 0, ponit_num = 0;
 // power
 
@@ -33,7 +34,7 @@ MYSQL_ROW mysql_row;
 
 int main(void)
 {
-	/*============================獲取當前系統時間==================================*/
+	/*============================�脣��嗅�蝟餌絞��==================================*/
 	//vs2015
 	 // time_t t = time(NULL);
 	 // struct tm now_time;
@@ -46,7 +47,7 @@ int main(void)
 	RT_enable = 0;
 
 	//one_day scheduling MYSQL read PARM
-	/*============================== 資料庫抓取參數 ============================== */
+	/*============================== 鞈�摨急����� ============================== */
 
 	MYSQL *mysql_con = mysql_init(NULL);
 	MYSQL_RES *mysql_result;
@@ -88,6 +89,7 @@ int main(void)
 
 	//SELECT COLUMN_NAME FROM `COLUMNS` WHERE `COLUMN_NAME` BETWEEN 'A0' AND 'A95'
 
+
 	// 取得各app數目
 	snprintf(sql_buffer, sizeof(sql_buffer), "SELECT count(*) AS numcols FROM load_list WHERE group_id=1 "); //可中斷負載
 	mysql_query(mysql_con, sql_buffer);
@@ -97,13 +99,15 @@ int main(void)
 	mysql_free_result(mysql_result);
 	printf("interruptable app num:%d\n", interrupt_num);
 
-	snprintf(sql_buffer, sizeof(sql_buffer), "SELECT count(*) AS numcols FROM load_list WHERE group_id=2 "); //不可中斷負載
+
+  snprintf(sql_buffer, sizeof(sql_buffer), "SELECT count(*) AS numcols FROM load_list WHERE group_id=2 "); //不可中斷負載
 	mysql_query(mysql_con, sql_buffer);
 	mysql_result = mysql_store_result(mysql_con);
 	mysql_row = mysql_fetch_row(mysql_result);
 	uninterrupt_num = atoi(mysql_row[0]);
 	mysql_free_result(mysql_result);
 	printf("uninterruptable app num:%d\n", uninterrupt_num);
+
 
 	snprintf(sql_buffer, sizeof(sql_buffer), "SELECT count(*) AS numcols FROM load_list WHERE group_id=3 "); //變動型負載
 	mysql_query(mysql_con, sql_buffer);
@@ -115,7 +119,9 @@ int main(void)
 
 
 
+
 	//取得所有的共同參數並計算
+
 	for (i = 1; i <= 17; i++)
 	{
 		snprintf(sql_buffer, sizeof(sql_buffer), "select value from LP_BASE_PARM where 	parameter_id = '%d'", i);
@@ -172,6 +178,7 @@ int main(void)
 	ponit_num = 6;
 	variable = app_count + 9 + uninterrupt_num + (varying_num * 2) + 2 + 2 * (ponit_num - 1) + 3;	//家庭負載狀態變數(app_count)+市電輸出功率變數(1)+決定市電輸出狀態(1)+決定電池輸出功率(1) + 電池充電功率(1) + 電池放電功率(1)    //MUSTMUSTMUST CHANGE(if add rows) 
 																								//+ 賣電功率(1) +不可中斷負載輔助二元變數(uninterrupt_num)+變動負載輔助二元變數(varying_num)+變動負載耗能變數(varying_num)+FC(1)+FC_T(1)+z_Pfc(ponit_num-1)+s_Pfc(ponit_num-1) +Pfc_on(1)+Pfc_off(1)+Pfc_choice(1)
+
 	divide = (time_block / 24);
 	delta_T = 1.0 / (float)divide;
 	Vsys = base_par[5];
@@ -211,8 +218,8 @@ int main(void)
 	printf("sample_time:%d\n", sample_time);
 
 
-
 	//更新參數
+
 	for (i = 1; i <= 13; i++)
 	{
 		snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE LP_BASE_PARM SET value = '%f' WHERE  PARM_id = '%d'", base_par[i - 1], i);
@@ -258,6 +265,7 @@ int main(void)
 		mysql_free_result(mysql_result);
 	}
 
+
 	//抓取各app參數
 	for (i = 1; i < interrupt_num + 1; i++)    //可中斷
 	{
@@ -274,6 +282,7 @@ int main(void)
 		mysql_free_result(mysql_result);
 	}
 
+
 	for (i = 1; i < uninterrupt_num + 1; i++)   //不可中斷
 	{
 		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT start_time, end_time,operation_time ,power1 FROM load_list WHERE group_id = 2 ORDER BY number ASC LIMIT %d,1", i - 1);
@@ -288,6 +297,7 @@ int main(void)
 		//printf("\n");
 		mysql_free_result(mysql_result);
 	}
+
 
 	for (i = 1; i < varying_num + 1; i++)   //變動型
 	{
@@ -317,6 +327,7 @@ int main(void)
 		mysql_free_result(mysql_result);
 	}
 
+
 	/*===========================分配動態陣列大小=================================*/
 	int *interrupt_start = new int[interrupt_num];
 	int *interrupt_end = new int[interrupt_num];
@@ -330,7 +341,7 @@ int main(void)
 	int *uninterrupt_reot = new int[uninterrupt_num];
 	float *uninterrupt_p = new float[uninterrupt_num];
 	int *uninterrupt_flag = new int[uninterrupt_num];				//旗標
-
+  
 	int *varying_start = new int[varying_num];
 	int *varying_end = new int[varying_num];
 	int *varying_ot = new int[varying_num];
@@ -372,7 +383,6 @@ int main(void)
 		}
 	}
 
-
 	/*===========================設定設備起迄時間與功率=============================*/
 	//註：所有的時間已轉換成96block 所以不用乘以divide(All the time has been converted to 96block so do not multiply "divide")
 	for (i = 0; i < interrupt_num; i++)
@@ -406,6 +416,7 @@ int main(void)
 		printf("%d  %d   %d  ", varying_start[i], varying_end[i], varying_ot[i]);
 		for (j = 0; j < 3; j++)
 		{
+
 			varying_p_pow[i][j] = VAR_power[i][3 + j];    //變動型第四個變數開始
 			printf("%.3f ", varying_p_pow[i][j]);
 		}
