@@ -7,49 +7,49 @@
 //	float *Pa;
 //}changeable;
 
-extern float step1_bill;			//¥Î©ó¨BÆJ¤@­pºâ¹q¶O
-extern float step1_sell;			//¥Î©ó¨BÆJ¤@­pºâ¹q¶O
-extern float step1_PESS;			//¥Î©ó¨BÆJ¤@­pºâPESS-­È
+extern float step1_bill;        //ç”¨æ–¼æ­¥é©Ÿä¸€è¨ˆç®—é›»è²»
+extern float step1_sell;        //ç”¨æ–¼æ­¥é©Ÿä¸€è¨ˆç®—é›»è²»
+extern float step1_PESS;	    //ç”¨æ–¼æ­¥é©Ÿä¸€è¨ˆç®—PESS-å€¼
 
 
-extern int sample_time;				//²Ä___­Ó¨ú¼Ë®É¶¡
-extern int time_block;				//Á`¨ú¼Ë®É¶¡
-extern int app_count;				//Á`­t¸ü¼Æ¶q(¥i¤¤Â_­t¸ü + ¤£¥i¤¤Â_­t¸ü)
-extern int variable;				//ÅÜ¼Æ¼Æ¶q
-extern int divide;					//¨C¤@¤p®É¦³___­Ó¨ú¼Ë®É¶¡
-extern int sa_counter;				//ªí¥Üsa¤¤¥¼±Ò°Ê¤£¥i¤¤Â_­t¸ü+ÅÜ°Ê­t¸ü­Ó¼Æ
-extern int rasa_counter;		    //ªí¥Üra()>=sa()¤¤¥¼±Ò°Ê¤£¥i¤¤Â_­t¸ü+ÅÜ°Ê­t¸ü­Ó¼Æ
+extern int sample_time;         //ç¬¬___å€‹å–æ¨£æ™‚é–“
+extern int time_block;          //ç¸½å–æ¨£æ™‚é–“
+extern int app_count;           //ç¸½è² è¼‰æ•¸é‡(å¯ä¸­æ–·è² è¼‰ + ä¸å¯ä¸­æ–·è² è¼‰)
+extern int variable;            //è®Šæ•¸æ•¸é‡
+extern int divide;              //æ¯ä¸€å°æ™‚æœ‰___å€‹å–æ¨£æ™‚é–“
+extern int sa_counter;          //è¡¨ç¤ºsaä¸­æœªå•Ÿå‹•ä¸å¯ä¸­æ–·è² è¼‰+è®Šå‹•è² è¼‰å€‹æ•¸
+extern int rasa_counter;        //è¡¨ç¤ºra()>=sa()ä¸­æœªå•Ÿå‹•ä¸å¯ä¸­æ–·è² è¼‰+è®Šå‹•è² è¼‰å€‹æ•¸
 
 
 extern float delta_T;
 
 extern int i, j, m, n, h, k;
-extern int RT_enable;               //¬O§_±Ò°Ê¤Î®É±Æµ{(¦pªG¤@¦¸±Æµ{¥¼°µ«h¤£±Ò°Ê)
+extern int RT_enable;           //æ˜¯å¦å•Ÿå‹•åŠæ™‚æ’ç¨‹(å¦‚æœä¸€æ¬¡æ’ç¨‹æœªåšå‰‡ä¸å•Ÿå‹•)
 extern double z;
 
-extern int interrupt_num;			//¥i¤¤Â_­t¸ü¼Æ¶q
-extern int *interrupt_start;		//¥i¤¤Â_­t¸ü±Æµ{±Ò©l®É¨è
-extern int *interrupt_end;			//¥i¤¤Â_­t¸ü±Æµ{¤¤¤î®É¨è
-extern int *interrupt_ot;			//¥i¤¤Â_­t¸ü¹w­p°õ¦æ®É¶¡
-extern int *interrupt_reot;			//¥i¤¤Â_­t¸ü³Ñ¾l°õ¦æ®É¶¡
-extern float *interrupt_p;			//¥i¤¤Â_­t¸ü©T©w¯Ó¯à
+extern int interrupt_num;       //å¯ä¸­æ–·è² è¼‰æ•¸é‡
+extern int *interrupt_start;    //å¯ä¸­æ–·è² è¼‰æ’ç¨‹å•Ÿå§‹æ™‚åˆ»
+extern int *interrupt_end;      //å¯ä¸­æ–·è² è¼‰æ’ç¨‹ä¸­æ­¢æ™‚åˆ»
+extern int *interrupt_ot;	    //å¯ä¸­æ–·è² è¼‰é è¨ˆåŸ·è¡Œæ™‚é–“
+extern int *interrupt_reot;	    //å¯ä¸­æ–·è² è¼‰å‰©é¤˜åŸ·è¡Œæ™‚é–“
+extern float *interrupt_p;	    //å¯ä¸­æ–·è² è¼‰å›ºå®šè€—èƒ½
 
 
-extern int uninterrupt_num;			//¤£¥i¤¤Â_­t¸ü¼Æ¶q
-extern int *uninterrupt_start;		//¤£¥i¤¤Â_­t¸ü±Æµ{±Ò©l®É¨è
-extern int *uninterrupt_end;		//¤£¥i¤¤Â_­t¸ü±Æµ{¤¤¤î®É¨è
-extern int *uninterrupt_ot;			//¤£¥i¤¤Â_­t¸ü¹w­p°õ¦æ®É¶¡
-extern int *uninterrupt_reot;		//¤£¥i¤¤Â_­t¸ü³Ñ¾l°õ¦æ®É¶¡
-extern float *uninterrupt_p;		//¤£¥i¤¤Â_­t¸ü©T©w¯Ó¯à
+extern int uninterrupt_num;     //ä¸å¯ä¸­æ–·è² è¼‰æ•¸é‡
+extern int *uninterrupt_start;  //ä¸å¯ä¸­æ–·è² è¼‰æ’ç¨‹å•Ÿå§‹æ™‚åˆ»
+extern int *uninterrupt_end;	//ä¸å¯ä¸­æ–·è² è¼‰æ’ç¨‹ä¸­æ­¢æ™‚åˆ»
+extern int *uninterrupt_ot;	    //ä¸å¯ä¸­æ–·è² è¼‰é è¨ˆåŸ·è¡Œæ™‚é–“
+extern int *uninterrupt_reot;	//ä¸å¯ä¸­æ–·è² è¼‰å‰©é¤˜åŸ·è¡Œæ™‚é–“
+extern float *uninterrupt_p;    //ä¸å¯ä¸­æ–·è² è¼‰å›ºå®šè€—èƒ½
 
 
-extern int *uninterrupt_flag;		//¤£¥i¤¤Â_­t¸ü¬O§_¤w¶}±ÒºX¼Ğ
+extern int *uninterrupt_flag;   //ä¸å¯ä¸­æ–·è² è¼‰æ˜¯å¦å·²é–‹å•Ÿæ——æ¨™
 
-extern int varying_num;			//ÅÜ°Ê­t¸ü¼Æ¶q
-extern int *varying_start;		//ÅÜ°Ê­t¸ü±Æµ{±Ò©l®É¨è
-extern int *varying_end;			//ÅÜ°Ê­t¸ü±Æµ{¤¤¤î®É¨è
-extern int *varying_ot;		//ÅÜ°Ê­t¸ü¹w­p°õ¦æ®É¶¡
-extern int *varying_reot;		//ÅÜ°Ê­t¸ü³Ñ¾l°õ¦æ®É¶¡
+extern int varying_num;         //è®Šå‹•è² è¼‰æ•¸é‡
+extern int *varying_start;      //è®Šå‹•è² è¼‰æ’ç¨‹å•Ÿå§‹æ™‚åˆ»
+extern int *varying_end;        //è®Šå‹•è² è¼‰æ’ç¨‹ä¸­æ­¢æ™‚åˆ»
+extern int *varying_ot;         //è®Šå‹•è² è¼‰é è¨ˆåŸ·è¡Œæ™‚é–“
+extern int *varying_reot;       //è®Šå‹•è² è¼‰å‰©é¤˜åŸ·è¡Œæ™‚é–“
 
 extern int ponit_num;
 
@@ -60,7 +60,7 @@ extern float **INT_power;
 extern float **UNINT_power;
 extern float **power;
 
-extern int *varying_flag;		//ÅÜ°Ê­t¸üª¬ºAºX¼Ğ(¬O§_¤w¶}±Ò)
+extern int *varying_flag;       //è®Šå‹•è² è¼‰ç‹€æ…‹æ——æ¨™(æ˜¯å¦å·²é–‹å•Ÿ)
 
 extern float *price;
 extern float solar[24];
