@@ -8,7 +8,6 @@
 #include <iostream>
 #include "HEMS.h" 
 
-//void GLPK(int *);
 //common variable
 int RT_enable = 0;
 int h, i, j, k, m, n = 0;
@@ -19,7 +18,7 @@ int time_block = 0, app_count = 0, variable = 0, divide = 0, sample_time = 0, sa
 float Cbat = 0.0, Vsys = 0.0, SOC_ini = 0.0, SOC_min = 0.0, SOC_max = 0.0
 , SOC_thres = 0.0, Pbat_min = 0.0, Pbat_max = 0.0, Pgrid_max = 0.0, Psell_max, Delta_battery = 0.0, Pfc_max = 0.0;
 
-float step1_bill = 0.0, step1_sell = 0.0, step1_PESS = 0.0;			//¥Î©ó¨BÆJ¤@­pºâ¹q¶O
+float step1_bill = 0.0, step1_sell = 0.0, step1_PESS = 0.0;			//ç”¨æ–¼æ­¥é©Ÿä¸€è¨ˆç®—é›»è²»
 
 																	// app parameter
 int interrupt_num = 0, uninterrupt_num = 0, varying_num = 0, ponit_num = 0;
@@ -34,7 +33,7 @@ MYSQL_ROW mysql_row;
 
 int main(void)
 {
-	/*============================Àò¨ú·í«e¨t²Î®É¶¡==================================*/
+	/*============================ç²å–ç•¶å‰ç³»çµ±æ™‚é–“==================================*/
 	//vs2015
 	 // time_t t = time(NULL);
 	 // struct tm now_time;
@@ -47,7 +46,7 @@ int main(void)
 	RT_enable = 0;
 
 	//one_day scheduling MYSQL read PARM
-	/*============================== ¸ê®Æ®w§ì¨ú°Ñ¼Æ ============================== */
+	/*============================== è³‡æ–™åº«æŠ“å–åƒæ•¸ ============================== */
 
 	MYSQL *mysql_con = mysql_init(NULL);
 	MYSQL_RES *mysql_result;
@@ -89,8 +88,8 @@ int main(void)
 
 	//SELECT COLUMN_NAME FROM `COLUMNS` WHERE `COLUMN_NAME` BETWEEN 'A0' AND 'A95'
 
-	// ¨ú±o¦Uapp¼Æ¥Ø
-	snprintf(sql_buffer, sizeof(sql_buffer), "SELECT count(*) AS numcols FROM load_list WHERE group_id=1 "); //¥i¤¤Â_­t¸ü
+	// å–å¾—å„appæ•¸ç›®
+	snprintf(sql_buffer, sizeof(sql_buffer), "SELECT count(*) AS numcols FROM load_list WHERE group_id=1 "); //å¯ä¸­æ–·è² è¼‰
 	mysql_query(mysql_con, sql_buffer);
 	mysql_result = mysql_store_result(mysql_con);
 	mysql_row = mysql_fetch_row(mysql_result);
@@ -98,7 +97,7 @@ int main(void)
 	mysql_free_result(mysql_result);
 	printf("interruptable app num:%d\n", interrupt_num);
 
-	snprintf(sql_buffer, sizeof(sql_buffer), "SELECT count(*) AS numcols FROM load_list WHERE group_id=2 "); //¤£¥i¤¤Â_­t¸ü
+	snprintf(sql_buffer, sizeof(sql_buffer), "SELECT count(*) AS numcols FROM load_list WHERE group_id=2 "); //ä¸å¯ä¸­æ–·è² è¼‰
 	mysql_query(mysql_con, sql_buffer);
 	mysql_result = mysql_store_result(mysql_con);
 	mysql_row = mysql_fetch_row(mysql_result);
@@ -106,7 +105,7 @@ int main(void)
 	mysql_free_result(mysql_result);
 	printf("uninterruptable app num:%d\n", uninterrupt_num);
 
-	snprintf(sql_buffer, sizeof(sql_buffer), "SELECT count(*) AS numcols FROM load_list WHERE group_id=3 "); //ÅÜ°Ê«¬­t¸ü
+	snprintf(sql_buffer, sizeof(sql_buffer), "SELECT count(*) AS numcols FROM load_list WHERE group_id=3 "); //è®Šå‹•å‹è² è¼‰
 	mysql_query(mysql_con, sql_buffer);
 	mysql_result = mysql_store_result(mysql_con);
 	mysql_row = mysql_fetch_row(mysql_result);
@@ -116,7 +115,7 @@ int main(void)
 
 
 
-	//¨ú±o©Ò¦³ªº¦@¦P°Ñ¼Æ¨Ã­pºâ
+	//å–å¾—æ‰€æœ‰çš„å…±åŒåƒæ•¸ä¸¦è¨ˆç®—
 	for (i = 1; i <= 17; i++)
 	{
 		snprintf(sql_buffer, sizeof(sql_buffer), "select value from LP_BASE_PARM where 	parameter_id = '%d'", i);
@@ -168,11 +167,11 @@ int main(void)
 
 	//send parameter to variale number
 	time_block = base_par[0];
-	app_count = interrupt_num + uninterrupt_num + varying_num;	//¥i¤¤Â_­t¸ü¼Æ¶q + ¤£¥i¤¤Â_­t¸ü¼Æ¶q+ÅÜ°Ê«¬¼Æ¶q
+	app_count = interrupt_num + uninterrupt_num + varying_num;	//å¯ä¸­æ–·è² è¼‰æ•¸é‡ + ä¸å¯ä¸­æ–·è² è¼‰æ•¸é‡+è®Šå‹•å‹æ•¸é‡
 	//ponit_num = 5;
 	ponit_num = 6;
-	variable = app_count + 9 + uninterrupt_num + (varying_num * 2) + 2 + 2 * (ponit_num - 1) + 3;	//®a®x­t¸üª¬ºAÅÜ¼Æ(app_count)+¥«¹q¿é¥X¥\²vÅÜ¼Æ(1)+¨M©w¥«¹q¿é¥Xª¬ºA(1)+¨M©w¹q¦À¿é¥X¥\²v(1) + ¹q¦À¥R¹q¥\²v(1) + ¹q¦À©ñ¹q¥\²v(1)    //MUSTMUSTMUST CHANGE(if add rows) 
-																								//+ ½æ¹q¥\²v(1) +¤£¥i¤¤Â_­t¸ü»²§U¤G¤¸ÅÜ¼Æ(uninterrupt_num)+ÅÜ°Ê­t¸ü»²§U¤G¤¸ÅÜ¼Æ(varying_num)+ÅÜ°Ê­t¸ü¯Ó¯àÅÜ¼Æ(varying_num)+FC(1)+FC_T(1)+z_Pfc(ponit_num-1)+s_Pfc(ponit_num-1) +Pfc_on(1)+Pfc_off(1)+Pfc_choice(1)
+	variable = app_count + 9 + uninterrupt_num + (varying_num * 2) + 2 + 2 * (ponit_num - 1) + 3;	//å®¶åº­è² è¼‰ç‹€æ…‹è®Šæ•¸(app_count)+å¸‚é›»è¼¸å‡ºåŠŸç‡è®Šæ•¸(1)+æ±ºå®šå¸‚é›»è¼¸å‡ºç‹€æ…‹(1)+æ±ºå®šé›»æ± è¼¸å‡ºåŠŸç‡(1) + é›»æ± å……é›»åŠŸç‡(1) + é›»æ± æ”¾é›»åŠŸç‡(1)    //MUSTMUSTMUST CHANGE(if add rows) 
+																								//+ è³£é›»åŠŸç‡(1) +ä¸å¯ä¸­æ–·è² è¼‰è¼”åŠ©äºŒå…ƒè®Šæ•¸(uninterrupt_num)+è®Šå‹•è² è¼‰è¼”åŠ©äºŒå…ƒè®Šæ•¸(varying_num)+è®Šå‹•è² è¼‰è€—èƒ½è®Šæ•¸(varying_num)+FC(1)+FC_T(1)+z_Pfc(ponit_num-1)+s_Pfc(ponit_num-1) +Pfc_on(1)+Pfc_off(1)+Pfc_choice(1)
 	divide = (time_block / 24);
 	delta_T = 1.0 / (float)divide;
 	Vsys = base_par[5];
@@ -213,7 +212,7 @@ int main(void)
 
 
 
-	//§ó·s°Ñ¼Æ
+	//æ›´æ–°åƒæ•¸
 	for (i = 1; i <= 13; i++)
 	{
 		snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE LP_BASE_PARM SET value = '%f' WHERE  PARM_id = '%d'", base_par[i - 1], i);
@@ -259,8 +258,8 @@ int main(void)
 		mysql_free_result(mysql_result);
 	}
 
-	//§ì¨ú¦Uapp°Ñ¼Æ
-	for (i = 1; i < interrupt_num + 1; i++)    //¥i¤¤Â_
+	//æŠ“å–å„appåƒæ•¸
+	for (i = 1; i < interrupt_num + 1; i++)    //å¯ä¸­æ–·
 	{
 		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT start_time, end_time,operation_time ,power1 FROM load_list WHERE group_id = 1 ORDER BY number ASC LIMIT %d,1", i - 1);
 		mysql_query(mysql_con, sql_buffer);
@@ -275,7 +274,7 @@ int main(void)
 		mysql_free_result(mysql_result);
 	}
 
-	for (i = 1; i < uninterrupt_num + 1; i++)   //¤£¥i¤¤Â_
+	for (i = 1; i < uninterrupt_num + 1; i++)   //ä¸å¯ä¸­æ–·
 	{
 		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT start_time, end_time,operation_time ,power1 FROM load_list WHERE group_id = 2 ORDER BY number ASC LIMIT %d,1", i - 1);
 		mysql_query(mysql_con, sql_buffer);
@@ -290,7 +289,7 @@ int main(void)
 		mysql_free_result(mysql_result);
 	}
 
-	for (i = 1; i < varying_num + 1; i++)   //ÅÜ°Ê«¬
+	for (i = 1; i < varying_num + 1; i++)   //è®Šå‹•å‹
 	{
 
 		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT start_time, end_time,operation_time,power1,power2,power3,block1,block2,block3 FROM load_list WHERE group_id = 3 ORDER BY number ASC LIMIT %d,1", i - 1);
@@ -306,19 +305,19 @@ int main(void)
 		mysql_free_result(mysql_result);
 	}
 
-	//§ì¨ú·í«e¹q»ù
+	//æŠ“å–ç•¶å‰é›»åƒ¹
 	for (i = 1; i < 25; i++)
 	{
 		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT price_value FROM price WHERE price_period = %d", i - 1);
 		mysql_query(mysql_con, sql_buffer);
 		mysql_result = mysql_store_result(mysql_con);
 		mysql_row = mysql_fetch_row(mysql_result);
-		price[i - 1] = atof(mysql_row[0]);					//Àò¨ú¨ú¼Ë®É¨è
+		price[i - 1] = atof(mysql_row[0]);					//ç²å–å–æ¨£æ™‚åˆ»
 		memset(sql_buffer, 0, sizeof(sql_buffer));
 		mysql_free_result(mysql_result);
 	}
 
-	/*===========================¤À°t°ÊºA°}¦C¤j¤p=================================*/
+	/*===========================åˆ†é…å‹•æ…‹é™£åˆ—å¤§å°=================================*/
 	int *interrupt_start = new int[interrupt_num];
 	int *interrupt_end = new int[interrupt_num];
 	int *interrupt_ot = new int[interrupt_num];
@@ -330,7 +329,7 @@ int main(void)
 	int *uninterrupt_ot = new int[uninterrupt_num];
 	int *uninterrupt_reot = new int[uninterrupt_num];
 	float *uninterrupt_p = new float[uninterrupt_num];
-	int *uninterrupt_flag = new int[uninterrupt_num];				//ºX¼Ğ
+	int *uninterrupt_flag = new int[uninterrupt_num];				//æ——æ¨™
 
 	int *varying_start = new int[varying_num];
 	int *varying_end = new int[varying_num];
@@ -338,10 +337,10 @@ int main(void)
 	int *varying_reot = new int[varying_num];
 	int **varying_t_pow = NEW2D(varying_num, 3, int);
 	float **varying_p_pow = NEW2D(varying_num, 3, float);
-	int *varying_flag = new int[varying_num];				//ºX¼Ğ
+	int *varying_flag = new int[varying_num];				//æ——æ¨™
 
 
-  /*===========================±N°}¦Cªì©l¤Æ=================================*/
+  /*===========================å°‡é™£åˆ—åˆå§‹åŒ–=================================*/
 	for (i = 0; i < interrupt_num; i++)
 	{
 		interrupt_start[i] = 0;
@@ -374,8 +373,8 @@ int main(void)
 	}
 
 
-	/*===========================³]©w³]³Æ°_¨´®É¶¡»P¥\²v=============================*/
-	//µù¡G©Ò¦³ªº®É¶¡¤wÂà´«¦¨96block ©Ò¥H¤£¥Î­¼¥Hdivide(All the time has been converted to 96block so do not multiply "divide")
+	/*===========================è¨­å®šè¨­å‚™èµ·è¿„æ™‚é–“èˆ‡åŠŸç‡=============================*/
+	//è¨»ï¼šæ‰€æœ‰çš„æ™‚é–“å·²è½‰æ›æˆ96block æ‰€ä»¥ä¸ç”¨ä¹˜ä»¥divide(All the time has been converted to 96block so do not multiply "divide")
 	for (i = 0; i < interrupt_num; i++)
 	{
 		interrupt_start[i] = ((int)(INT_power[i][0] * divide));
@@ -407,12 +406,12 @@ int main(void)
 		printf("%d  %d   %d  ", varying_start[i], varying_end[i], varying_ot[i]);
 		for (j = 0; j < 3; j++)
 		{
-			varying_p_pow[i][j] = VAR_power[i][3 + j];    //ÅÜ°Ê«¬²Ä¥|­ÓÅÜ¼Æ¶}©l
+			varying_p_pow[i][j] = VAR_power[i][3 + j];    //è®Šå‹•å‹ç¬¬å››å€‹è®Šæ•¸é–‹å§‹
 			printf("%.3f ", varying_p_pow[i][j]);
 		}
 		for (j = 0; j < 3; j++)
 		{
-			varying_t_pow[i][j] = ((int)(VAR_power[i][6 + j] * divide));       //ÅÜ°Ê«¬²Ä¤C­ÓÅÜ¼Æ¶}©l
+			varying_t_pow[i][j] = ((int)(VAR_power[i][6 + j] * divide));       //è®Šå‹•å‹ç¬¬ä¸ƒå€‹è®Šæ•¸é–‹å§‹
 			printf("%d ", varying_t_pow[i][j]);
 		}
 		printf("\n");
@@ -532,5 +531,3 @@ int main(void)
 	system("pause");
 	return 0;
 }
-
-
