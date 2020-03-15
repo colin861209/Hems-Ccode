@@ -34,7 +34,6 @@ MYSQL_ROW mysql_row;
 
 int main(void)
 {
-	/*============================�脣��嗅�蝟餌絞��==================================*/
 	//vs2015
 	 // time_t t = time(NULL);
 	 // struct tm now_time;
@@ -47,8 +46,6 @@ int main(void)
 	RT_enable = 0;
 
 	//one_day scheduling MYSQL read PARM
-	/*============================== 鞈�摨急����� ============================== */
-
 	MYSQL *mysql_con = mysql_init(NULL);
 	MYSQL_RES *mysql_result;
 	MYSQL_ROW mysql_row;
@@ -60,7 +57,7 @@ int main(void)
 	int *position = new int[16];
 
 	if ((mysql_real_connect(mysql_con, "140.124.42.70", "root", "fuzzy314", "realtime", 6666, NULL, 0)) == NULL)
-		//if ((mysql_real_connect(mysql_con, "140.124.42.70", "root", "fuzzy314", "realtime", 7781, NULL, 0)) == NULL)
+	//if ((mysql_real_connect(mysql_con, "140.124.42.70", "root", "fuzzy314", "realtime", 7781, NULL, 0)) == NULL)
 	{
 		printf("Failed to connect to Mysql!\n");
 		system("pause");
@@ -75,7 +72,7 @@ int main(void)
 
 
 	//if just want only run realtime 24 hour.. otherwise you can commend it
-	snprintf(sql_buffer, sizeof(sql_buffer), "SELECT value FROM LP_BASE_PARM WHERE parameter_id = 27");//get now_SOC
+	snprintf(sql_buffer, sizeof(sql_buffer), "SELECT value FROM LP_BASE_PARM WHERE parameter_id = 27");	// get now_SOC
 	mysql_query(mysql_con, sql_buffer);
 	mysql_result = mysql_store_result(mysql_con);
 	mysql_row = mysql_fetch_row(mysql_result);
@@ -91,7 +88,7 @@ int main(void)
 
 
 	// 取得各app數目
-	snprintf(sql_buffer, sizeof(sql_buffer), "SELECT count(*) AS numcols FROM load_list WHERE group_id=1 "); //可中斷負載
+	snprintf(sql_buffer, sizeof(sql_buffer), "SELECT count(*) AS numcols FROM load_list WHERE group_id=1 "); //可中斷負載 = 12
 	mysql_query(mysql_con, sql_buffer);
 	mysql_result = mysql_store_result(mysql_con);
 	mysql_row = mysql_fetch_row(mysql_result);
@@ -99,8 +96,7 @@ int main(void)
 	mysql_free_result(mysql_result);
 	printf("interruptable app num:%d\n", interrupt_num);
 
-
-  snprintf(sql_buffer, sizeof(sql_buffer), "SELECT count(*) AS numcols FROM load_list WHERE group_id=2 "); //不可中斷負載
+ 	snprintf(sql_buffer, sizeof(sql_buffer), "SELECT count(*) AS numcols FROM load_list WHERE group_id=2 "); //不可中斷負載 = 2
 	mysql_query(mysql_con, sql_buffer);
 	mysql_result = mysql_store_result(mysql_con);
 	mysql_row = mysql_fetch_row(mysql_result);
@@ -108,8 +104,7 @@ int main(void)
 	mysql_free_result(mysql_result);
 	printf("uninterruptable app num:%d\n", uninterrupt_num);
 
-
-	snprintf(sql_buffer, sizeof(sql_buffer), "SELECT count(*) AS numcols FROM load_list WHERE group_id=3 "); //變動型負載
+	snprintf(sql_buffer, sizeof(sql_buffer), "SELECT count(*) AS numcols FROM load_list WHERE group_id=3 "); //變動型負載 = 1
 	mysql_query(mysql_con, sql_buffer);
 	mysql_result = mysql_store_result(mysql_con);
 	mysql_row = mysql_fetch_row(mysql_result);
@@ -118,10 +113,7 @@ int main(void)
 	printf("variable app num:%d\n", varying_num);
 
 
-
-
 	//取得所有的共同參數並計算
-
 	for (i = 1; i <= 17; i++)
 	{
 		snprintf(sql_buffer, sizeof(sql_buffer), "select value from LP_BASE_PARM where 	parameter_id = '%d'", i);
@@ -172,14 +164,15 @@ int main(void)
 	{same_day = 1;}	
 
 	//send parameter to variale number
-	time_block = base_par[0];
-	app_count = interrupt_num + uninterrupt_num + varying_num;	//可中斷負載數量 + 不可中斷負載數量+變動型數量
+	time_block = base_par[0]; // = 96
+	app_count = interrupt_num + uninterrupt_num + varying_num;	//可中斷負載數量+不可中斷負載數量+變動型數量 = 15
 	//ponit_num = 5;
 	ponit_num = 6;
-	variable = app_count + 9 + uninterrupt_num + (varying_num * 2) + 2 + 2 * (ponit_num - 1) + 3;	//家庭負載狀態變數(app_count)+市電輸出功率變數(1)+決定市電輸出狀態(1)+決定電池輸出功率(1) + 電池充電功率(1) + 電池放電功率(1)    //MUSTMUSTMUST CHANGE(if add rows) 
-																								//+ 賣電功率(1) +不可中斷負載輔助二元變數(uninterrupt_num)+變動負載輔助二元變數(varying_num)+變動負載耗能變數(varying_num)+FC(1)+FC_T(1)+z_Pfc(ponit_num-1)+s_Pfc(ponit_num-1) +Pfc_on(1)+Pfc_off(1)+Pfc_choice(1)
+	variable = app_count + 9 + uninterrupt_num + (varying_num * 2) + 2 + 2 * (ponit_num - 1) + 3;	// = 43
+	//家庭負載狀態變數(app_count)+市電輸出功率變數(1)+決定市電輸出狀態(1)+決定電池輸出功率(1) + 電池充電功率(1) + 電池放電功率(1)    //MUSTMUSTMUST CHANGE(if add rows) 
+	//+ 賣電功率(1) +不可中斷負載輔助二元變數(uninterrupt_num)+變動負載輔助二元變數(varying_num)+變動負載耗能變數(varying_num)+FC(1)+FC_T(1)+z_Pfc(ponit_num-1)+s_Pfc(ponit_num-1) +Pfc_on(1)+Pfc_off(1)+Pfc_choice(1)
 
-	divide = (time_block / 24);
+	divide = (time_block / 24);	
 	delta_T = 1.0 / (float)divide;
 	Vsys = base_par[5];
 	Cbat = base_par[6];
@@ -219,12 +212,12 @@ int main(void)
 
 
 	//更新參數
-
-	for (i = 1; i <= 13; i++)
-	{
-		snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE LP_BASE_PARM SET value = '%f' WHERE  PARM_id = '%d'", base_par[i - 1], i);
-		mysql_query(mysql_con, sql_buffer);
-	}
+	// non use
+	// for (i = 1; i <= 13; i++)
+	// {
+	// 	snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE LP_BASE_PARM SET value = '%f' WHERE  PARM_id = '%d'", base_par[i - 1], i);
+	// 	mysql_query(mysql_con, sql_buffer);
+	// }
 	printf("************system state************* \n");
 	printf("time block:%d\n", time_block);
 	printf("interrupt numbers:%d\n", interrupt_num);
@@ -247,13 +240,11 @@ int main(void)
 	printf("\n");
 
 	float *price = new float[24];
-	float **INT_power = NEW2D(interrupt_num, 4, float);
-	float **UNINT_power = NEW2D(uninterrupt_num, 4, float);
-	float **VAR_power = NEW2D(varying_num, 9, float);
+	float **INT_power = NEW2D(interrupt_num, 4, float);	// INT_power[12][4]
+	float **UNINT_power = NEW2D(uninterrupt_num, 4, float);	// UNINT_power[2][4]
+	float **VAR_power = NEW2D(varying_num, 9, float);	// VAR_power[1][9]
 
-
-
-
+	// 可中斷負載 -> 不可中斷負載 -> 變動型負載
 	for (i = 0; i < app_count; i++)
 	{
 		snprintf(sql_buffer, sizeof(sql_buffer), "select number from load_list WHERE group_id<>0 ORDER BY group_id ASC,number ASC LIMIT %d,1", i);
@@ -261,7 +252,6 @@ int main(void)
 		mysql_result = mysql_store_result(mysql_con);
 		mysql_row = mysql_fetch_row(mysql_result);
 		position[i] = atoi(mysql_row[j]);
-		//printf("xxxxxxx:%d\n", position[i]);
 		mysql_free_result(mysql_result);
 	}
 
@@ -269,16 +259,14 @@ int main(void)
 	//抓取各app參數
 	for (i = 1; i < interrupt_num + 1; i++)    //可中斷
 	{
-		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT start_time, end_time,operation_time ,power1 FROM load_list WHERE group_id = 1 ORDER BY number ASC LIMIT %d,1", i - 1);
+		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT start_time, end_time, operation_time, power1 FROM load_list WHERE group_id = 1 ORDER BY number ASC LIMIT %d,1", i - 1);
 		mysql_query(mysql_con, sql_buffer);
 		mysql_result = mysql_store_result(mysql_con);
 		mysql_row = mysql_fetch_row(mysql_result);
 		for (j = 0; j < 4; j++)
 		{
 			INT_power[i - 1][j] = atof(mysql_row[j]);
-			//	printf("%.2f    ", INT_power[i - 1][j]);
 		}
-		//printf("\n");
 		mysql_free_result(mysql_result);
 	}
 
@@ -292,9 +280,7 @@ int main(void)
 		for (j = 0; j < 4; j++)
 		{
 			UNINT_power[i - 1][j] = atof(mysql_row[j]);
-			//printf("%.2f    ", UNINT_power[i - 1][j]);
 		}
-		//printf("\n");
 		mysql_free_result(mysql_result);
 	}
 
@@ -309,9 +295,7 @@ int main(void)
 		for (j = 0; j < 9; j++)
 		{
 			VAR_power[i - 1][j] = atof(mysql_row[j]);
-			//printf("%.2f    ", VAR_power[i - 1][j]);
 		}
-		//printf("\n");
 		mysql_free_result(mysql_result);
 	}
 
@@ -340,7 +324,7 @@ int main(void)
 	int *uninterrupt_ot = new int[uninterrupt_num];
 	int *uninterrupt_reot = new int[uninterrupt_num];
 	float *uninterrupt_p = new float[uninterrupt_num];
-	int *uninterrupt_flag = new int[uninterrupt_num];				//旗標
+	int *uninterrupt_flag = new int[uninterrupt_num];	//不可中斷負載是否已開啟旗標
   
 	int *varying_start = new int[varying_num];
 	int *varying_end = new int[varying_num];
@@ -348,7 +332,7 @@ int main(void)
 	int *varying_reot = new int[varying_num];
 	int **varying_t_pow = NEW2D(varying_num, 3, int);
 	float **varying_p_pow = NEW2D(varying_num, 3, float);
-	int *varying_flag = new int[varying_num];				//旗標
+	int *varying_flag = new int[varying_num];	//變動負載狀態旗標(是否已開啟)
 
 
   /*===========================將陣列初始化=================================*/
@@ -388,7 +372,6 @@ int main(void)
 	for (i = 0; i < interrupt_num; i++)
 	{
 		interrupt_start[i] = ((int)(INT_power[i][0] * divide));
-		//interrupt_end[i] = ((int)(INT_power[i][1] * divide));
 		interrupt_end[i] = ((int)(INT_power[i][1] * divide)) - 1;
 		interrupt_ot[i] = ((int)(INT_power[i][2] * divide));
 		interrupt_p[i] = INT_power[i][3];
@@ -398,7 +381,6 @@ int main(void)
 	for (i = 0; i < uninterrupt_num; i++)
 	{
 		uninterrupt_start[i] = ((int)(UNINT_power[i][0] * divide));
-		//uninterrupt_end[i] = ((int)(UNINT_power[i][1] * divide));
 		uninterrupt_end[i] = ((int)(UNINT_power[i][1] * divide)) - 1;
 		uninterrupt_ot[i] = ((int)(UNINT_power[i][2] * divide));
 		uninterrupt_p[i] = UNINT_power[i][3];
@@ -410,19 +392,17 @@ int main(void)
 	for (i = 0; i < varying_num; i++)
 	{
 		varying_start[i] = ((int)(VAR_power[i][0] * divide));
-		//varying_end[i] = ((int)(VAR_power[i][1] * divide));
 		varying_end[i] = ((int)(VAR_power[i][1] * divide)) - 1;
 		varying_ot[i] = ((int)(VAR_power[i][2] * divide));
 		printf("%d  %d   %d  ", varying_start[i], varying_end[i], varying_ot[i]);
 		for (j = 0; j < 3; j++)
 		{
-
-			varying_p_pow[i][j] = VAR_power[i][3 + j];    //變動型第四個變數開始
+			varying_p_pow[i][j] = VAR_power[i][3 + j];	//變動型第四個變數開始
 			printf("%.3f ", varying_p_pow[i][j]);
 		}
 		for (j = 0; j < 3; j++)
 		{
-			varying_t_pow[i][j] = ((int)(VAR_power[i][6 + j] * divide));       //變動型第七個變數開始
+			varying_t_pow[i][j] = ((int)(VAR_power[i][6 + j] * divide));	//變動型第七個變數開始
 			printf("%d ", varying_t_pow[i][j]);
 		}
 		printf("\n");
@@ -432,12 +412,13 @@ int main(void)
 
 
 	//clean table (if at one_schedule)
+	//時刻 != 0 
 	if (same_day == 1 && real_time == 1)
 	{
 		printf(" *********real_time mode**********\n");
 
-		snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE real_status");      //clean real_status;
-		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT value FROM LP_BASE_PARM WHERE parameter_id = 25");//get now_SOC
+		snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE real_status");	//clean real_status;
+		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT value FROM LP_BASE_PARM WHERE parameter_id = 25");	//get now_SOC
 		mysql_query(mysql_con, sql_buffer);
 		mysql_result = mysql_store_result(mysql_con);
 		mysql_row = mysql_fetch_row(mysql_result);
@@ -450,20 +431,18 @@ int main(void)
 		memset(sql_buffer, 0, sizeof(sql_buffer));
 		mysql_free_result(mysql_result);
 	}
+	// 時刻 = 0
 	else
 	{
 
 		snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE control_status");      //clean control_status;
 		mysql_query(mysql_con, sql_buffer);
-		snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE real_status");      //clean control_status;
+		snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE real_status");      //clean real_status;
 		mysql_query(mysql_con, sql_buffer);
-		snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE cost");      //clean control_status;
+		snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE cost");      //clean cost;
 		mysql_query(mysql_con, sql_buffer);
-		snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE solar_fake");      //clean control_status;
+		snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE solar_fake");      //clean solar_fake;
 		mysql_query(mysql_con, sql_buffer);
-		//snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE solar_day");      //clean control_status;
-		//mysql_query(mysql_con, sql_buffer);
-
 
 		if (real_time == 0)   //if we want only do one day schedule
 		{
@@ -473,7 +452,7 @@ int main(void)
 			mysql_result = mysql_store_result(mysql_con);
 			mysql_row = mysql_fetch_row(mysql_result);
 			SOC_ini = atof(mysql_row[0]);
-		// SOC_ini=0.7;   //for test
+			// SOC_ini=0.7;   //for test
 			printf("ini_SOC:%f\n", SOC_ini);
 			memset(sql_buffer, 0, sizeof(sql_buffer));
 			mysql_free_result(mysql_result);
