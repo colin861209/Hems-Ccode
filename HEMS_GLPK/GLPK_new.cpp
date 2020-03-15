@@ -1348,14 +1348,6 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	}
 	printf("sample:%d", noo);
 
-	// MARK: sample time = 0 
-	// 		UPDATE 1st ~ app_count load's now timeblock 0/1 status to table 'now_status'
-	//  	INSERT 1st ~ app_count id, status, schedule now timeblock 0/1 status to table 'control_history'
-	//  	INSERT 1st ~ variable load's all timeblock 0/1 status to table 'control_status'
-	// MARK: sample time != 0 
-	//  	SELECT 1st ~ variable load's all timeblock 0/1 status from table 'control_status' put into s[k]
-	//  	
-	// 
 	for (i = 1; i <= variable; i++)
 	{
 		h = i;
@@ -1510,13 +1502,6 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	}
 
 
-
-	// MARK: sample time = 0
-	// 		UPDATE parameter_id 18.now_power_result, 19.var_grid_result, 20.opt_cost_result, 21.opt_sell_result, 22.opt_FC_cost_result, 23.opt_Hydrogen_result to table 'LP_BASE_PARM'  
-	// 		INSERT control_id 1.now_grid, 2.varying_grid, 3.cost ,4.sell, 5.FC_cost, 6.Hydrogen_com, 7.FC_every_cost to talbe 'cost'
-	// MARK: sample time != 0
-	// 		UPDATE parameter_id 19.var_grid_result, 20.opt_cost_result, 21.opt_sell_result, 22.opt_FC_cost_result, 23.opt_Hydrogen_result to table 'LP_BASE_PARM'  
-	// 		UPDATE control_id 1.now_grid, 2.varying_grid, 3.cost ,4.sell, 5.FC_cost, 6.Hydrogen_com, 7.FC_every_cost to talbe 'cost'
 	if (sample_time == 0)
 	{	
 		// now grid 
@@ -1735,7 +1720,6 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		price_sum_now_power = (120.0 / 30.0)*P_1 + ((330.0 - 120.0) / 30.0)*P_2 + ((500.0 - 330.0) / 30.0)*P_3 + ((700.0 - 500.0) / 30.0)*P_4 + ((1000.0 - 700.0) / 30.0)*P_5 + (now_power_result - (1000.0 / 30.0))*P_6;
 	}*/
 
-	// MARK: UPDATE price_sum_now_power (after now_power_result calculated) to table 'LP_BASE_PARM'
 	printf("Now power result:%f\n",now_power_result);
 	if (now_power_result <= (120.0 / 30.0))
 	{
