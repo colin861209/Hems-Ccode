@@ -1,6 +1,7 @@
 #ifndef HEMS_H
 #define HEMS_H
-
+// Comment by ColinWang on 2020/3/15 
+// According to KU's data
 //typedef struct
 //{
 //	int *tse;
@@ -13,10 +14,10 @@ extern float step1_PESS;	      //用於步驟一計算PESS-值
 
 
 extern int sample_time;         //第___個取樣時間
-extern int time_block;          //總取樣時間
-extern int app_count;           //總負載數量(可中斷負載 + 不可中斷負載)
-extern int variable;            //變數數量
-extern int divide;              //每一小時有___個取樣時間
+extern int time_block;          //總取樣時間 = 96
+extern int app_count;           //總負載數量(可中斷負載 + 不可中斷負載+變動型負載) = 15
+extern int variable;            //變數數量 = 43
+extern int divide;              //每一小時有___個取樣時間 = 4
 extern int sa_counter;          //表示sa中未啟動不可中斷負載+變動負載個數
 extern int rasa_counter;        //表示ra()>=sa()中未啟動不可中斷負載+變動負載個數
 
