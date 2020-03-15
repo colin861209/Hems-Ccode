@@ -41,8 +41,6 @@ extern int *uninterrupt_end;	  //不可中斷負載排程中止時刻
 extern int *uninterrupt_ot;	    //不可中斷負載預計執行時間
 extern int *uninterrupt_reot;	  //不可中斷負載剩餘執行時間
 extern float *uninterrupt_p;    //不可中斷負載固定耗能
-
-
 extern int *uninterrupt_flag;   //不可中斷負載是否已開啟旗標
 
 extern int varying_num;         //變動負載數量
