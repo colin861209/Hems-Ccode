@@ -906,7 +906,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	}
 
 
-	//�ܰʫ��t���ӯ�Pa
+	// 變動型負載耗能Pa
 	for (h = 0; h < varying_num; h++)
 	{
 		if (varying_flag[h] == 0)
@@ -920,7 +920,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 						for (i = (varying_start[h] - sample_time); i <= ((varying_end[h] - varying_reot[h] + 1) - sample_time); i++)
 						{
 							power1[(time_block - sample_time) * k + app_count + 2 + counter + i][(i * variable) + h + (variable - (varying_num * 2))] = -1.0 * (((float)varying_t_d[h][i]) * (varying_p_d[h][m]));
-							power1[(time_block - sample_time) * k + app_count + 2 + counter + i][((i + m) * variable) + h + (variable - varying_num)] = 1.0;    //���U�ܼ�Pa 
+							power1[(time_block - sample_time) * k + app_count + 2 + counter + i][((i + m) * variable) + h + (variable - varying_num)] = 1.0;    // 輔助變數Pa
 						}
 					}
 					else if ((varying_start[h] - sample_time) < 0)
@@ -928,7 +928,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 						for (i = 0; i <= ((varying_end[h] - varying_reot[h] + 1) - sample_time); i++)
 						{
 							power1[(time_block - sample_time) * k + app_count + 2 + counter + i][(i * variable) + h + (variable - (varying_num * 2))] = -1.0 * (((float)varying_t_d[h][i]) * (varying_p_d[h][m]));
-							power1[(time_block - sample_time) * k + app_count + 2 + counter + i][((i + m) * variable) + h + (variable - varying_num)] = 1.0;    //���U�ܼ�Pa 
+							power1[(time_block - sample_time) * k + app_count + 2 + counter + i][((i + m) * variable) + h + (variable - varying_num)] = 1.0;    // 輔助變數Pa  
 						}
 					}
 				}
@@ -937,7 +937,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		}
 		if (varying_flag[h] == 1)
 		{
-			//h�X�W			
+			//h擴增			
 			if ((varying_end[h] - sample_time) >= 0)
 			{
 				if ((varying_start[h] - sample_time) >= 0)
@@ -945,7 +945,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 					for (i = (varying_start[h] - sample_time); i <= (varying_end[h] - sample_time); i++)
 					{
 						power1[(time_block - sample_time) * (10 + n) + app_count + 2 + counter + i][(i * variable) + h + interrupt_num + uninterrupt_num] = -1.0 * ((float)(varying_t_d[h][i]) * (varying_p_d[h][i + buff[h + interrupt_num + uninterrupt_num]]));
-						power1[(time_block - sample_time) * (10 + n) + app_count + 2 + counter + i][(i * variable) + h + (variable - varying_num)] = 1.0;    //���U�ܼ�Pa 
+						power1[(time_block - sample_time) * (10 + n) + app_count + 2 + counter + i][(i * variable) + h + (variable - varying_num)] = 1.0;    // 輔助變數Pa
 					}
 				}
 				else if ((varying_start[h] - sample_time) < 0)
@@ -953,7 +953,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 					for (i = 0; i <= (varying_end[h] - sample_time); i++)
 					{
 						power1[(time_block - sample_time) * (10 + n) + app_count + 2 + counter + i][(i * variable) + h + interrupt_num + uninterrupt_num] = -1.0 * ((float)(varying_t_d[h][i]) * (varying_p_d[h][i + buff[h + interrupt_num + uninterrupt_num]]));
-						power1[(time_block - sample_time) * (10 + n) + app_count + 2 + counter + i][(i * variable) + h + (variable - varying_num)] = 1.0;    //���U�ܼ�Pa 
+						power1[(time_block - sample_time) * (10 + n) + app_count + 2 + counter + i][(i * variable) + h + (variable - varying_num)] = 1.0;    // 輔助變數Pa
 					}
 				}
 			}
@@ -963,16 +963,16 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 
 
 
-	/*==============================�ŧi�������d��(row)===============================*/
-	//GLPKŪ�C�q1�}�l
-	//���-�a�x�t���̧C�ӯ�
-	for (i = 1; i <= interrupt_num; i++)								//�i���_�t��(Interrupt load)
+	/*============================== 宣告限制式條件範圍(row) ===============================*/
+	// GLPK讀列從1開始
+	// 限制式-家庭負載最低耗能
+	for (i = 1; i <= interrupt_num; i++)	// 可中斷負載(Interrupt load)
 	{
 		glp_set_row_name(mip, i, "");
 		//glp_set_row_bnds(mip, i, GLP_LO, ((float)interrupt_reot[i - 1]), 0.0);
 		glp_set_row_bnds(mip, i, GLP_LO, ((float)interrupt_reot[i - 1]), 0.0);//ok
 	}
-	for (i = 1; i <= uninterrupt_num; i++)								//���i���_�t��
+	for (i = 1; i <= uninterrupt_num; i++)	// 不可中斷負載
 	{
 		if (uninterrupt_flag[i] == 0)
 		{
@@ -981,7 +981,8 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		    glp_set_row_bnds(mip, i + interrupt_num, GLP_LO, ((float)uninterrupt_reot[i - 1]), ((float)uninterrupt_reot[i - 1]));//ok
 		}
 	}
-	for (i = 1; i <= varying_num; i++)								//�ܰʭt��
+	for (i = 1; i <= varying_num; i++)	//變動負載
+
 	{
 		if (varying_flag[i] == 0)
 		{
@@ -992,21 +993,21 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		}
 	}
 
-	//�M�w�O�_��X���q
+	// 決定是否輸出市電
 	for (i = 1; i <= (time_block - sample_time); i++)
 	{
 		glp_set_row_name(mip, (app_count + i), "");
 		glp_set_row_bnds(mip, (app_count + i), GLP_UP, 0.0, 0.0);
 	}
 
-	//if no sell//�M�w�O�_��q
+	//if no sell // 決定是否賣電
 	for (i = 1; i <= (time_block - sample_time); i++)
 	{
 		glp_set_row_name(mip, ((time_block - sample_time) + app_count + i), "");
 		glp_set_row_bnds(mip, ((time_block - sample_time) + app_count + i), GLP_UP, 0.0, Psell_max);
 	}
 
-	//����j��SOC�����j����e�� (1)
+	// 限制隔天SOC必須大於門檻值 (1)
 	glp_set_row_name(mip, ((time_block - sample_time) * 2 + app_count + 1), "");
 	if (sample_time == 0)
 	{
@@ -1014,42 +1015,42 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	}
 	else
 	{
-		glp_set_row_bnds(mip, ((time_block - sample_time) * 2 + app_count + 1), GLP_DB, ((SOC_thres - SOC_ini) * Cbat * Vsys) / delta_T, ((0.89 - SOC_ini) * Cbat * Vsys) / delta_T); //�������Ѫ��X��
-		//glp_set_row_bnds(mip, ((time_block - sample_time) * 2 + app_count + 1), GLP_DB, ((0.6 - SOC_ini) * Cbat * Vsys) / delta_T, ((0.89 - SOC_ini) * Cbat * Vsys) / delta_T); //�������Ѫ��X��
+		glp_set_row_bnds(mip, ((time_block - sample_time) * 2 + app_count + 1), GLP_DB, ((SOC_thres - SOC_ini) * Cbat * Vsys) / delta_T, ((0.89 - SOC_ini) * Cbat * Vsys) / delta_T); // 比較能夠解的出來
+		//glp_set_row_bnds(mip, ((time_block - sample_time) * 2 + app_count + 1), GLP_DB, ((0.6 - SOC_ini) * Cbat * Vsys) / delta_T, ((0.89 - SOC_ini) * Cbat * Vsys) / delta_T); // 比較能夠解的出來
 	}
 	
 
-	//����U�@��SOC
+	//限制下一刻SOC
 	for (i = 1; i <= (time_block - sample_time); i++)
 	{
 		glp_set_row_name(mip, ((time_block - sample_time) * 2 + app_count + 1 + i), "");
 		glp_set_row_bnds(mip, ((time_block - sample_time) * 2 + app_count + 1 + i), GLP_FX, (SOC_ini * Cbat * Vsys / delta_T), (SOC_ini * Cbat * Vsys / delta_T));
 	}
 
-	//���Ŧ�
+	//平衡式
 	for (i = 1; i <= (time_block - sample_time); i++)
 	{
 		glp_set_row_name(mip, ((time_block - sample_time) * 3 + app_count + 1 + i), "");
-		//glp_set_row_bnds(mip, ((time_block - sample_time) * 3 + app_count + 1 + i), GLP_FX, solar2[i - 1 + sample_time], solar2[i - 1 + sample_time]);  //����Y�V�ܼ�max�ȤӤp�|�Ѥ��X��
-		//glp_set_row_bnds(mip, ((time_block - sample_time) * 3 + app_count + 1 + i), GLP_UP, solar2[i - 1 + sample_time], solar2[i - 1 + sample_time]);    //�Ω��ܼ�max�ȥi�H���N���ܮ�
-		glp_set_row_bnds(mip, ((time_block - sample_time) * 3 + app_count + 1 + i), GLP_DB, -0.0001, solar2[i - 1 + sample_time]);    //���|�é�q
+		//glp_set_row_bnds(mip, ((time_block - sample_time) * 3 + app_count + 1 + i), GLP_FX, solar2[i - 1 + sample_time], solar2[i - 1 + sample_time]);  // 比較嚴苛變數max值太小會解不出來
+		//glp_set_row_bnds(mip, ((time_block - sample_time) * 3 + app_count + 1 + i), GLP_UP, solar2[i - 1 + sample_time], solar2[i - 1 + sample_time]);    // 用於變數max值可以任意改變時
+		glp_set_row_bnds(mip, ((time_block - sample_time) * 3 + app_count + 1 + i), GLP_DB, -0.0001, solar2[i - 1 + sample_time]);    // 不會亂放電
 	}
 
-	//�R�q���
+	//充電限制式
 	for (i = 1; i <= (time_block - sample_time); i++)
 	{
 	glp_set_row_name(mip, ((time_block - sample_time) * 4 + app_count + 1 + i), "");
 	glp_set_row_bnds(mip, ((time_block - sample_time) * 4 + app_count + 1 + i), GLP_UP, 0.0, 0.0);
 	}
 
-	//��q���
+	//放電限制式
 	for (i = 1; i <= (time_block - sample_time); i++)
 	{
 	glp_set_row_name(mip, ((time_block - sample_time) * 5 + app_count + 1 + i), "");
 	glp_set_row_bnds(mip, ((time_block - sample_time) * 5 + app_count + 1 + i), GLP_UP, 0.0, Pbat_min);
 	}
 
-	//�q���\�v
+	//電池功率
 	for (i = 1; i <= (time_block - sample_time); i++)
 	{
 	glp_set_row_name(mip, ((time_block - sample_time) * 6 + app_count + 1 + i), "");
@@ -1079,7 +1080,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 
 	for (i = 1; i <= (time_block - sample_time); i++)
 	{
-		for (j = 1; j <= piecewise_num; j++)												//s-z<=0
+		for (j = 1; j <= piecewise_num; j++)	//s-z<=0
 		{
 			glp_set_row_name(mip, ((time_block - sample_time) * (9 + j) + app_count + 1 + i), "");
 			glp_set_row_bnds(mip, ((time_block - sample_time) * (9 + j) + app_count + 1 + i), GLP_UP,0.0, 0.0);
@@ -1093,7 +1094,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	{
 		if (uninterrupt_flag[h] == 0)
 		{
-			//���i���_�t�������U�ܼ�, sum = 1
+			// 不變動負載之輔助變數, sum = 1
 			glp_set_row_name(mip, ((time_block - sample_time) * (10 + piecewise_num) + app_count + 2 + counter), "");
 			glp_set_row_bnds(mip, ((time_block - sample_time) * (10 + piecewise_num) + app_count + 2 + counter), GLP_FX, 1.0, 1.0);
 
@@ -1104,7 +1105,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	{
 		if (varying_flag[h] == 0)
 		{
-			//�ܰʭt�������U�ܼ�, sum = 1
+			//變動負載之輔助變數, sum = 1
 			glp_set_row_name(mip, ((time_block - sample_time) * (10 + piecewise_num) + app_count + 2 + counter), "");
 			glp_set_row_bnds(mip, ((time_block - sample_time) * (10 + piecewise_num) + app_count + 2 + counter), GLP_FX, 1.0, 1.0);
 
@@ -1117,7 +1118,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	{
 		if (uninterrupt_flag[h] == 0)
 		{
-			//���i���_�t���M���ܼ�
+			//不可中斷負載決策變數
 			for (k = (10 + n); k < (10 + n) + uninterrupt_reot[h]; k++)
 			{
 				for (i = ((time_block - sample_time)*k + app_count + 2 + counter); i < ((time_block - sample_time)*(k + 1) + app_count + 2 + counter); i++)
@@ -1150,7 +1151,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	{
 		if (varying_flag[h] == 0)
 		{
-			//�ܰʭt���M���ܼ�
+			//變動負載決策變數
 			for (k = (10 + n); k < (10 + n) + varying_reot[h]; k++)
 			{
 				for (i = ((time_block - sample_time)*k + app_count + 2 + counter); i < ((time_block - sample_time)*(k + 1) + app_count + 2 + counter); i++)
@@ -1177,7 +1178,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		}
 	}
 
-	//�ܰʫ��t���ӯ�Pa	
+	//變動型負載耗能Pa	
 	for (h = 0; h < varying_num; h++)
 	{
 		if (varying_flag[h] == 0)
@@ -1203,28 +1204,28 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		}
 	}
 
-	/*==============================�ŧi�M���ܼ�(column)================================*/
+	/*============================== 宣告決策變數(column) ================================*/
 	for (i = 0; i < (time_block - sample_time); i++)
 	{
 		for (j = 1; j <= app_count; j++)
 		{
-			glp_set_col_bnds(mip, (j + i*variable), GLP_DB, 0.0, 1.0);															//�t���M���ܼ�
+			glp_set_col_bnds(mip, (j + i*variable), GLP_DB, 0.0, 1.0);															// 負載決策變數
 			glp_set_col_kind(mip, (j + i*variable), GLP_BV);
 		}
-		glp_set_col_bnds(mip, ((app_count + 1) + i*variable), GLP_DB, 0.0, Pgrid_max);									      //�M�w���q��X�\�v   �@�w�n�j���`�t���\�v�~���|���Ӥj���D
+		glp_set_col_bnds(mip, ((app_count + 1) + i*variable), GLP_DB, 0.0, Pgrid_max);									      // 決定市電輸出功率  一定要大於總負載功率才不會有太大問題
 		glp_set_col_kind(mip, ((app_count + 1) + i*variable), GLP_CV);
-		glp_set_col_bnds(mip, ((app_count + 2) + i*variable), GLP_DB, 0.0, 1.0);												//�M�w���q�O�_��X�G�����U�ܼ�
+		glp_set_col_bnds(mip, ((app_count + 2) + i*variable), GLP_DB, 0.0, 1.0);												// 決定市電是否輸出二元輔助變數
 		glp_set_col_kind(mip, ((app_count + 2) + i*variable), GLP_BV);
-		glp_set_col_bnds(mip, ((app_count + 3) + i*variable), GLP_DB, -Pbat_min, Pbat_max);										//Pess
+		glp_set_col_bnds(mip, ((app_count + 3) + i*variable), GLP_DB, -Pbat_min, Pbat_max);										// Pess
 		glp_set_col_kind(mip, ((app_count + 3) + i*variable), GLP_CV);
-		glp_set_col_bnds(mip, ((app_count + 4) + i*variable), GLP_FR, 0.0, Pbat_max);											//Pess +
+		glp_set_col_bnds(mip, ((app_count + 4) + i*variable), GLP_FR, 0.0, Pbat_max);											// Pess +
 		glp_set_col_kind(mip, ((app_count + 4) + i*variable), GLP_CV);
-		glp_set_col_bnds(mip, ((app_count + 5) + i*variable), GLP_FR, 0.0, Pbat_min);											//Pess -
+		glp_set_col_bnds(mip, ((app_count + 5) + i*variable), GLP_FR, 0.0, Pbat_min);											// Pess -
 		glp_set_col_kind(mip, ((app_count + 5) + i*variable), GLP_CV);
-		//glp_set_col_bnds(mip, ((app_count + 6) + i*variable), GLP_DB, 0.0, Psell_max);							                //�B�~�q�O//if no sell
-		glp_set_col_bnds(mip, ((app_count + 6) + i*variable), GLP_DB, -0.00000000001, Psell_max);							                //�B�~�q�O//if no sell
+		//glp_set_col_bnds(mip, ((app_count + 6) + i*variable), GLP_DB, 0.0, Psell_max);							                // 額外電力 // if no sell
+		glp_set_col_bnds(mip, ((app_count + 6) + i*variable), GLP_DB, -0.00000000001, Psell_max);							                // 額外電力 // if no sell
 		glp_set_col_kind(mip, ((app_count + 6) + i*variable), GLP_CV);
-		glp_set_col_bnds(mip, ((app_count + 7) + i*variable), GLP_DB, SOC_min, SOC_max);										//�q��SOC //if no sell
+		glp_set_col_bnds(mip, ((app_count + 7) + i*variable), GLP_DB, SOC_min, SOC_max);										// 電池SOC //if no sell
 		glp_set_col_kind(mip, ((app_count + 7) + i*variable), GLP_CV);
 		glp_set_col_bnds(mip, ((app_count + 8) + i*variable), GLP_DB, 0.0, 1.0);												//Z
 		glp_set_col_kind(mip, ((app_count + 8) + i*variable), GLP_BV);
@@ -1249,37 +1250,37 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 
 		for (j = 1; j <= uninterrupt_num; j++)
 		{
-			glp_set_col_bnds(mip, ((app_count + 11 + piecewise_num * 2 + j) + i*variable), GLP_DB, 0.0, 1.0);	                 //���i���_�t�����U�G���ܼ�
+			glp_set_col_bnds(mip, ((app_count + 11 + piecewise_num * 2 + j) + i*variable), GLP_DB, 0.0, 1.0);	                 //不可中斷負載輔助二元變數
 			glp_set_col_kind(mip, ((app_count + 11 + piecewise_num * 2 + j) + i*variable), GLP_BV);
 		}
 
 		for (j = 1; j <= varying_num; j++)
 		{
-			glp_set_col_bnds(mip, ((app_count + 11 + piecewise_num * 2 + uninterrupt_num + j) + i*variable), GLP_DB, 0.0, 1.0);						//�ܰʭt�����U�G���ܼ�
+			glp_set_col_bnds(mip, ((app_count + 11 + piecewise_num * 2 + uninterrupt_num + j) + i*variable), GLP_DB, 0.0, 1.0);						//變動負載輔助二元變數
 			glp_set_col_kind(mip, ((app_count + 11 + piecewise_num * 2 + uninterrupt_num + j) + i*variable), GLP_BV);
 		}
 
 		for (j = 1; j <= varying_num; j++)
 		{
-			//glp_set_col_bnds(mip, ((app_count + 11 + piecewise_num * 2 + uninterrupt_num + varying_num + j) + i*variable), GLP_LO, 0.0, 0.0);		//�ܰʭt���ӯ��ܼ�Pa
+			//glp_set_col_bnds(mip, ((app_count + 11 + piecewise_num * 2 + uninterrupt_num + varying_num + j) + i*variable), GLP_LO, 0.0, 0.0);		//變動負載耗能變數Pa
 			//glp_set_col_kind(mip, ((app_count + 11 + piecewise_num * 2 + uninterrupt_num + varying_num + j) + i*variable), GLP_CV);
-			glp_set_col_bnds(mip, ((app_count + 11 + piecewise_num * 2 + uninterrupt_num + varying_num + j) + i*variable), GLP_DB, 0.0, varying_p_max[j - 1]);				//�ܰʭt���ӯ��ܼ�Pa	
+			glp_set_col_bnds(mip, ((app_count + 11 + piecewise_num * 2 + uninterrupt_num + varying_num + j) + i*variable), GLP_DB, 0.0, varying_p_max[j - 1]);				//變動負載耗能變數Pa	
 			glp_set_col_kind(mip, ((app_count + 11 + piecewise_num * 2 + uninterrupt_num + varying_num + j) + i*variable), GLP_CV);
 		}
 
 	}
 
-	/*==============================�ŧi�ؼЦ��Ѽ�(column)===============================*/
+	/*============================== 宣告目標式參數(column) ===============================*/
 	for (j = 0; j < (time_block - sample_time); j++)
 	{
-		glp_set_obj_coef(mip, ((app_count + 1) + j*variable), price2[j + sample_time] * delta_T);							//��ؼ�cost(�B�J�@)
-		glp_set_obj_coef(mip, ((app_count + 6) + j*variable), price2[j + sample_time] * delta_T * (-1));					//��ؼ�cost(�B�J�@)
+		glp_set_obj_coef(mip, ((app_count + 1) + j*variable), price2[j + sample_time] * delta_T);							//單目標cost(步驟一)
+		glp_set_obj_coef(mip, ((app_count + 6) + j*variable), price2[j + sample_time] * delta_T * (-1));					//單目標cost(步驟一)
 		//glp_set_obj_coef(mip, ((app_count + 11) + j*variable), 0.1 / 0.04 * delta_T);
 		glp_set_obj_coef(mip, ((app_count + 11) + j*variable), Hydro_Price / Hydro_Cons * delta_T);
 		//glp_set_obj_coef(mip, ((app_count + 10 )+ j*variable), 0.06/0.04/0.35 * delta_T );        //FC cost
 	}
 
-	/*==============================GLPK�g�J�x�}(ia,ja,ar)===============================*/
+	/*============================== GLPK寫入矩陣(ia,ja,ar) ===============================*/
 	for (i = 0; i < (((time_block - sample_time) * 200) + app_count + 1); i++)
 	{
 		for (j = 0; j < (variable * (time_block - sample_time)); j++)
@@ -1289,7 +1290,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			ar[i*((time_block - sample_time)*variable) + j + 1] = power1[i][j];
 		}
 	}
-	/*==============================GLPKŪ����Ưx�}====================================*/
+	/*============================== GLPK讀取資料矩陣 ====================================*/
 	glp_load_matrix(mip, (((time_block - sample_time) * 200) + app_count + 1)*(variable * (time_block - sample_time)), ia, ja, ar);
 
 	glp_iocp parm;
@@ -1333,7 +1334,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	}
 
 
-	/*==============================�N�M���ܼƵ��G��X==================================*/
+	/*============================== 將決策變數結果輸出 ==================================*/
 	step1_bill = 0.0, step1_sell = 0.0, step1_PESS = 0.0;
 
 	//get now time that can used in the real experiment
@@ -1461,11 +1462,11 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			}		
 		}
 		//printf("now_power_result:%f\n", now_grid[j + sample_time]);
-		now_power_result += now_grid[j + sample_time];     //now_power_result�� just all the comsumption energy(for no varying price and coculate leter).
-		var_grid_result += varying_grid[j + sample_time];  //var_power_result�� comsumption energy*price.
+		now_power_result += now_grid[j + sample_time];     //now_power_result-> just all the comsumption energy(for no varying price and coculate leter).
+		var_grid_result += varying_grid[j + sample_time];  //var_power_result-> comsumption energy*price.
 	}
 
-	h = app_count + 1;//cost
+	h = app_count + 1;	// cost
 	for (j = 0; j < (time_block - sample_time); j++)
 	{
 		s[j] = glp_mip_col_val(mip, h);
@@ -1475,7 +1476,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	}
 
 
-	h = app_count + 6;//sell
+	h = app_count + 6;	// sell
 	for (j = 0; j < (time_block - sample_time); j++)
 	{
 		s[j] = glp_mip_col_val(mip, h);
@@ -1485,7 +1486,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		h = (h + variable);
 	}
 
-	h = app_count + 11;//FC cost
+	h = app_count + 11;	// FC cost
 	for (j = 0; j < (time_block - sample_time); j++)
 	{
 		s[j] = glp_mip_col_val(mip, h);
@@ -1496,11 +1497,11 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		h = (h + variable);
 	}
 
-	h = app_count + 10;//FC cost
+	h = app_count + 10;	// FC cost
 	for (j = 0; j < (time_block - sample_time); j++)
 	{
 		s[j] = glp_mip_col_val(mip, h);
-	        FC_every_cost[j + sample_time] = FC_cost[j + sample_time]/(s[j] * delta_T);
+		FC_every_cost[j + sample_time] = FC_cost[j + sample_time]/(s[j] * delta_T);
 	//	printf("fccost:%f\n",FC_cost[j + sample_time]);
 	//	Hydrogen_com[j + sample_time] = s[j] * 0.04 / 0.35* delta_T;
 	//	opt_FC_cost_result += FC_cost[j + sample_time];
@@ -1518,49 +1519,49 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	// 		UPDATE control_id 1.now_grid, 2.varying_grid, 3.cost ,4.sell, 5.FC_cost, 6.Hydrogen_com, 7.FC_every_cost to talbe 'cost'
 	if (sample_time == 0)
 	{	
-		//now grid 
+		// now grid 
 		snprintf(sql_buffer, sizeof(sql_buffer), "INSERT INTO cost (control_id,%s) VALUES('%d','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f');"
 			, column, 1, now_grid[0], now_grid[1], now_grid[2], now_grid[3], now_grid[4], now_grid[5], now_grid[6], now_grid[7], now_grid[8], now_grid[9], now_grid[10], now_grid[11], now_grid[12], now_grid[13], now_grid[14], now_grid[15], now_grid[16], now_grid[17], now_grid[18], now_grid[19], now_grid[20], now_grid[21], now_grid[22], now_grid[23], now_grid[24], now_grid[25], now_grid[26], now_grid[27], now_grid[28], now_grid[29], now_grid[30], now_grid[31], now_grid[32], now_grid[33], now_grid[34], now_grid[35], now_grid[36], now_grid[37], now_grid[38], now_grid[39], now_grid[40], now_grid[41], now_grid[42], now_grid[43], now_grid[44], now_grid[45], now_grid[46], now_grid[47], now_grid[48], now_grid[49], now_grid[50], now_grid[51], now_grid[52], now_grid[53], now_grid[54], now_grid[55], now_grid[56], now_grid[57], now_grid[58], now_grid[59], now_grid[60], now_grid[61], now_grid[62], now_grid[63], now_grid[64], now_grid[65], now_grid[66], now_grid[67], now_grid[68], now_grid[69], now_grid[70], now_grid[71], now_grid[72], now_grid[73], now_grid[74], now_grid[75], now_grid[76], now_grid[77], now_grid[78], now_grid[79], now_grid[80], now_grid[81], now_grid[82], now_grid[83], now_grid[84], now_grid[85], now_grid[86], now_grid[87], now_grid[88], now_grid[89], now_grid[90], now_grid[91], now_grid[92], now_grid[93], now_grid[94], now_grid[95]);
 		mysql_query(mysql_con, sql_buffer);
 		snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE LP_BASE_PARM SET value = %f WHERE parameter_id = 18 ", now_power_result);
 		mysql_query(mysql_con, sql_buffer);
 		
-		//variing grid 
+		// variing grid 
 		snprintf(sql_buffer, sizeof(sql_buffer), "INSERT INTO cost (control_id,%s) VALUES('%d','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f');"
 			, column, 2, varying_grid[0], varying_grid[1], varying_grid[2], varying_grid[3], varying_grid[4], varying_grid[5], varying_grid[6], varying_grid[7], varying_grid[8], varying_grid[9], varying_grid[10], varying_grid[11], varying_grid[12], varying_grid[13], varying_grid[14], varying_grid[15], varying_grid[16], varying_grid[17], varying_grid[18], varying_grid[19], varying_grid[20], varying_grid[21], varying_grid[22], varying_grid[23], varying_grid[24], varying_grid[25], varying_grid[26], varying_grid[27], varying_grid[28], varying_grid[29], varying_grid[30], varying_grid[31], varying_grid[32], varying_grid[33], varying_grid[34], varying_grid[35], varying_grid[36], varying_grid[37], varying_grid[38], varying_grid[39], varying_grid[40], varying_grid[41], varying_grid[42], varying_grid[43], varying_grid[44], varying_grid[45], varying_grid[46], varying_grid[47], varying_grid[48], varying_grid[49], varying_grid[50], varying_grid[51], varying_grid[52], varying_grid[53], varying_grid[54], varying_grid[55], varying_grid[56], varying_grid[57], varying_grid[58], varying_grid[59], varying_grid[60], varying_grid[61], varying_grid[62], varying_grid[63], varying_grid[64], varying_grid[65], varying_grid[66], varying_grid[67], varying_grid[68], varying_grid[69], varying_grid[70], varying_grid[71], varying_grid[72], varying_grid[73], varying_grid[74], varying_grid[75], varying_grid[76], varying_grid[77], varying_grid[78], varying_grid[79], varying_grid[80], varying_grid[81], varying_grid[82], varying_grid[83], varying_grid[84], varying_grid[85], varying_grid[86], varying_grid[87], varying_grid[88], varying_grid[89], varying_grid[90], varying_grid[91], varying_grid[92], varying_grid[93], varying_grid[94], varying_grid[95]);
 		mysql_query(mysql_con, sql_buffer);
 		snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE LP_BASE_PARM SET value = %f WHERE parameter_id = 19 ", var_grid_result);
 		mysql_query(mysql_con, sql_buffer);
 
-		////minimum cost
+		//// minimum cost
 		snprintf(sql_buffer, sizeof(sql_buffer), "INSERT INTO cost (control_id,%s) VALUES('%d','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f');"
 			, column,3, cost[0], cost[1], cost[2], cost[3], cost[4], cost[5], cost[6], cost[7], cost[8], cost[9], cost[10], cost[11], cost[12], cost[13], cost[14], cost[15], cost[16], cost[17], cost[18], cost[19], cost[20], cost[21], cost[22], cost[23], cost[24], cost[25], cost[26], cost[27], cost[28], cost[29], cost[30], cost[31], cost[32], cost[33], cost[34], cost[35], cost[36], cost[37], cost[38], cost[39], cost[40], cost[41], cost[42], cost[43], cost[44], cost[45], cost[46], cost[47], cost[48], cost[49], cost[50], cost[51], cost[52], cost[53], cost[54], cost[55], cost[56], cost[57], cost[58], cost[59], cost[60], cost[61], cost[62], cost[63], cost[64], cost[65], cost[66], cost[67], cost[68], cost[69], cost[70], cost[71], cost[72], cost[73], cost[74], cost[75], cost[76], cost[77], cost[78], cost[79], cost[80], cost[81], cost[82], cost[83], cost[84], cost[85], cost[86], cost[87], cost[88], cost[89], cost[90], cost[91], cost[92], cost[93], cost[94], cost[95]);
 		mysql_query(mysql_con, sql_buffer);
 		snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE LP_BASE_PARM SET value = %f WHERE parameter_id = 20 ", opt_cost_result);
 		mysql_query(mysql_con, sql_buffer);
 
-		//maximum sell
+		// maximum sell
 		snprintf(sql_buffer, sizeof(sql_buffer), "INSERT INTO cost (control_id,%s) VALUES('%d','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f');"
 			, column, 4, sell[0], sell[1], sell[2], sell[3], sell[4], sell[5], sell[6], sell[7], sell[8], sell[9], sell[10], sell[11], sell[12], sell[13], sell[14], sell[15], sell[16], sell[17], sell[18], sell[19], sell[20], sell[21], sell[22], sell[23], sell[24], sell[25], sell[26], sell[27], sell[28], sell[29], sell[30], sell[31], sell[32], sell[33], sell[34], sell[35], sell[36], sell[37], sell[38], sell[39], sell[40], sell[41], sell[42], sell[43], sell[44], sell[45], sell[46], sell[47], sell[48], sell[49], sell[50], sell[51], sell[52], sell[53], sell[54], sell[55], sell[56], sell[57], sell[58], sell[59], sell[60], sell[61], sell[62], sell[63], sell[64], sell[65], sell[66], sell[67], sell[68], sell[69], sell[70], sell[71], sell[72], sell[73], sell[74], sell[75], sell[76], sell[77], sell[78], sell[79], sell[80], sell[81], sell[82], sell[83], sell[84], sell[85], sell[86], sell[87], sell[88], sell[89], sell[90], sell[91], sell[92], sell[93], sell[94], sell[95]);
 		mysql_query(mysql_con, sql_buffer);
 		snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE LP_BASE_PARM SET value = %f WHERE parameter_id = 21 ", opt_sell_result);
 		mysql_query(mysql_con, sql_buffer);
 
-		//minimum FC cost
+		// minimum FC cost
 		snprintf(sql_buffer, sizeof(sql_buffer), "INSERT INTO cost (control_id,%s) VALUES('%d','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f');"
 			, column, 5, FC_cost[0], FC_cost[1], FC_cost[2], FC_cost[3], FC_cost[4], FC_cost[5], FC_cost[6], FC_cost[7], FC_cost[8], FC_cost[9], FC_cost[10], FC_cost[11], FC_cost[12], FC_cost[13], FC_cost[14], FC_cost[15], FC_cost[16], FC_cost[17], FC_cost[18], FC_cost[19], FC_cost[20], FC_cost[21], FC_cost[22], FC_cost[23], FC_cost[24], FC_cost[25], FC_cost[26], FC_cost[27], FC_cost[28], FC_cost[29], FC_cost[30], FC_cost[31], FC_cost[32], FC_cost[33], FC_cost[34], FC_cost[35], FC_cost[36], FC_cost[37], FC_cost[38], FC_cost[39], FC_cost[40], FC_cost[41], FC_cost[42], FC_cost[43], FC_cost[44], FC_cost[45], FC_cost[46], FC_cost[47], FC_cost[48], FC_cost[49], FC_cost[50], FC_cost[51], FC_cost[52], FC_cost[53], FC_cost[54], FC_cost[55], FC_cost[56], FC_cost[57], FC_cost[58], FC_cost[59], FC_cost[60], FC_cost[61], FC_cost[62], FC_cost[63], FC_cost[64], FC_cost[65], FC_cost[66], FC_cost[67], FC_cost[68], FC_cost[69], FC_cost[70], FC_cost[71], FC_cost[72], FC_cost[73], FC_cost[74], FC_cost[75], FC_cost[76], FC_cost[77], FC_cost[78], FC_cost[79], FC_cost[80], FC_cost[81], FC_cost[82], FC_cost[83], FC_cost[84], FC_cost[85], FC_cost[86], FC_cost[87], FC_cost[88], FC_cost[89], FC_cost[90], FC_cost[91], FC_cost[92], FC_cost[93], FC_cost[94], FC_cost[95]);
 		mysql_query(mysql_con, sql_buffer);
 		snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE LP_BASE_PARM SET value = %f WHERE parameter_id = 22 ", opt_FC_cost_result);
 		mysql_query(mysql_con, sql_buffer);
 
-		//minimum hydrogen consumption
+		// minimum hydrogen consumption
 		snprintf(sql_buffer, sizeof(sql_buffer), "INSERT INTO cost (control_id,%s) VALUES('%d','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f');"
 			, column, 6, Hydrogen_com[0], Hydrogen_com[1], Hydrogen_com[2], Hydrogen_com[3], Hydrogen_com[4], Hydrogen_com[5], Hydrogen_com[6], Hydrogen_com[7], Hydrogen_com[8], Hydrogen_com[9], Hydrogen_com[10], Hydrogen_com[11], Hydrogen_com[12], Hydrogen_com[13], Hydrogen_com[14], Hydrogen_com[15], Hydrogen_com[16], Hydrogen_com[17], Hydrogen_com[18], Hydrogen_com[19], Hydrogen_com[20], Hydrogen_com[21], Hydrogen_com[22], Hydrogen_com[23], Hydrogen_com[24], Hydrogen_com[25], Hydrogen_com[26], Hydrogen_com[27], Hydrogen_com[28], Hydrogen_com[29], Hydrogen_com[30], Hydrogen_com[31], Hydrogen_com[32], Hydrogen_com[33], Hydrogen_com[34], Hydrogen_com[35], Hydrogen_com[36], Hydrogen_com[37], Hydrogen_com[38], Hydrogen_com[39], Hydrogen_com[40], Hydrogen_com[41], Hydrogen_com[42], Hydrogen_com[43], Hydrogen_com[44], Hydrogen_com[45], Hydrogen_com[46], Hydrogen_com[47], Hydrogen_com[48], Hydrogen_com[49], Hydrogen_com[50], Hydrogen_com[51], Hydrogen_com[52], Hydrogen_com[53], Hydrogen_com[54], Hydrogen_com[55], Hydrogen_com[56], Hydrogen_com[57], Hydrogen_com[58], Hydrogen_com[59], Hydrogen_com[60], Hydrogen_com[61], Hydrogen_com[62], Hydrogen_com[63], Hydrogen_com[64], Hydrogen_com[65], Hydrogen_com[66], Hydrogen_com[67], Hydrogen_com[68], Hydrogen_com[69], Hydrogen_com[70], Hydrogen_com[71], Hydrogen_com[72], Hydrogen_com[73], Hydrogen_com[74], Hydrogen_com[75], Hydrogen_com[76], Hydrogen_com[77], Hydrogen_com[78], Hydrogen_com[79], Hydrogen_com[80], Hydrogen_com[81], Hydrogen_com[82], Hydrogen_com[83], Hydrogen_com[84], Hydrogen_com[85], Hydrogen_com[86], Hydrogen_com[87], Hydrogen_com[88], Hydrogen_com[89], Hydrogen_com[90], Hydrogen_com[91], Hydrogen_com[92], Hydrogen_com[93], Hydrogen_com[94], Hydrogen_com[95]);
 		mysql_query(mysql_con, sql_buffer);
 		snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE LP_BASE_PARM SET value = %f WHERE parameter_id = 23 ", opt_Hydrogen_result);
 		mysql_query(mysql_con, sql_buffer);
 		
-		//FC cost every kW
+		// FC cost every kW
 		snprintf(sql_buffer, sizeof(sql_buffer), "INSERT INTO cost (control_id,%s) VALUES('%d','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f');"
 			, column, 7, FC_every_cost[0], FC_every_cost[1], FC_every_cost[2], FC_every_cost[3], FC_every_cost[4], FC_every_cost[5], FC_every_cost[6], FC_every_cost[7], FC_every_cost[8], FC_every_cost[9], FC_every_cost[10], FC_every_cost[11], FC_every_cost[12], FC_every_cost[13], FC_every_cost[14], FC_every_cost[15], FC_every_cost[16], FC_every_cost[17], FC_every_cost[18], FC_every_cost[19], FC_every_cost[20], FC_every_cost[21], FC_every_cost[22], FC_every_cost[23], FC_every_cost[24], FC_every_cost[25], FC_every_cost[26], FC_every_cost[27], FC_every_cost[28], FC_every_cost[29], FC_every_cost[30], FC_every_cost[31], FC_every_cost[32], FC_every_cost[33], FC_every_cost[34], FC_every_cost[35], FC_every_cost[36], FC_every_cost[37], FC_every_cost[38], FC_every_cost[39], FC_every_cost[40], FC_every_cost[41], FC_every_cost[42], FC_every_cost[43], FC_every_cost[44], FC_every_cost[45], FC_every_cost[46], FC_every_cost[47], FC_every_cost[48], FC_every_cost[49], FC_every_cost[50], FC_every_cost[51], FC_every_cost[52], FC_every_cost[53], FC_every_cost[54], FC_every_cost[55], FC_every_cost[56], FC_every_cost[57], FC_every_cost[58], FC_every_cost[59], FC_every_cost[60], FC_every_cost[61], FC_every_cost[62], FC_every_cost[63], FC_every_cost[64], FC_every_cost[65], FC_every_cost[66], FC_every_cost[67], FC_every_cost[68], FC_every_cost[69], FC_every_cost[70], FC_every_cost[71], FC_every_cost[72], FC_every_cost[73], FC_every_cost[74], FC_every_cost[75], FC_every_cost[76], FC_every_cost[77], FC_every_cost[78], FC_every_cost[79], FC_every_cost[80], FC_every_cost[81], FC_every_cost[82], FC_every_cost[83], FC_every_cost[84], FC_every_cost[85], FC_every_cost[86], FC_every_cost[87], FC_every_cost[88], FC_every_cost[89], FC_every_cost[90], FC_every_cost[91], FC_every_cost[92], FC_every_cost[93], FC_every_cost[94], FC_every_cost[95]);
 		mysql_query(mysql_con, sql_buffer);
@@ -1568,7 +1569,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	}
 	else
 	{
-		//all grid 
+		// all grid 
 		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT %s FROM cost WHERE (control_id = '%d')", column, 1);
 		mysql_query(mysql_con, sql_buffer);
 		mysql_result = mysql_store_result(mysql_con);
@@ -1588,7 +1589,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 
 
 
-		//all grid 
+		// all grid 
 		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT %s FROM cost WHERE (control_id = '%d')", column, 2);
 		mysql_query(mysql_con, sql_buffer);
 		mysql_result = mysql_store_result(mysql_con);
@@ -1609,7 +1610,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		mysql_query(mysql_con, sql_buffer);
 
 
-		//minimum cost
+		// minimum cost
 		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT %s FROM cost WHERE (control_id = '%d')", column, 3);
 		mysql_query(mysql_con, sql_buffer);
 		mysql_result = mysql_store_result(mysql_con);
@@ -1628,7 +1629,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE LP_BASE_PARM SET value = %f WHERE parameter_id = 20 ", opt_cost_result);
 		mysql_query(mysql_con, sql_buffer);
 
-		//maximum sell
+		// maximum sell
 		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT %s FROM cost WHERE (control_id = '%d')", column, 4);
 		mysql_query(mysql_con, sql_buffer);
 		mysql_result = mysql_store_result(mysql_con);
@@ -1648,7 +1649,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		mysql_query(mysql_con, sql_buffer);
 
 
-		//minimum FC cost
+		// minimum FC cost
 		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT %s FROM cost WHERE (control_id = '%d')", column, 5);
 		mysql_query(mysql_con, sql_buffer);
 		mysql_result = mysql_store_result(mysql_con);
@@ -1668,7 +1669,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		mysql_query(mysql_con, sql_buffer);
 
 
-		//hydrogen comsumption
+		// hydrogen comsumption
 		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT %s FROM cost WHERE (control_id = '%d')", column, 6);
 		mysql_query(mysql_con, sql_buffer);
 		mysql_result = mysql_store_result(mysql_con);
@@ -1688,7 +1689,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		mysql_query(mysql_con, sql_buffer);
 		
 		
-		//FC cost every kW
+		// FC cost every kW
 		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT %s FROM cost WHERE (control_id = '%d')", column, 7);
 		mysql_query(mysql_con, sql_buffer);
 		mysql_result = mysql_store_result(mysql_con);
