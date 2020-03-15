@@ -8,6 +8,7 @@
 #include <iostream>
 #include "HEMS.h" 
 
+//Comment by ColinWang 2020/3/15
 //common variable
 int RT_enable = 0;
 int h, i, j, k, m, n = 0;
