@@ -16,7 +16,7 @@ void GLPK(int *, int *, int *, int *, float *, int, float *, int *);
 int interrupt_num = 0, app_count = 0, sample_time = 0, variable = 0, divide = 4, time_block = 96;
 int h, i, j, k, m, n = 0;
 double z = 0;
-float Pgrid_max = 0.0;
+float Pgrid_max = 0.0, delta_T = 0.25;
 char sql_buffer[2000] = { '\0' };
 
 time_t t = time(NULL);
@@ -183,11 +183,11 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	int *ja = new int[((((time_block - sample_time) * 1) + app_count) * (variable * (time_block - sample_time))) + 1];			// Column
 	double *ar = new double[((((time_block - sample_time) * 1) + app_count) * (variable * (time_block - sample_time))) + 1];		// structural variable
 	/*============================== GLPK變數宣告(GLPK variable definition) =====================================*/
-	// mip = glp_create_prob();
-	// glp_set_prob_name(mip, "hardware_algorithm_case");
-	// glp_set_obj_dir(mip, GLP_MIN);
-	// glp_add_rows(mip, (((time_block - sample_time) * 1) + app_count));
-	// glp_add_cols(mip, (variable * (time_block - sample_time)));	
+	mip = glp_create_prob();
+	glp_set_prob_name(mip, "hardware_algorithm_case");
+	glp_set_obj_dir(mip, GLP_MIN);
+	glp_add_rows(mip, (((time_block - sample_time) * 1) + app_count));
+	glp_add_cols(mip, (variable * (time_block - sample_time)));	
 
 	/*=============================== 初始化矩陣(initial the matrix) ======================================*/
 	for (m = 0; m < ((time_block - sample_time) * 1) + app_count; m++)
@@ -218,44 +218,76 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			}
 		}
 	}
-	for(i = 0; i < (time_block - sample_time) * 1 + app_count; i++) {
-		for(j = 0; j < variable * (time_block - sample_time); j++) {
-			printf("%d  ", (int)(power1[i][j]));
-		}
-		printf("\n");
-	}
+	// for(i = 3; i < (time_block - sample_time) * 1 + app_count; i++) {
+	// 	for(j = 0; j < variable * (time_block - sample_time); j++) {
+	// 		printf("%d  ", (int)(power1[i][j]));
+	// 	}
+	// 	printf("\n");
+	// }
+
 	// 決定是否輸出市電(Decide whether to buy electricity from utility)
 	for (i = 0; i < (time_block - sample_time); i++)
 	{
-		power1[app_count + i][i*variable + app_count] = -Pgrid_max; // Pgrid
+		power1[app_count + i][i*variable + app_count] = -1.0; // Pgrid
 	}
 
+	// 平衡式(Balanced function)
+	for (h = 0; h < interrupt_num; h++)	// 可中斷負載(Interrupt load)
+	{
+		if ((interrupt_end[h] - sample_time) >= 0)
+		{
+			if ((interrupt_start[h] - sample_time) >= 0)
+			{
+				for (i = (interrupt_start[h] - sample_time); i <= (interrupt_end[h] - sample_time); i++)
+				{
+					power1[app_count + i][i*variable + h] = interrupt_p[h];
+				}
+			}
+			else if ((interrupt_start[h] - sample_time) < 0)
+			{
+				for (i = 0; i <= (interrupt_end[h] - sample_time); i++)
+				{
+					power1[app_count + i][i*variable + h] = interrupt_p[h];
+				}
+			}
+		}
+	}
+	
 	/*============================== 宣告限制式條件範圍(row) ===============================*/
 	// GLPK讀列從1開始
 	// 限制式-家庭負載最低耗能
-	// for (i = 1; i <= interrupt_num; i++)	// 可中斷負載(Interrupt load)
-	// {
-	// 	glp_set_row_name(mip, i, "");
-	// 	glp_set_row_bnds(mip, i, GLP_LO, ((float)interrupt_reot[i - 1]), 0.0);	// ok
-	// }
+	for (i = 1; i <= interrupt_num; i++)	// 可中斷負載(Interrupt load)
+	{
+		glp_set_row_name(mip, i, "");
+		glp_set_row_bnds(mip, i, GLP_LO, ((float)interrupt_reot[i - 1]), 0.0);	// ok
+	}
 
-	// // 決定是否輸出市電
-	// for (i = 1; i <= (time_block - sample_time); i++)
-	// {
-	// 	glp_set_row_name(mip, (app_count + i), "");
-	// 	glp_set_row_bnds(mip, (app_count + i), GLP_UP, 0.0, 0.0);
-	// }
+	// 決定是否輸出市電
+	for (i = 1; i <= (time_block - sample_time); i++)
+	{
+		glp_set_row_name(mip, (app_count + i), "");
+		glp_set_row_bnds(mip, (app_count + i), GLP_UP, 0.0, 0.0);
+	}
 	
-	// /*============================== 宣告決策變數(column) ================================*/
-	// for (i = 0; i < (time_block - sample_time); i++)
-	// {
-	// 	for (j = 1; j <= app_count; j++)
-	// 	{
-	// 		glp_set_col_bnds(mip, (j + i*variable), GLP_DB, 0.0, 1.0);	// 負載決策變數
-	// 		glp_set_col_kind(mip, (j + i*variable), GLP_BV);
-	// 	}
-	// }
+	/*============================== 宣告決策變數(column) ================================*/
+	for (i = 0; i < (time_block - sample_time); i++)
+	{
+		for (j = 1; j <= app_count; j++)
+		{
+			glp_set_col_bnds(mip, (j + i*variable), GLP_DB, 0.0, 1.0);	// 負載決策變數
+			glp_set_col_kind(mip, (j + i*variable), GLP_BV);
+		}
+		glp_set_col_bnds(mip, ((app_count + 1) + i*variable), GLP_DB, 0.0, Pgrid_max);	// 決定市電輸出功率  一定要大於總負載功率才不會有太大問題
+		glp_set_col_kind(mip, ((app_count + 1) + i*variable), GLP_CV);
+	}
 	
+
+	/*============================== 宣告目標式參數(column) ===============================*/
+	for (j = 0; j < (time_block - sample_time); j++)
+	{
+		glp_set_obj_coef(mip, (app_count + 1 + j*variable), price2[j + sample_time] * delta_T);		// 單目標cost(步驟一)
+	}
+
 	/*============================== GLPK寫入矩陣(ia,ja,ar) ===============================*/
 	for (i = 0; i < (((time_block - sample_time) * 1) + app_count); i++)
 	{
@@ -266,6 +298,62 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			ar[i*((time_block - sample_time)*variable) + j + 1] = power1[i][j];
 		}
 	}
+	
+	/*============================== GLPK讀取資料矩陣 ====================================*/
+	glp_load_matrix(mip, (((time_block - sample_time) * 200) + app_count + 1)*(variable * (time_block - sample_time)), ia, ja, ar);
+
+	glp_iocp parm;
+	glp_init_iocp(&parm);
+	parm.tm_lim = 100000;
+        
+	parm.presolve = GLP_ON;
+	parm.gmi_cuts = GLP_ON;
+	parm.fp_heur = GLP_ON;
+	parm.bt_tech = GLP_BT_BFS;
+	parm.br_tech = GLP_BR_PCH;
+
+	int err = glp_intopt(mip, &parm);
+	z = glp_mip_obj_val(mip);
+
+	printf("\n");
+	printf("sol = %f; \n", z);
+
+	if (z == 0.0 && glp_mip_col_val(mip, (app_count + 7)) == 0.0)
+	{
+		printf("No Solotion,give up the solution\n");
+		system("pause");
+		exit(1);
+	}
+
+	/*============================== 將決策變數結果輸出 ==================================*/
+	for (i = 1; i <= variable; i++)
+	{
+		h = i;
+
+		if (sample_time == 0)
+		{
+			for (j = 0; j < time_block; j++)
+			{
+				s[j] = glp_mip_col_val(mip, h);
+
+				if (i <= app_count && j== noo)
+				{
+					snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE now_status set status = %d where id=%d ", (int)s[j], position[i-1]);
+					mysql_query(mysql_con, sql_buffer);
+					snprintf(sql_buffer, sizeof(sql_buffer), "INSERT INTO control_history (id,status,schedule) VALUES(%d,%d,%d)", position[i - 1], (int)s[j], 1);
+					mysql_query(mysql_con, sql_buffer);
+				}
+				h = (h + variable);
+			}
+
+			snprintf(sql_buffer, sizeof(sql_buffer), "INSERT INTO control_status (%s, equip_id) VALUES('%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%d');"
+				, column, s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8], s[9], s[10], s[11], s[12], s[13], s[14], s[15], s[16], s[17], s[18], s[19], s[20], s[21], s[22], s[23], s[24], s[25], s[26], s[27], s[28], s[29], s[30], s[31], s[32], s[33], s[34], s[35], s[36], s[37], s[38], s[39], s[40], s[41], s[42], s[43], s[44], s[45], s[46], s[47], s[48], s[49], s[50], s[51], s[52], s[53], s[54], s[55], s[56], s[57], s[58], s[59], s[60], s[61], s[62], s[63], s[64], s[65], s[66], s[67], s[68], s[69], s[70], s[71], s[72], s[73], s[74], s[75], s[76], s[77], s[78], s[79], s[80], s[81], s[82], s[83], s[84], s[85], s[86], s[87], s[88], s[89], s[90], s[91], s[92], s[93], s[94], s[95], i);
+			mysql_query(mysql_con, sql_buffer);
+			memset(sql_buffer, 0, sizeof(sql_buffer));
+			printf("%d,", i);
+		}
+	}
+	//end
 }
 
 void *new2d(int h, int w, int size)
