@@ -178,7 +178,7 @@
     {
         //parse to get all json data
         var GET_CHART_DATA = JSON.parse(ABC);
-        var this_load=GET_CHART_DATA.sche_loadpower;
+        var this_load=GET_CHART_DATA.load_power;
         var this_ID=GET_CHART_DATA.load_ID;
         var this_name=GET_CHART_DATA.load_name;
         var this_s_time=GET_CHART_DATA.load_s_time;
