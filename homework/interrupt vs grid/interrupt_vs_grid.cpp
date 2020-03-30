@@ -138,7 +138,6 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	{
 		buff[i] = 0;
 	}
-
 	int noo;
 	//get now time that can used in the real experiment
 	if (((now_time.tm_min) % (60 / divide)) != 0)
@@ -244,6 +243,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 				for (i = (interrupt_start[h] - sample_time); i <= (interrupt_end[h] - sample_time); i++)
 				{
 					power1[app_count + i][i*variable + h] = interrupt_p[h];
+					printf("[%d][%d] = [%.1f] %dyes\n",app_count + i, i*variable + h, interrupt_p[h],h);
 				}
 			}
 			else if ((interrupt_start[h] - sample_time) < 0)
@@ -255,7 +255,12 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			}
 		}
 	}
-	
+	for(i = 47; i < 50; i++) {
+		for(j = (time_block - sample_time); j < variable*(time_block - sample_time); j++) {
+			printf("%.1f ", (float)(power1[i][j]));
+		}
+		printf("\n");
+	}
 	/*============================== 宣告限制式條件範圍(row) ===============================*/
 	// GLPK讀列從1開始
 	// 限制式-家庭負載最低耗能
@@ -301,9 +306,9 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			ar[i*((time_block - sample_time)*variable) + j + 1] = power1[i][j];
 		}
 	}
-	
+	printf("array finish\n");	
 	/*============================== GLPK讀取資料矩陣 ====================================*/
-	glp_load_matrix(mip, (((time_block - sample_time) * 200) + app_count + 1)*(variable * (time_block - sample_time)), ia, ja, ar);
+	glp_load_matrix(mip, (((time_block - sample_time) * 1) + app_count)*(variable * (time_block - sample_time)), ia, ja, ar);
 
 	glp_iocp parm;
 	glp_init_iocp(&parm);
@@ -317,6 +322,10 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 
 	int err = glp_intopt(mip, &parm);
 	z = glp_mip_obj_val(mip);
+	printf("%f\n",glp_mip_col_val(mip,1));
+	printf("%f\n",glp_mip_col_val(mip,2));
+	printf("%f\n",glp_mip_col_val(mip,3));
+	printf("%.2f\n", glp_mip_col_val(mip,4));
 
 	printf("\n");
 	printf("sol = %f; \n", z);
