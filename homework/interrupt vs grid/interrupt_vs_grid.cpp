@@ -306,10 +306,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			ar[i*((time_block - sample_time)*variable) + j + 1] = power1[i][j];
 		}
 	}
-<<<<<<< HEAD
 	printf("array finish\n");	
-=======
->>>>>>> a51c3bb0ae12c3c98709cac7954e71bdcca280dd
 	/*============================== GLPK讀取資料矩陣 ====================================*/
 	glp_load_matrix(mip, (((time_block - sample_time) * 1) + app_count)*(variable * (time_block - sample_time)), ia, ja, ar);
 
