@@ -4,10 +4,11 @@ var now_t= Math.floor(dt.getHours()*4+dt.getMinutes()/15);
 console.log(now_t);
 
 var request = new XMLHttpRequest();
-    request.open('GET', '/web/back_end/aaa.php');
+    request.open('GET', 'back_end/aaa.php');
     request.onload = function () {
         // var ourData = JSON.parse(request.responseText);
         var LOOP_NUM = JSON.parse(this.responseText).load_power.length;
+        var i=0;
         console.log(LOOP_NUM);
         InterruptVsGrid(this.responseText);
         muti_divs(this.responseText);
@@ -253,9 +254,9 @@ function InterruptVsGrid(ABC)
 
     set_series_function(0,"line",data.electric_price,"price",0,chart_series_type,chart_series_name,chart_series_data,chart_series_stack,chart_series_yAxis);
     set_series_function(0,"line",data.limit_capability,"limit-power",1,chart_series_type,chart_series_name,chart_series_data,chart_series_stack,chart_series_yAxis);
-    set_series_function(0,"column",data.load_power[0],"load-1",1,chart_series_type,chart_series_name,chart_series_data,chart_series_stack,chart_series_yAxis);
-    set_series_function(0,"column",data.load_power[1],"load-2",1,chart_series_type,chart_series_name,chart_series_data,chart_series_stack,chart_series_yAxis);
-    set_series_function(0,"column",data.load_power[2],"load-3",1,chart_series_type,chart_series_name,chart_series_data,chart_series_stack,chart_series_yAxis);
+    set_series_function(1,"column",data.load_power,"load-1",1,chart_series_type,chart_series_name,chart_series_data,chart_series_stack,chart_series_yAxis);
+    // set_series_function(0,"spline",data.load_power[1],"load-2",1,chart_series_type,chart_series_name,chart_series_data,chart_series_stack,chart_series_yAxis);
+    // set_series_function(0,"spline",data.load_power[2],"load-3",1,chart_series_type,chart_series_name,chart_series_data,chart_series_stack,chart_series_yAxis);
 
     /*Show chart*/
     show_chart(chart_info, chart_series_type, chart_series_name, chart_series_data, chart_series_stack, chart_series_yAxis);
