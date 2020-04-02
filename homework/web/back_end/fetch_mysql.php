@@ -1,10 +1,13 @@
 <?php
 
 $conn = new mysqli('140.124.42.70','root','fuzzy314','wang','6666');
+
+// function sqlFetchRow key value
 $oneValue = "oneValue";
 $aRow = "aRow";
 $controlStatusResult = "controlStatusResult";
 
+// create new key above if function changed
 function sqlFetchRow ($conn, $sql, $key) {
 
     switch ($key) {
