@@ -4,9 +4,10 @@ require 'fetch_mysql.php';
 $electric_price_array = sqlFetchAssoc($conn, "SELECT `price_value` FROM `price` ", array("price_value"));
 
 
-$load_list_array = sqlFetchAssoc($conn, "SELECT start_time, end_time, operation_time, power1, number, equip_name  FROM load_list WHERE group_id = 1 && number>=6 && number<10 ", array("start_time","end_time", "operation_time", "power1", "number", "equip_name"));
+$load_list_array = sqlFetchAssoc($conn, "SELECT start_time, end_time, operation_time, power1, number, equip_name  FROM load_list WHERE group_id = 1 || group_id = 2", array("start_time","end_time", "operation_time", "power1", "number", "equip_name"));
 
-$interrupt_num = sqlFetchRow($conn, "SELECT count(*) AS numcols FROM load_list WHERE group_id=1 && number>=6 && number<10 ", $oneValue);
+$interrupt_num = sqlFetchRow($conn, "SELECT count(*) AS numcols FROM load_list WHERE group_id=1 ", $oneValue);
+$uninterrupt_num = sqlFetchRow($conn, "SELECT count(*) AS numcols FROM load_list WHERE group_id=2 ", $oneValue);
 
 $limit_power = sqlFetchRow($conn, "SELECT `value` FROM `LP_BASE_PARM` where `parameter_id` = 13 ", $oneValue);
 for($y=0;$y<96;$y++)
@@ -36,7 +37,7 @@ for($i=0; $i<count($load_list_array[0]); $i++) {
 }
 
 // load_status_array
-for($u=0;$u<3;$u++){
+for($u=0; $u<$interrupt_num+$uninterrupt_num; $u++){
     for($y=0;$y<96;$y++){
         $load_power[$u][] = $power1[$u]*$load_status_array[$u][$y];
     }

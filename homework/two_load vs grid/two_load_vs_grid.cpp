@@ -301,6 +301,30 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			power1[m][n] = 0.0;
 		}
 	}
+	
+	for (h = 0; h < uninterrupt_num; h++)	// 不可中斷負載(uninterrupt load)					
+	{
+		if (uninterrupt_flag[h] == 0)
+		{
+			if (((uninterrupt_end[h] - sample_time) >= 0) && (uninterrupt_reot[h] > 0))
+			{
+				if ((uninterrupt_start[h] - sample_time) >= 0)
+				{
+					for (i = (uninterrupt_start[h] - sample_time); i <= (uninterrupt_end[h] - sample_time); i++)
+					{
+						power1[h + interrupt_num][i*variable + h + interrupt_num] = 1.0;
+					}
+				}
+				else if ((uninterrupt_start[h] - sample_time) < 0)
+				{
+					for (i = 0; i <= (uninterrupt_end[h] - sample_time); i++)
+					{
+						power1[h + interrupt_num][i*variable + h + interrupt_num] = 1.0;
+					}
+				}
+			}
+		}
+	}
 
 	for (h = 0; h < interrupt_num; h++)		// 可中斷負載(Interrupt load)
 	{
