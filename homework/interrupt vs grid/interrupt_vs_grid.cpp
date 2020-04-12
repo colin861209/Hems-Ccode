@@ -233,8 +233,19 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		power1[app_count + i][i*variable + app_count] = -1.0; // Pgrid
 	}
 
-	// 平衡式(Balanced function)
-	for (h = 0; h < interrupt_num; h++)	// 可中斷負載(Interrupt load)
+	// ========================== 平衡式(Balanced function) ==========================
+	// example >>
+	//[3][0] [4][4] [5][8] .... [8][20] ... [13][40] i=0~10, h=0
+	//       [4][5] [5][9] .... [8][21] 			 i=1~5, h=1
+	//[3][2] [4][6] [5][10] 						 i=0~2, h=2
+	//    0   1   2   3  |  4   5   6   7  |  8   9 ...
+	// 0  .              |                 |
+	// 1  .              |                 |
+	// 2  .              |                 |
+	// 3  P1  0  P3   0  |  0   0   0   0  |  0   0
+	// 4  0   0  0   P1  | P2  P3   0   0  |  0   0
+	// 5  0   0  0    0  |  0   0   0  P1  | P2  P3
+	for (h = 0; h < interrupt_num; h++)	// 可中斷負載(Interrupt load) 
 	{
 		if ((interrupt_end[h] - sample_time) >= 0)
 		{
