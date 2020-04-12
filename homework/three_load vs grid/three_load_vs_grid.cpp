@@ -10,10 +10,9 @@
 // #include "HEMS.h" 
 
 #define NEW2D(H, W, TYPE) (TYPE **)new2d(H, W, sizeof(TYPE))
-void *new2d(int, int, int);
-void GLPK(int *, int *, int *, int *, float *, int, float *, int *);
+void GLPK(int *, int *, int *, int *, float *, int *, int *, int *, int *, float *, int *, int *, int *, int *, int *, int *, int **, float **, int, float *, int *);
 
-int interrupt_num = 0, app_count = 0, sample_time = 0, variable = 0, divide = 4, time_block = 96;
+int interrupt_num = 0, uninterrupt_num = 0, varying_num = 0, app_count = 0, sample_time = 0, variable = 0, divide = 4, time_block = 96;
 int h, i, j, k, m, n = 0;
 double z = 0;
 float Pgrid_max = 0.0, delta_T = 0.25;
@@ -42,13 +41,29 @@ int main(void) {
 	mysql_set_character_set(mysql_con, "utf8");
 
     // get count = 3 of interrupt group 
-    snprintf(sql_buffer, sizeof(sql_buffer), "SELECT count(*) AS numcols FROM load_list WHERE group_id=1 && number>=6 && number<10 "); 
+    snprintf(sql_buffer, sizeof(sql_buffer), "SELECT count(*) AS numcols FROM load_list WHERE group_id=1 "); 
 	mysql_query(mysql_con, sql_buffer);
 	mysql_result = mysql_store_result(mysql_con);
 	mysql_row = mysql_fetch_row(mysql_result);
 	interrupt_num = atoi(mysql_row[0]); // 3
 	mysql_free_result(mysql_result);
 	printf("interruptable app num:%d\n", interrupt_num);
+
+	snprintf(sql_buffer, sizeof(sql_buffer), "SELECT count(*) AS numcols FROM load_list WHERE group_id=2 "); 
+	mysql_query(mysql_con, sql_buffer);
+	mysql_result = mysql_store_result(mysql_con);
+	mysql_row = mysql_fetch_row(mysql_result);
+	uninterrupt_num = atoi(mysql_row[0]); // 3
+	mysql_free_result(mysql_result);
+	printf("uninterruptable app num:%d\n", uninterrupt_num);
+	
+	snprintf(sql_buffer, sizeof(sql_buffer), "SELECT count(*) AS numcols FROM load_list WHERE group_id=3 "); 
+	mysql_query(mysql_con, sql_buffer);
+	mysql_result = mysql_store_result(mysql_con);
+	mysql_row = mysql_fetch_row(mysql_result);
+	varying_num = atoi(mysql_row[0]); // 3
+	mysql_free_result(mysql_result);
+	printf("variable app num:%d\n", varying_num);
 
 	snprintf(sql_buffer, sizeof(sql_buffer), "SELECT value FROM `LP_BASE_PARM` WHERE parameter_id = %d", 13);
 	mysql_query(mysql_con, sql_buffer);
@@ -128,10 +143,10 @@ int main(void) {
 		mysql_free_result(mysql_result);
 	}
 
-    GLPK(interrupt_start, interrupt_end, interrupt_ot, interrupt_reot, interrupt_p, app_count, price, position);
+	GLPK(interrupt_start, interrupt_end, interrupt_ot, interrupt_reot, interrupt_p, uninterrupt_start, uninterrupt_end, uninterrupt_ot, uninterrupt_reot, uninterrupt_p, uninterrupt_flag, varying_start, varying_end, varying_ot, varying_reot, varying_flag, varying_t_pow, varying_p_pow, app_count, price, position);
 }
 
-void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *interrupt_reot, float *interrupt_p, int app_count, float *price, int *position)
+void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *interrupt_reot, float *interrupt_p, int *uninterrupt_start, int *uninterrupt_end, int *uninterrupt_ot, int *uninterrupt_reot, float *uninterrupt_p, int *uninterrupt_flag, int *varying_start, int *varying_end, int *varying_ot, int *varying_reot, int *varying_flag, int **varying_t_pow, float **varying_p_pow, int app_count, float *price, int *position)
 {
 	int *buff = new int[app_count];	//存放剩餘執行次數(The number of remaining executions)
 	for (i = 0; i < app_count; i++)
@@ -356,19 +371,5 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		}
 	}
 	//end
-}
-
-void *new2d(int h, int w, int size)
-{
-	register int i;
-	void **p;
-
-	p = (void**)new char[h * sizeof(void*) + h*w*size];
-
-	for (i = 0; i < h; i++)
-	{
-		p[i] = ((char *)(p + h)) + i*w*size;
-	}
-	return p;
 }
 

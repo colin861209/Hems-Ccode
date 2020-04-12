@@ -1,6 +1,6 @@
 CXX = g++
 CC = gcc
-OBJ = two_load_vs_grid.o 
+OBJ = new2D.o two_load_vs_grid.o 
 FLAG = -g -Wall -o two_load_vs_grid
 LIB = -lmysqlclient -lpthread -lglpk
 INCLUDE = -I/usr/include/mysql -L/usr/lib/mysql 

@@ -7,13 +7,12 @@
 #include <mysql.h>
 #include <iostream>
 #include <mysql/mysql.h>
-// #include "HEMS.h" 
+#include "HEMS.h" 
 
 #define NEW2D(H, W, TYPE) (TYPE **)new2d(H, W, sizeof(TYPE))
-void *new2d(int, int, int);
-void GLPK(int *, int *, int *, int *, float *, int, float *, int *);
+void GLPK(int *, int *, int *, int *, float *, int *, int *, int *, int *, float *, int *, int, float *, int *);
 
-int interrupt_num = 0, app_count = 0, sample_time = 0, variable = 0, divide = 4, time_block = 96;
+int interrupt_num = 0, uninterrupt_num = 0, app_count = 0, sample_time = 0, variable = 0, divide = 4, time_block = 96;
 int h, i, j, k, m, n = 0;
 double z = 0;
 float Pgrid_max = 0.0, delta_T = 0.25;
@@ -41,14 +40,23 @@ int main(void) {
 	printf("Connect to Mysql sucess!!\n");
 	mysql_set_character_set(mysql_con, "utf8");
 
-    // get count = 3 of interrupt group 
-    snprintf(sql_buffer, sizeof(sql_buffer), "SELECT count(*) AS numcols FROM load_list WHERE group_id=1 && number>=6 && number<10 "); 
+    // get num of interrupt group 
+    snprintf(sql_buffer, sizeof(sql_buffer), "SELECT count(*) AS numcols FROM load_list WHERE group_id=1 "); 
 	mysql_query(mysql_con, sql_buffer);
 	mysql_result = mysql_store_result(mysql_con);
 	mysql_row = mysql_fetch_row(mysql_result);
-	interrupt_num = atoi(mysql_row[0]); // 3
+	interrupt_num = atoi(mysql_row[0]); // 12
 	mysql_free_result(mysql_result);
 	printf("interruptable app num:%d\n", interrupt_num);
+
+    // get num of uninterrupt group 
+	snprintf(sql_buffer, sizeof(sql_buffer), "SELECT count(*) AS numcols FROM load_list WHERE group_id=2 "); 
+	mysql_query(mysql_con, sql_buffer);
+	mysql_result = mysql_store_result(mysql_con);
+	mysql_row = mysql_fetch_row(mysql_result);
+	uninterrupt_num = atoi(mysql_row[0]); // 2
+	mysql_free_result(mysql_result);
+	printf("uninterruptable app num:%d\n", uninterrupt_num);
 
 	snprintf(sql_buffer, sizeof(sql_buffer), "SELECT value FROM `LP_BASE_PARM` WHERE parameter_id = %d", 13);
 	mysql_query(mysql_con, sql_buffer);
@@ -59,14 +67,15 @@ int main(void) {
 
 	printf("Pgrid_max:%.2f\n", Pgrid_max);
 
-    app_count = interrupt_num;  // 3
+    app_count = interrupt_num + uninterrupt_num;  // 14
 	variable = app_count + 1;  // 買電狀態
 	int *position = new int[app_count];
     float **INT_power = NEW2D(interrupt_num, 4, float);
+    float **UNINT_power = NEW2D(uninterrupt_num, 4, float);
 
     for (i = 1; i < interrupt_num + 1; i++) {
 
-		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT start_time, end_time, operation_time, power1 FROM load_list WHERE group_id = 1 ORDER BY number ASC LIMIT %d,1", i + 2);
+		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT start_time, end_time, operation_time, power1 FROM load_list WHERE group_id = 1 ORDER BY number ASC LIMIT %d,1", i -1);
 		mysql_query(mysql_con, sql_buffer);
 		mysql_result = mysql_store_result(mysql_con);
 		mysql_row = mysql_fetch_row(mysql_result);
@@ -75,13 +84,32 @@ int main(void) {
 		mysql_free_result(mysql_result);
 
 	}
+
+	for (i = 1; i < uninterrupt_num + 1; i++)   //不可中斷
+	{
+		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT start_time, end_time, operation_time, power1 FROM load_list WHERE group_id = 2 ORDER BY number ASC LIMIT %d,1", i - 1);
+		mysql_query(mysql_con, sql_buffer);
+		mysql_result = mysql_store_result(mysql_con);
+		mysql_row = mysql_fetch_row(mysql_result);
+		for (j = 0; j < 4; j++)
+		{ UNINT_power[i - 1][j] = atof(mysql_row[j]); }
+		mysql_free_result(mysql_result);
+	}
 	
 	float *price = new float[24];
+	// interrupt
     int *interrupt_start = new int[interrupt_num];
 	int *interrupt_end = new int[interrupt_num];
 	int *interrupt_ot = new int[interrupt_num];
 	int *interrupt_reot = new int[interrupt_num];
 	float *interrupt_p = new float[interrupt_num];
+	// uninterrupt
+	int *uninterrupt_start = new int[uninterrupt_num];
+	int *uninterrupt_end = new int[uninterrupt_num];
+	int *uninterrupt_ot = new int[uninterrupt_num];
+	int *uninterrupt_reot = new int[uninterrupt_num];
+	float *uninterrupt_p = new float[uninterrupt_num];
+	int *uninterrupt_flag = new int[uninterrupt_num];
 
     // initialize INT_power[interrupt num][4] = 0
     for (i = 0; i < interrupt_num; i++) {
@@ -94,7 +122,8 @@ int main(void) {
 
 	}
     // interrupt load array: INT_power[interrupt num][4] 
-	printf("interrupt multi array: \n");
+	printf("\ninterrupt multi array: \n");
+	printf("St  End  Ot  ReOt\n");
     for (i = 0; i < interrupt_num; i++)	{
 
 		interrupt_start[i] = ((int)(INT_power[i][0] * divide));
@@ -103,6 +132,31 @@ int main(void) {
 		interrupt_p[i] = INT_power[i][3];
 		
 		printf("%d  %d   %d  %.3f  ", interrupt_start[i], interrupt_end[i], interrupt_ot[i], interrupt_p[i]);
+		printf("\n");
+	
+    }
+
+	// initialize UNINT_power[uninterrupt num][4] = 0
+    for (i = 0; i < uninterrupt_num; i++) {
+
+		uninterrupt_start[i] = 0;
+		uninterrupt_end[i] = 0;
+		uninterrupt_ot[i] = 0;
+		uninterrupt_reot[i] = 0;
+		uninterrupt_p[i] = 0.0;
+		uninterrupt_flag[i] = 0;
+	}
+    // interrupt load array: INT_power[interrupt num][4] 
+	printf("\nuninterrupt multi array: \n");
+	printf("St  End   Ot   ReOt\n");
+    for (i = 0; i < uninterrupt_num; i++) {
+
+		uninterrupt_start[i] = ((int)(UNINT_power[i][0] * divide));
+		uninterrupt_end[i] = ((int)(UNINT_power[i][1] * divide)) - 1;
+		uninterrupt_ot[i] = ((int)(UNINT_power[i][2] * divide));
+		uninterrupt_p[i] = UNINT_power[i][3];
+		
+		printf("%d  %d   %d  %.3f  ", uninterrupt_start[i], uninterrupt_end[i], uninterrupt_ot[i], uninterrupt_p[i]);
 		printf("\n");
 	
     }
@@ -128,10 +182,10 @@ int main(void) {
 		mysql_free_result(mysql_result);
 	}
 
-    GLPK(interrupt_start, interrupt_end, interrupt_ot, interrupt_reot, interrupt_p, app_count, price, position);
+    // GLPK(interrupt_start, interrupt_end, interrupt_ot, interrupt_reot, interrupt_p, uninterrupt_start, uninterrupt_end, uninterrupt_ot, uninterrupt_reot, uninterrupt_p, uninterrupt_flag, app_count, price, position);
 }
 
-void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *interrupt_reot, float *interrupt_p, int app_count, float *price, int *position)
+void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *interrupt_reot, float *interrupt_p, int *uninterrupt_start, int *uninterrupt_end, int *uninterrupt_ot, int *uninterrupt_reot, float *uninterrupt_p, int *uninterrupt_flag, int app_count, float *price, int *position)
 {
 	int *buff = new int[app_count];	//存放剩餘執行次數(The number of remaining executions)
 	for (i = 0; i < app_count; i++)
@@ -358,17 +412,5 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	//end
 }
 
-void *new2d(int h, int w, int size)
-{
-	register int i;
-	void **p;
 
-	p = (void**)new char[h * sizeof(void*) + h*w*size];
-
-	for (i = 0; i < h; i++)
-	{
-		p[i] = ((char *)(p + h)) + i*w*size;
-	}
-	return p;
-}
 
