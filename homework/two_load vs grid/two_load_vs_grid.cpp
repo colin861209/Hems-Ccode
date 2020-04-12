@@ -38,6 +38,9 @@ int main(void) {
 	printf("Connect to Mysql sucess!!\n");
 	mysql_set_character_set(mysql_con, "utf8");
 
+	snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE control_status");      //clean control_status;
+	mysql_query(mysql_con, sql_buffer);
+
     // get num of interrupt group 
     snprintf(sql_buffer, sizeof(sql_buffer), "SELECT count(*) AS numcols FROM load_list WHERE group_id=1 "); 
 	mysql_query(mysql_con, sql_buffer);
@@ -301,6 +304,27 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			power1[m][n] = 0.0;
 		}
 	}
+
+	for (h = 0; h < interrupt_num; h++)		// 可中斷負載(Interrupt load)
+	{
+		if ((interrupt_end[h] - sample_time) >= 0)
+		{
+			if ((interrupt_start[h] - sample_time) >= 0)
+			{
+				for (i = (interrupt_start[h] - sample_time); i <= (interrupt_end[h] - sample_time); i++)
+				{
+					power1[h][i*variable + h] = 1.0;
+				}
+			}
+			else if ((interrupt_start[h] - sample_time) < 0)
+			{
+				for (i = 0; i <= (interrupt_end[h] - sample_time); i++)
+				{
+					power1[h][i*variable + h] = 1.0;
+				}
+			}
+		}
+	}
 	
 	for (h = 0; h < uninterrupt_num; h++)	// 不可中斷負載(uninterrupt load)					
 	{
@@ -326,28 +350,6 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		}
 	}
 
-	for (h = 0; h < interrupt_num; h++)		// 可中斷負載(Interrupt load)
-	{
-		if ((interrupt_end[h] - sample_time) >= 0)
-		{
-			if ((interrupt_start[h] - sample_time) >= 0)
-			{
-				for (i = (interrupt_start[h] - sample_time); i <= (interrupt_end[h] - sample_time); i++)
-				{
-					power1[h][i*variable + h] = 1.0;
-				}
-			}
-			else if ((interrupt_start[h] - sample_time) < 0)
-			{
-				for (i = 0; i <= (interrupt_end[h] - sample_time); i++)
-				{
-					power1[h][i*variable + h] = 1.0;
-				}
-			}
-		}
-	}
-	
-
 	// 決定是否輸出市電(Decide whether to buy electricity from utility)
 	for (i = 0; i < (time_block - sample_time); i++)
 	{
@@ -369,14 +371,33 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			}
 			else if ((interrupt_start[h] - sample_time) < 0)
 			{
-				for (i = 0; i <= (interrupt_end[h] - sample_time); i++)
+				for (i = 0; i <= (interrupt_end[h] - sample_time); i++)	
 				{
 					power1[app_count + i][i*variable + h] = interrupt_p[h];
 				}
 			}
 		}
 	}
-	
+	for (h = 0; h < uninterrupt_num; h++)	//不可中斷負載(Interrupt load)
+	{
+		if ((uninterrupt_end[h] - sample_time) >= 0)
+		{
+			if ((uninterrupt_start[h] - sample_time) >= 0)
+			{
+				for (i = (uninterrupt_start[h] - sample_time); i <= (uninterrupt_end[h] - sample_time); i++)
+				{
+					power1[(time_block - sample_time) * 1 + app_count + 1 + i][i*variable + h + interrupt_num] = uninterrupt_p[h];
+				}
+			}
+			else if ((uninterrupt_start[h] - sample_time) < 0)
+			{
+				for (i = 0; i <= (uninterrupt_end[h] - sample_time); i++)
+				{
+					power1[(time_block - sample_time) * 1 + app_count + 1 + i][i*variable + h + interrupt_num] = uninterrupt_p[h];
+				}
+			}
+		}
+	}
 	/*============================== 宣告限制式條件範圍(row) ===============================*/
 	// GLPK讀列從1開始
 	// 限制式-家庭負載最低耗能
@@ -481,6 +502,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			printf("%d,", i);
 		}
 	}
+	printf("\n");
 	//end
 }
 
