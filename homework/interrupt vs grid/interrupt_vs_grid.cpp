@@ -42,7 +42,7 @@ int main(void) {
 	mysql_set_character_set(mysql_con, "utf8");
 
     // get count = 3 of interrupt group 
-    snprintf(sql_buffer, sizeof(sql_buffer), "SELECT count(*) AS numcols FROM load_list WHERE group_id=1 && number>=6 && number<10 "); 
+    snprintf(sql_buffer, sizeof(sql_buffer), "SELECT count(*) AS numcols FROM load_list WHERE group_id=1 && number>=3 && number<6 "); 
 	mysql_query(mysql_con, sql_buffer);
 	mysql_result = mysql_store_result(mysql_con);
 	mysql_row = mysql_fetch_row(mysql_result);
@@ -66,7 +66,7 @@ int main(void) {
 
     for (i = 1; i < interrupt_num + 1; i++) {
 
-		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT start_time, end_time, operation_time, power1 FROM load_list WHERE group_id = 1 ORDER BY number ASC LIMIT %d,1", i + 2);
+		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT start_time, end_time, operation_time, power1 FROM load_list WHERE group_id = 1 ORDER BY number ASC LIMIT %d,1", i + 1);
 		mysql_query(mysql_con, sql_buffer);
 		mysql_result = mysql_store_result(mysql_con);
 		mysql_row = mysql_fetch_row(mysql_result);

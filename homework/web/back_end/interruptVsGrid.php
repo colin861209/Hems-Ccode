@@ -4,9 +4,9 @@ require 'fetch_mysql.php';
 $electric_price_array = sqlFetchAssoc($conn, "SELECT `price_value` FROM `price` ", array("price_value"));
 
 
-$load_list_array = sqlFetchAssoc($conn, "SELECT start_time, end_time, operation_time, power1, number, equip_name  FROM load_list WHERE group_id = 1 && number>=6 && number<10 ", array("start_time","end_time", "operation_time", "power1", "number", "equip_name"));
+$load_list_array = sqlFetchAssoc($conn, "SELECT start_time, end_time, operation_time, power1, number, equip_name  FROM load_list WHERE group_id = 1 && number>=3 && number<6 ", array("start_time","end_time", "operation_time", "power1", "number", "equip_name"));
 
-$interrupt_num = sqlFetchRow($conn, "SELECT count(*) AS numcols FROM load_list WHERE group_id=1 && number>=6 && number<10 ", $oneValue);
+$interrupt_num = sqlFetchRow($conn, "SELECT count(*) AS numcols FROM load_list WHERE group_id=1 && number>=3 && number<6 ", $oneValue);
 
 $limit_power = sqlFetchRow($conn, "SELECT `value` FROM `LP_BASE_PARM` where `parameter_id` = 13 ", $oneValue);
 for($y=0;$y<96;$y++)
