@@ -81,7 +81,7 @@ extern char column[400] ;
 
 
 
-void GLPK(int *, int *, int *, int *, float *, int *, int *, int *, int *, float *, int *, int *, int *, int *, int *, int *, int **, float **, int, float *, int *);
+void GLPK(int *, int *, int *, int *, float *, int *, int *, int *, int *, float *, int *, int, float *, int *); // two load
 //void GLPK_1(int *, int *, int *, int *, float *, int *, int *, int *, int *, float *, int *, int *, int *, int *, int *, int *, int **, float **, int, float *);
 void *new2d(int, int, int);
 #define NEW2D(H, W, TYPE) (TYPE **)new2d(H, W, sizeof(TYPE))

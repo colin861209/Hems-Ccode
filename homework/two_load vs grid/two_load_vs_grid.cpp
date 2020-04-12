@@ -9,10 +9,8 @@
 #include <mysql/mysql.h>
 #include "HEMS.h" 
 
-#define NEW2D(H, W, TYPE) (TYPE **)new2d(H, W, sizeof(TYPE))
-void GLPK(int *, int *, int *, int *, float *, int *, int *, int *, int *, float *, int *, int, float *, int *);
 
-int interrupt_num = 0, uninterrupt_num = 0, app_count = 0, sample_time = 0, variable = 0, divide = 4, time_block = 96;
+int interrupt_num = 0, uninterrupt_num = 0, app_count = 0, sample_time = 0, variable = 0, divide = 4, time_block = 96, point_num = 6;
 int h, i, j, k, m, n = 0;
 double z = 0;
 float Pgrid_max = 0.0, delta_T = 0.25;
@@ -155,7 +153,6 @@ int main(void) {
 		uninterrupt_end[i] = ((int)(UNINT_power[i][1] * divide)) - 1;
 		uninterrupt_ot[i] = ((int)(UNINT_power[i][2] * divide));
 		uninterrupt_p[i] = UNINT_power[i][3];
-		
 		printf("%d  %d   %d  %.3f  ", uninterrupt_start[i], uninterrupt_end[i], uninterrupt_ot[i], uninterrupt_p[i]);
 		printf("\n");
 	
@@ -173,16 +170,19 @@ int main(void) {
 
 	}
 
+	printf("\nposition:\n");
 	for (i = 0; i < app_count; i++) {
 		snprintf(sql_buffer, sizeof(sql_buffer), "select number from load_list WHERE group_id<>0 ORDER BY group_id ASC,number ASC LIMIT %d,1", i);
 		mysql_query(mysql_con, sql_buffer);
 		mysql_result = mysql_store_result(mysql_con);
 		mysql_row = mysql_fetch_row(mysql_result);
-		position[i] = atoi(mysql_row[j]);
+		position[i] = atoi(mysql_row[0]);
 		mysql_free_result(mysql_result);
+		printf("%d ",position[i]);
 	}
+	printf("\n");
 
-    // GLPK(interrupt_start, interrupt_end, interrupt_ot, interrupt_reot, interrupt_p, uninterrupt_start, uninterrupt_end, uninterrupt_ot, uninterrupt_reot, uninterrupt_p, uninterrupt_flag, app_count, price, position);
+    GLPK(interrupt_start, interrupt_end, interrupt_ot, interrupt_reot, interrupt_p, uninterrupt_start, uninterrupt_end, uninterrupt_ot, uninterrupt_reot, uninterrupt_p, uninterrupt_flag, app_count, price, position);
 }
 
 void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *interrupt_reot, float *interrupt_p, int *uninterrupt_start, int *uninterrupt_end, int *uninterrupt_ot, int *uninterrupt_reot, float *uninterrupt_p, int *uninterrupt_flag, int app_count, float *price, int *position)
@@ -192,8 +192,8 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	{
 		buff[i] = 0;
 	}
-	int noo;
 	//get now time that can used in the real experiment
+	int noo;
 	if (((now_time.tm_min) % (60 / divide)) != 0)
 	{
 		noo = (now_time.tm_hour) * divide + (int)((now_time.tm_min) / (60 / divide)) + 1;
@@ -202,7 +202,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	{
 		noo = (now_time.tm_hour) * divide + (int)((now_time.tm_min) / (60 / divide));
 	}
-	printf("sample:%d\n", noo);
+	printf("sampleNoo:%d\n", noo);
 
 	float *price2 = new float[time_block];
 	for (int x = 0; x < 24; x++)	
@@ -212,8 +212,32 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			price2[y] = price[x];
 		}
 	}
+	
+	// find flag is 1 or not
+	int flag = 0;
+	if (sample_time != 0)
+	{
+		for (i = 0; i < uninterrupt_num; i++)
+		{
+			// flag status is equip_id 40 41 in original control status
+			flag = 0;
+			snprintf(sql_buffer, sizeof(sql_buffer), "SELECT %s FROM control_status WHERE equip_id = '%d'", column, (i + app_count + 15 + (point_num - 1) * 2));
+			mysql_query(mysql_con, sql_buffer);
+			mysql_result = mysql_store_result(mysql_con);
+			mysql_row = mysql_fetch_row(mysql_result);
+			for (j = 0; j < sample_time; j++)
+			{
+				flag += atoi(mysql_row[j]);
+			}
+			//不可中斷負載輔助變數之旗標, 0:未開始執行, 1:已開始執行(為1代表前一刻設備已開啟)
+			//The flag of the uninterrupted load auxiliary variable, 0: not started, 1: started execution (1 for the first time the device is turned on)
+			uninterrupt_flag[i] = flag;			
+			mysql_free_result(mysql_result);    
+		}
+	}
 
-	for (i = 0; i < interrupt_num; i++)	//可中斷負載 (Interrupt load)
+	//可中斷負載 (Interrupt load)
+	for (i = 0; i < interrupt_num; i++)	
 	{
 		if ((interrupt_ot[i] - buff[i]) == interrupt_ot[i])
 		{
@@ -226,6 +250,30 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		else if ((interrupt_ot[i] - buff[i]) <= 0)
 		{
 			interrupt_reot[i] = 0;
+		}
+	}
+
+	//不可中斷負載 (Uninterrupt load)
+	for (j = 0; j < uninterrupt_num; j++)
+	{
+		if (uninterrupt_flag[j] == 0)	// 不可中斷負載尚未啟動 (Uninterrupted load has not yet started)
+		{
+			uninterrupt_reot[j] = uninterrupt_ot[j];
+		}
+		if (uninterrupt_flag[j] == 1)	// 不可中斷負載已啟動(則修改負載起迄時間)(Uninterrupted load is started (modify load start time))
+		{
+			if (((uninterrupt_ot[j] - buff[j + interrupt_num]) < uninterrupt_ot[j]) && ((uninterrupt_ot[j] - buff[j + interrupt_num]) > 0))
+			{
+				uninterrupt_reot[j] = uninterrupt_ot[j] - buff[j + interrupt_num];
+				if (uninterrupt_reot[j] != 0)
+				{
+					uninterrupt_end[j] = sample_time + uninterrupt_reot[j] - 1;
+				}
+			}
+			else if ((uninterrupt_ot[j] - buff[j + interrupt_num]) <= 0)
+			{
+				uninterrupt_reot[j] = 0;
+			}
 		}
 	}
  
@@ -292,7 +340,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 				for (i = (interrupt_start[h] - sample_time); i <= (interrupt_end[h] - sample_time); i++)
 				{
 					power1[app_count + i][i*variable + h] = interrupt_p[h];
-					printf("[%d][%d] = [%.1f] %dyes\n",app_count + i, i*variable + h, interrupt_p[h],h);
+					// printf("[%d][%d] = [%.1f] %dyes\n",app_count + i, i*variable + h, interrupt_p[h],h);
 				}
 			}
 			else if ((interrupt_start[h] - sample_time) < 0)
@@ -350,7 +398,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			ar[i*((time_block - sample_time)*variable) + j + 1] = power1[i][j];
 		}
 	}
-	printf("array finish\n");	
+	printf("\nGLPK array finish\n\n");	
 	/*============================== GLPK讀取資料矩陣 ====================================*/
 	glp_load_matrix(mip, (((time_block - sample_time) * 1) + app_count)*(variable * (time_block - sample_time)), ia, ja, ar);
 
