@@ -356,7 +356,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		power1[app_count + i][i*variable + app_count] = -1.0; // Pgrid
 	}
 
-	// 平衡式(Balanced function)
+	// ========================== 平衡式(Balanced function) ==========================
 	for (h = 0; h < interrupt_num; h++)	// 可中斷負載(Interrupt load)
 	{
 		if ((interrupt_end[h] - sample_time) >= 0)
@@ -386,14 +386,14 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			{
 				for (i = (uninterrupt_start[h] - sample_time); i <= (uninterrupt_end[h] - sample_time); i++)
 				{
-					power1[(time_block - sample_time) * 1 + app_count + 1 + i][i*variable + h + interrupt_num] = uninterrupt_p[h];
+					power1[app_count + i][i*variable + h + interrupt_num] = uninterrupt_p[h];
 				}
 			}
 			else if ((uninterrupt_start[h] - sample_time) < 0)
 			{
 				for (i = 0; i <= (uninterrupt_end[h] - sample_time); i++)
 				{
-					power1[(time_block - sample_time) * 1 + app_count + 1 + i][i*variable + h + interrupt_num] = uninterrupt_p[h];
+					power1[app_count + i][i*variable + h + interrupt_num] = uninterrupt_p[h];
 				}
 			}
 		}
@@ -406,7 +406,14 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		glp_set_row_name(mip, i, "");
 		glp_set_row_bnds(mip, i, GLP_LO, ((float)interrupt_reot[i - 1]), 0.0);	// ok
 	}
-
+	for (i = 1; i <= uninterrupt_num; i++)	//不可中斷負載
+	{
+		if (uninterrupt_flag[i] == 0)
+		{
+			glp_set_row_name(mip, i + interrupt_num, "");
+		    glp_set_row_bnds(mip, i + interrupt_num, GLP_LO, ((float)uninterrupt_reot[i - 1]), ((float)uninterrupt_reot[i - 1]));//ok
+		}
+	}
 	// 決定是否輸出市電
 	for (i = 1; i <= (time_block - sample_time); i++)
 	{
@@ -445,7 +452,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	}
 	printf("\nGLPK array finish\n\n");	
 	/*============================== GLPK讀取資料矩陣 ====================================*/
-	glp_load_matrix(mip, (((time_block - sample_time) * 1) + app_count)*(variable * (time_block - sample_time)), ia, ja, ar);
+	glp_load_matrix(mip, (((time_block - sample_time) * 1) + app_count) * (variable * (time_block - sample_time)), ia, ja, ar);
 
 	glp_iocp parm;
 	glp_init_iocp(&parm);
@@ -459,10 +466,8 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 
 	int err = glp_intopt(mip, &parm);
 	z = glp_mip_obj_val(mip);
-	printf("%f\n",glp_mip_col_val(mip,1));
-	printf("%f\n",glp_mip_col_val(mip,2));
-	printf("%f\n",glp_mip_col_val(mip,3));
-	printf("%.2f\n", glp_mip_col_val(mip,4));
+	for(i=0; i<app_count; i++)
+	{ printf("%.2f\n", glp_mip_col_val(mip,i)); }
 
 	printf("\n");
 	printf("sol = %f; \n", z);
