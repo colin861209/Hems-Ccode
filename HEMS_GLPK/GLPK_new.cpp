@@ -586,25 +586,25 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 
 
 	// 充電限制式(Charge limit)
-		for (i = 0; i < (time_block - sample_time); i++)
+	for (i = 0; i < (time_block - sample_time); i++)
 	{
-	power1[(time_block - sample_time) * 4 + app_count + 1 + i][i*variable + (app_count + 3)] = 1.0;						//Pess +
-	power1[(time_block - sample_time) * 4 + app_count + 1 + i][i*variable + (app_count + 7)] = -Pbat_max;				//Z
+		power1[(time_block - sample_time) * 4 + app_count + 1 + i][i*variable + (app_count + 3)] = 1.0;						//Pess +
+		power1[(time_block - sample_time) * 4 + app_count + 1 + i][i*variable + (app_count + 7)] = -Pbat_max;				//Z
 	}
 
 	// 放電限制式(Discharge limit)
 	for (i = 0; i < (time_block - sample_time); i++)
 	{
-	power1[(time_block - sample_time) * 5 + app_count + 1 + i][i*variable + (app_count + 4)] = 1.0;						//Pess -
-	power1[(time_block - sample_time) * 5 + app_count + 1 + i][i*variable + (app_count + 7)] = Pbat_min;					//Z
+		power1[(time_block - sample_time) * 5 + app_count + 1 + i][i*variable + (app_count + 4)] = 1.0;						//Pess -
+		power1[(time_block - sample_time) * 5 + app_count + 1 + i][i*variable + (app_count + 7)] = Pbat_min;					//Z
 	}
 
 	// 電池功率(Battery power)
 	for (i = 0; i < (time_block - sample_time); i++)
 	{
-	power1[(time_block - sample_time) * 6 + app_count + 1 + i][i*variable + (app_count + 2)] = 1.0;						//Pess
-	power1[(time_block - sample_time) * 6 + app_count + 1 + i][i*variable + (app_count + 3)] = -1.0;					//Pess +
-	power1[(time_block - sample_time) * 6 + app_count + 1 + i][i*variable + (app_count + 4)] = 1.0;						//Pess -
+		power1[(time_block - sample_time) * 6 + app_count + 1 + i][i*variable + (app_count + 2)] = 1.0;						//Pess
+		power1[(time_block - sample_time) * 6 + app_count + 1 + i][i*variable + (app_count + 3)] = -1.0;					//Pess +
+		power1[(time_block - sample_time) * 6 + app_count + 1 + i][i*variable + (app_count + 4)] = 1.0;						//Pess -
 	}
 
 	// (Sell to grid constraint,Psell<=Psolar+Pfc)
