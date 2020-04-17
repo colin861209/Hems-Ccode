@@ -69,7 +69,7 @@ int main(void) {
 	printf("Pgrid_max:%.2f\n", Pgrid_max);
 
     app_count = interrupt_num + uninterrupt_num;  // 14
-	variable = app_count + 1;  // 買電狀態
+	variable = app_count + 1 + 2;  // 買電狀態 + 不可變動二元輔助變數 17
 	int *position = new int[app_count];
     float **INT_power = NEW2D(interrupt_num, 4, float);
     float **UNINT_power = NEW2D(uninterrupt_num, 4, float);
@@ -238,7 +238,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			mysql_free_result(mysql_result);    
 		}
 	}
-
+	printf("flag finish\n");
 	//可中斷負載 (Interrupt load)
 	for (i = 0; i < interrupt_num; i++)	
 	{
@@ -279,25 +279,26 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			}
 		}
 	}
- 
+	printf("remain operation time finish\n");
+	
 	float *s = new float[time_block];
 	/*============================ 總規劃功率矩陣(Total planning power matrix) ====================================*/
-	float **power1 = NEW2D((((time_block - sample_time) * 1) + app_count), (variable * (time_block - sample_time)), float);
+	float **power1 = NEW2D((((time_block - sample_time) * 20) + app_count), (variable * (time_block - sample_time)), float);
 
 	/*============================ GLPK參數矩陣定義(GLPK parameter matrix definition) ==================================*/
 	glp_prob *mip;
-	int *ia = new int[((((time_block - sample_time) * 1) + app_count) * (variable * (time_block - sample_time))) + 1]; 			// Row
-	int *ja = new int[((((time_block - sample_time) * 1) + app_count) * (variable * (time_block - sample_time))) + 1];			// Column
-	double *ar = new double[((((time_block - sample_time) * 1) + app_count) * (variable * (time_block - sample_time))) + 1];		// structural variable
+	int *ia = new int[((((time_block - sample_time) * 20) + app_count) * (variable * (time_block - sample_time))) + 1]; 			// Row
+	int *ja = new int[((((time_block - sample_time) * 20) + app_count) * (variable * (time_block - sample_time))) + 1];			// Column
+	double *ar = new double[((((time_block - sample_time) * 20) + app_count) * (variable * (time_block - sample_time))) + 1];		// structural variable
 	/*============================== GLPK變數宣告(GLPK variable definition) =====================================*/
 	mip = glp_create_prob();
 	glp_set_prob_name(mip, "hardware_algorithm_case");
 	glp_set_obj_dir(mip, GLP_MIN);
-	glp_add_rows(mip, (((time_block - sample_time) * 1) + app_count));
+	glp_add_rows(mip, (((time_block - sample_time) * 20) + app_count));
 	glp_add_cols(mip, (variable * (time_block - sample_time)));	
 
 	/*=============================== 初始化矩陣(initial the matrix) ======================================*/
-	for (m = 0; m < ((time_block - sample_time) * 1) + app_count; m++)
+	for (m = 0; m < ((time_block - sample_time) * 20) + app_count; m++)
 	{
 		for (n = 0; n < (variable * (time_block - sample_time)); n++)
 		{
@@ -398,6 +399,89 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			}
 		}
 	}
+
+	// uninterrupt load 輔助變數沒加(sum = 1) 689~715 決策變數沒加  743~788
+	int counter;
+	// 不可中斷負載之輔助變數(Uninterrupted load of auxiliary variables), sum = 1
+	counter = 0;
+	for (h = 0; h < uninterrupt_num; h++)
+	{
+		if (uninterrupt_flag[h] == 0)	//在不可中斷負載未啟動時，以不可中斷方式填矩陣(When the uninterruptible load is not started, use the original way to fill the matrix)
+		{								//­若已啟動就強迫將排程起迄時間 從 "start時刻" 到 "start時刻 + 剩下須執行時間"
+			if ((uninterrupt_end[h] - sample_time) >= 0)	//If it is already started, it will force the schedule to start from "start time" to "start time + left to be executed"
+			{
+				if ((uninterrupt_start[h] - sample_time) >= 0)
+				{
+					for (i = (uninterrupt_start[h] - sample_time); i <= ((uninterrupt_end[h] - uninterrupt_reot[h] + 1) - sample_time); i++)
+					{
+						power1[(time_block - sample_time) + app_count + counter][i*variable + h + (variable - uninterrupt_num)] = 1.0;
+						
+					}
+				}
+				else if ((uninterrupt_start[h] - sample_time) < 0)
+				{
+					for (i = 0; i <= ((uninterrupt_end[h] - uninterrupt_reot[h] + 1) - sample_time); i++)
+					{
+						power1[(time_block - sample_time) + app_count + counter][i*variable + h + (variable - uninterrupt_num)] = 1.0;
+					}
+				}
+			}
+			printf("\n");
+			counter += 1;
+		}
+	}
+
+	n = 0 ;
+	for (h = 0; h < uninterrupt_num; h++)
+	{
+		if (uninterrupt_flag[h] == 0)	//在不可中斷負載未啟動時
+		{
+			//不可中斷負載決策變數
+			for (k = (1 + n), m = 0; k < (1 + n) + uninterrupt_reot[h], m < uninterrupt_reot[h]; k++, m++)
+			{
+				if ((uninterrupt_end[h] - sample_time) >= 0)
+				{
+					if ((uninterrupt_start[h] - sample_time) >= 0)
+					{
+						for (i = (uninterrupt_start[h] - sample_time); i <= ((uninterrupt_end[h] - uninterrupt_reot[h] + 1) - sample_time); i++)
+						{
+							power1[(time_block - sample_time) * k + app_count + counter + i][(i + m)*variable + h + interrupt_num] = 1.0;	// 不可中斷負載決策變數
+							power1[(time_block - sample_time) * k + app_count + counter + i][i*variable + h + (variable - uninterrupt_num)] = -1.0;	//不可中斷負載二元輔助變數
+							printf("| [%d] [%d] |  ", (time_block - sample_time) * k + app_count + counter + i, (i + m)*variable + h + interrupt_num);
+							printf("%d * %d + %d + %d + %d = %d ", (time_block - sample_time), k, app_count, counter, i, (time_block - sample_time) * k + app_count + counter + i);
+							printf("(%d + %d) * %d + %d + %d = %d \n", i, m, variable, h, interrupt_num, (i + m)*variable + h + interrupt_num);
+						}
+						printf("\n");
+
+					}
+					else if ((uninterrupt_start[h] - sample_time) < 0) 
+					{
+						for (i = 0; i <= ((uninterrupt_end[h] - uninterrupt_reot[h] + 1) - sample_time); i++) // *** wired
+						{
+							power1[(time_block - sample_time) * k + app_count + counter + i][(i + m)*variable + h + interrupt_num] = 1.0;									//不可中斷負載決策變數
+							power1[(time_block - sample_time) * k + app_count + counter + i][i*variable + h + (variable - uninterrupt_num)] = -1.0;	//不可中斷負載二元輔助變數
+						}
+					}
+				}
+			}
+			n += uninterrupt_reot[h];
+		}
+		//在不可中斷負載已啟動時(因起迄時間已被強迫修改)
+		if (uninterrupt_flag[h] == 1)
+		{
+			if ((uninterrupt_end[h] - sample_time) >= 0)
+			{
+				if ((uninterrupt_start[h] - sample_time) <= 0)
+				{
+					for (i = 0; i <= (uninterrupt_end[h] - sample_time); i++)
+					{
+						power1[(time_block - sample_time) * (1 + n)+ app_count + counter + i][i * variable + h + interrupt_num] = 1.0;	//不可中斷負載決策變數
+					}
+				}
+				n += 1;
+			}
+		}
+	}
 	/*============================== 宣告限制式條件範圍(row) ===============================*/
 	// GLPK讀列從1開始
 	// 限制式-家庭負載最低耗能
@@ -420,7 +504,56 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		glp_set_row_name(mip, (app_count + i), "");
 		glp_set_row_bnds(mip, (app_count + i), GLP_UP, 0.0, 0.0);
 	}
-	
+
+	counter = 1;
+
+	for (h = 0; h < uninterrupt_num; h++)
+	{
+		if (uninterrupt_flag[h] == 0)
+		{
+			//不變動負載之輔助變數, sum = 1
+			glp_set_row_name(mip, ((time_block - sample_time) + app_count + counter), "");
+			glp_set_row_bnds(mip, ((time_block - sample_time) + app_count + counter), GLP_FX, 1.0, 1.0);
+
+			counter += 1;
+		}
+	}
+	n = 0;
+	for (h = 0; h < uninterrupt_num; h++)
+	{
+		if (uninterrupt_flag[h] == 0)
+		{
+			//不可中斷負載決策變數
+			for (k = (1 + n); k < (1 + n) + uninterrupt_reot[h]; k++)
+			{
+				for (i = ((time_block - sample_time) * k + app_count + counter); i < ((time_block - sample_time) * (1 + k) + app_count + counter); i++)
+				{
+					glp_set_row_name(mip, i, "");
+					glp_set_row_bnds(mip, i, GLP_LO, 0.0, 0.0);
+				}
+			}
+			n += uninterrupt_reot[h];
+		}
+		if (uninterrupt_flag[h] == 1)
+		{
+			if ((uninterrupt_end[h] - sample_time) >= 0)
+			{
+				for (i = ((time_block - sample_time) * k + app_count + counter); i < ((time_block - sample_time) * k + app_count + counter + uninterrupt_reot[h]); i++)
+				{
+					glp_set_row_name(mip, i, "");
+					glp_set_row_bnds(mip, i, GLP_LO, 1.0, 1.0);
+				}
+				for (i = ((time_block - sample_time) * (1 + n) + app_count + counter + uninterrupt_reot[h]); i < ((time_block - sample_time) * ((1 + n) + 1) + app_count + counter); i++)
+				{
+					glp_set_row_name(mip, i, "");
+					glp_set_row_bnds(mip, i, GLP_LO, 0.0, 0.0);
+				}
+				n += 1;
+			}
+		}
+	}
+	printf("row end setting\n");
+
 	/*============================== 宣告決策變數(column) ================================*/
 	for (i = 0; i < (time_block - sample_time); i++)
 	{
@@ -431,17 +564,23 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		}
 		glp_set_col_bnds(mip, ((app_count + 1) + i*variable), GLP_DB, 0.0, Pgrid_max);	// 決定市電輸出功率  一定要大於總負載功率才不會有太大問題
 		glp_set_col_kind(mip, ((app_count + 1) + i*variable), GLP_CV);
+		for (j = 1; j <= uninterrupt_num; j++)
+		{
+			glp_set_col_bnds(mip, ((app_count + 1 + j) + i*variable), GLP_DB, 0.0, 1.0);	//不可中斷負載輔助二元變數
+			glp_set_col_kind(mip, ((app_count + 1 + j) + i*variable), GLP_BV);
+		}
 	}
-	
+	printf("column end setting\n");
 
 	/*============================== 宣告目標式參數(column) ===============================*/
 	for (j = 0; j < (time_block - sample_time); j++)
 	{
 		glp_set_obj_coef(mip, (app_count + 1 + j*variable), price2[j + sample_time] * delta_T);		// 單目標cost(步驟一)
 	}
+	printf("object end setting\n");
 
 	/*============================== GLPK寫入矩陣(ia,ja,ar) ===============================*/
-	for (i = 0; i < (((time_block - sample_time) * 1) + app_count); i++)
+	for (i = 0; i < (((time_block - sample_time) * 20) + app_count); i++)
 	{
 		for (j = 0; j < (variable * (time_block - sample_time)); j++)
 		{
@@ -450,9 +589,10 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			ar[i*((time_block - sample_time)*variable) + j + 1] = power1[i][j];
 		}
 	}
-	printf("\nGLPK array finish\n\n");	
+	printf("\nGLPK array finish\n");	
 	/*============================== GLPK讀取資料矩陣 ====================================*/
-	glp_load_matrix(mip, (((time_block - sample_time) * 1) + app_count) * (variable * (time_block - sample_time)), ia, ja, ar);
+	glp_load_matrix(mip, (((time_block - sample_time) * 20) + app_count) * (variable * (time_block - sample_time)), ia, ja, ar);
+	printf("glp_load_matrix end setting\n");
 
 	glp_iocp parm;
 	glp_init_iocp(&parm);
@@ -466,8 +606,8 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 
 	int err = glp_intopt(mip, &parm);
 	z = glp_mip_obj_val(mip);
-	for(i=0; i<app_count; i++)
-	{ printf("%.2f\n", glp_mip_col_val(mip,i)); }
+	// for(i=0; i<app_count; i++)
+	// { printf("%.2f\n", glp_mip_col_val(mip,i)); }
 
 	printf("\n");
 	printf("sol = %f; \n", z);
@@ -504,7 +644,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 				, column, s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8], s[9], s[10], s[11], s[12], s[13], s[14], s[15], s[16], s[17], s[18], s[19], s[20], s[21], s[22], s[23], s[24], s[25], s[26], s[27], s[28], s[29], s[30], s[31], s[32], s[33], s[34], s[35], s[36], s[37], s[38], s[39], s[40], s[41], s[42], s[43], s[44], s[45], s[46], s[47], s[48], s[49], s[50], s[51], s[52], s[53], s[54], s[55], s[56], s[57], s[58], s[59], s[60], s[61], s[62], s[63], s[64], s[65], s[66], s[67], s[68], s[69], s[70], s[71], s[72], s[73], s[74], s[75], s[76], s[77], s[78], s[79], s[80], s[81], s[82], s[83], s[84], s[85], s[86], s[87], s[88], s[89], s[90], s[91], s[92], s[93], s[94], s[95], i);
 			mysql_query(mysql_con, sql_buffer);
 			memset(sql_buffer, 0, sizeof(sql_buffer));
-			printf("%d,", i);
+			
 		}
 	}
 	printf("\n");
