@@ -12,7 +12,7 @@ $limit_power = sqlFetchRow($conn, "SELECT `value` FROM `LP_BASE_PARM` where `par
 for($y=0;$y<96;$y++)
 { $limit_capability[$y] = floatval($limit_power); }
 
-$load_status_array = sqlFetchRow($conn, "SELECT * FROM `interrupt_vs_grid` ", $controlStatusResult);
+$load_status_array = sqlFetchRow($conn, "SELECT * FROM `oneTime_interrupt_vs_grid` ", $controlStatusResult);
 mysqli_close($conn);
 
 // electric_price_array

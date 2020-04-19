@@ -4,7 +4,7 @@ var now_t= Math.floor(dt.getHours()*4+dt.getMinutes()/15);
 console.log(now_t);
 
 var request = new XMLHttpRequest();
-    request.open('GET', 'back_end/interruptVsGrid.php');
+    request.open('GET', 'back_end/oneTimeInterruptVsGrid.php');
     request.onload = function () {
         // var ourData = JSON.parse(request.responseText);
         var LOOP_NUM = JSON.parse(this.responseText).load_power.length;

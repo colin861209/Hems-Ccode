@@ -40,9 +40,9 @@
 					<div class="navbar-collapse collapse">							
 						<div class="menu">
 							<ul class="nav nav-tabs" role="tablist">
-								<li role="presentation"><a href="index.html" class="active">可中斷VS市電</a></li>
+								<li role="presentation"><a href="index.html" >可中斷VS市電</a></li>
 								<li role="presentation"><a href="twoLoadVsGrid.html">可中斷+不可中斷VS市電</a></li>
-								<li role="presentation"><a href="threeLoadVsGrid.html">三種負載VS市電</a></li>
+								<li role="presentation"><a href="threeLoadVsGrid.html" class="active">三種負載VS市電</a></li>
 								<!-- <li role="presentation"><a href="control_switch.html">家電控制</a></li>
 								<li role="presentation"><a href="set_data.html">參數設定</a></li>
 								<li role="presentation"><a href="solar_data.html">太陽資訊</a></li>			
@@ -65,19 +65,13 @@
 	</div>
 	<h3 class="text-center" style="font-weight:bold;">最佳化線性規劃排程結果</h3>
 	<hr>
-	<!-- homework 1 -->
-  	<div class="col-md-12 col-sm-12 col-xs-12 text-center wow fadeInDown" data-wow-duration="1000ms" data-wow-delay="300ms"">
-        <div class="container col-md-12 col-sm-12 col-xs-12 text-center">
-            <h4 id="InterruptVsGridById" style="font-weight:bold;">可中斷VS市電</h4>  
-            <br>
-        </div> 
-    </div>
+	<!-- homework 3 -->
 
-    <div class="col-md-12 col-sm-12 col-xs-12">
-        <div id="InterruptVsGrid" style="min-width: 310px; height: 420px; margin: 0 auto"></div>
+	<div class="col-md-12 col-sm-12 col-xs-12">
+        <div id="threeLoadVsGrid" style="min-width: 310px; height: 420px; margin: 0 auto"></div>
         <div id="containers"></div>  
     </div> 
-   
+
 
 	<div class="aboutus">
 		<div class="container">
@@ -123,7 +117,7 @@
 	<script src="https://code.highcharts.com/highcharts.js"></script>
     <script src="https://code.highcharts.com/modules/exporting.js"></script>
     <script src="https://highcharts.github.io/export-csv/export-csv.js"></script>
-    <script src="main_js/index.js"></script>
+    <script src="main_js/threeLoadVsGrid.js"></script>
 	
   </body>
 </html>

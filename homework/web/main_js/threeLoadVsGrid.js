@@ -4,13 +4,13 @@ var now_t= Math.floor(dt.getHours()*4+dt.getMinutes()/15);
 console.log(now_t);
 
 var request = new XMLHttpRequest();
-    request.open('GET', 'back_end/oneTimeTwoLoadVsGrid.php');
+    request.open('GET', 'back_end/oneTimeThreeLoadVsGrid.php');
     request.onload = function () {
         // var ourData = JSON.parse(request.responseText);
         var LOOP_NUM = JSON.parse(this.responseText).load_power.length;
         var i=0;
         console.log(JSON.parse(this.responseText));
-        twoLoadVsGrid(this.responseText);
+        threeLoadVsGrid(this.responseText);
         muti_divs(this.responseText);
         for(i=0;i<LOOP_NUM;i++)
         { each_load(this.responseText,i); } 
@@ -240,12 +240,12 @@ function show_each_load(chart_info,chart_series_type,chart_series_name,chart_ser
 
 }
 
-function twoLoadVsGrid(ABC)
+function threeLoadVsGrid(ABC)
 {
     //parse to get all json data
     var data = JSON.parse(ABC);
     //define all needed data array
-    var chart_info=["twoLoadVsGrid", "Two Load Vs Grid", " ", "time", "price(TWD)", "power(kW)"];
+    var chart_info=["threeLoadVsGrid", "Two Load Vs Grid", " ", "time", "price(TWD)", "power(kW)"];
     var chart_series_type= [];
     var chart_series_name= [];
     var chart_series_data= [];
