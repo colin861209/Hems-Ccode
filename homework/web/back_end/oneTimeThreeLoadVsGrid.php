@@ -8,6 +8,7 @@ $load_list_array = sqlFetchAssoc($conn, "SELECT start_time, end_time, operation_
 
 $interrupt_num = sqlFetchRow($conn, "SELECT count(*) AS numcols FROM load_list WHERE group_id=1 ", $oneValue);
 $uninterrupt_num = sqlFetchRow($conn, "SELECT count(*) AS numcols FROM load_list WHERE group_id=2 ", $oneValue);
+$varying_num = sqlFetchRow($conn, "SELECT count(*) AS numcols FROM load_list WHERE group_id=3 ", $oneValue);
 
 $limit_power = sqlFetchRow($conn, "SELECT `value` FROM `LP_BASE_PARM` where `parameter_id` = 13 ", $oneValue);
 for($y=0;$y<96;$y++)
@@ -41,7 +42,6 @@ for($u=0; $u<$interrupt_num+$uninterrupt_num; $u++){
     for($y=0;$y<96;$y++){
         $load_power[$u][] = $power1[$u]*$load_status_array[$u][$y];
     }
-
 }
 
 $data_array = [
