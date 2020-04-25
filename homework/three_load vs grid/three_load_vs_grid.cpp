@@ -926,7 +926,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 				glp_set_row_name(mip, i, "");
 				glp_set_row_bnds(mip, i, GLP_LO, 1.0, 1.0);
 			}
-			for (i = (((time_block - sample_time) * (1 + n) + app_count + counter) + varying_reot[h]); i < ((time_block - sample_time) * ((1 + n) + 1) + app_count + counter); i++)
+			for (i = (((time_block - sample_time) * (1 + n) + app_count + counter + varying_reot[h]) + varying_reot[h]); i < ((time_block - sample_time) * ((1 + n) + 1) + app_count + counter); i++)
 			{
 				glp_set_row_name(mip, i, "");
 				glp_set_row_bnds(mip, i, GLP_LO, 0.0, 0.0);
