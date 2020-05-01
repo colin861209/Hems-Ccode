@@ -10,7 +10,7 @@
 #include "HEMS.h" 
 
 
-int interrupt_num = 0, uninterrupt_num = 0, varying_num = 0, app_count = 0, sample_time = 0, variable = 0, divide = 4, time_block = 96, ponit_num = 6;
+int interrupt_num = 0, uninterrupt_num = 0, varying_num = 0, app_count = 0, sample_time = 0, variable = 0, divide = 4, time_block = 96, ponit_num = 6, real_time = 0;
 int h, i, j, k, m, n = 0;
 double z = 0;
 float Pgrid_max = 0.0, delta_T = 0.25;
@@ -37,9 +37,6 @@ int main(void) {
 	}
 	printf("Connect to Mysql sucess!!\n");
 	mysql_set_character_set(mysql_con, "utf8");
-
-	snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE control_status");      //clean control_status;
-	mysql_query(mysql_con, sql_buffer);
 
     // get count = 12 of interrupt group 
     snprintf(sql_buffer, sizeof(sql_buffer), "SELECT count(*) AS numcols FROM load_list WHERE group_id=1 "); 
@@ -233,13 +230,64 @@ int main(void) {
 		mysql_query(mysql_con, sql_buffer);
 		mysql_result = mysql_store_result(mysql_con);
 		mysql_row = mysql_fetch_row(mysql_result);
-		position[i] = atoi(mysql_row[j]);
+		position[i] = atoi(mysql_row[0]);
 		mysql_free_result(mysql_result);
 		printf("%d ",position[i]);
 	}
 	printf("\n");
 
+	snprintf(sql_buffer, sizeof(sql_buffer), "SELECT value FROM LP_BASE_PARM WHERE parameter_id = 15 ");
+	mysql_query(mysql_con, sql_buffer);
+	mysql_result = mysql_store_result(mysql_con);
+	mysql_row = mysql_fetch_row(mysql_result);
+	real_time = atoi(mysql_row[0]);
+	mysql_free_result(mysql_result);
+
+	snprintf(sql_buffer, sizeof(sql_buffer), "SELECT value FROM LP_BASE_PARM WHERE parameter_id = 28 ");
+	mysql_query(mysql_con, sql_buffer);
+	mysql_result = mysql_store_result(mysql_con);
+	mysql_row = mysql_fetch_row(mysql_result);
+	sample_time = atoi(mysql_row[0]);
+	mysql_free_result(mysql_result);
+
+	printf("real_time:%d\n", real_time);
+	printf("sample_time:%d\n", sample_time);
+
+	if (real_time == 0)
+	{
+		snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE control_status"); //clean control_status;
+		mysql_query(mysql_con, sql_buffer);
+		snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE real_status"); //clean control_status;
+		mysql_query(mysql_con, sql_buffer);
+		snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE LP_BASE_PARM set value = 0 where parameter_id=28 ");
+		mysql_query(mysql_con, sql_buffer);
+		real_time = 1;
+		snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE LP_BASE_PARM SET value = %d WHERE parameter_id = 15 ", real_time);
+		mysql_query(mysql_con, sql_buffer);
+	}
+	else
+	{
+		snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE real_status"); //clean control_status;
+		mysql_query(mysql_con, sql_buffer);
+	}
+
+	snprintf(sql_buffer, sizeof(sql_buffer), "SELECT value FROM LP_BASE_PARM WHERE parameter_id = 28 ");
+	mysql_query(mysql_con, sql_buffer);
+	mysql_result = mysql_store_result(mysql_con);
+	mysql_row = mysql_fetch_row(mysql_result);
+	sample_time = atoi(mysql_row[0]);
+	mysql_free_result(mysql_result);
+
 	GLPK(interrupt_start, interrupt_end, interrupt_ot, interrupt_reot, interrupt_p, uninterrupt_start, uninterrupt_end, uninterrupt_ot, uninterrupt_reot, uninterrupt_p, uninterrupt_flag, varying_start, varying_end, varying_ot, varying_reot, varying_flag, varying_t_pow, varying_p_pow, app_count, price, position);
+	
+	sample_time++;
+	printf("\nupdate time block to %d\n",sample_time);
+	snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE LP_BASE_PARM set value = %d where parameter_id= 28", sample_time);
+	mysql_query(mysql_con, sql_buffer);
+
+
+	mysql_close(mysql_con);
+	return 0;
 }
 
 void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *interrupt_reot, float *interrupt_p, int *uninterrupt_start, int *uninterrupt_end, int *uninterrupt_ot, int *uninterrupt_reot, float *uninterrupt_p, int *uninterrupt_flag, int *varying_start, int *varying_end, int *varying_ot, int *varying_reot, int *varying_flag, int **varying_t_pow, float **varying_p_pow, int app_count, float *price, int *position)
@@ -259,7 +307,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	{
 		noo = (now_time.tm_hour) * divide + (int)((now_time.tm_min) / (60 / divide));
 	}
-	printf("sample:%d\n", noo);
+	// printf("sampleNoo:%d\n", noo);
 
 	float *price2 = new float[time_block];
 	for (int x = 0; x < 24; x++)	
@@ -279,7 +327,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		{
 			flag = 0;
 
-			snprintf(sql_buffer, sizeof(sql_buffer), "SELECT %s FROM control_status WHERE equip_id = '%d'", column, (i + app_count + 15 + (ponit_num - 1) * 2));
+			snprintf(sql_buffer, sizeof(sql_buffer), "SELECT %s FROM control_status WHERE equip_id = '%d'", column, (i + app_count + 1 + 1));
 			mysql_query(mysql_con, sql_buffer);
 			mysql_result = mysql_store_result(mysql_con);
 			mysql_row = mysql_fetch_row(mysql_result);
@@ -295,8 +343,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		for (i = 0; i < varying_num; i++)
 		{
 			flag = 0;
-			printf("pointnum:%d", ponit_num);
-			snprintf(sql_buffer, sizeof(sql_buffer), "SELECT %s FROM control_status WHERE equip_id = '%d'", column, (i + app_count + 15 + (ponit_num - 1) * 2 + uninterrupt_num));
+			snprintf(sql_buffer, sizeof(sql_buffer), "SELECT %s FROM control_status WHERE equip_id = '%d'", column, (i + app_count + 1 + 1 + uninterrupt_num));
 			mysql_query(mysql_con, sql_buffer);
 			mysql_result = mysql_store_result(mysql_con);
 			mysql_row = mysql_fetch_row(mysql_result);
@@ -310,8 +357,32 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			mysql_free_result(mysql_result);
 		}
 	}
-	printf("flag finish\n");
+	printf("flag finish %d %d %d\n", uninterrupt_flag[0], uninterrupt_flag[1], varying_flag[0]);
 
+	/*==================== 得到在sample_time以前設備已執行的次數(Get the number of times the device was executed before sample_time) =======================*/
+	int coun = 0;
+
+	if (sample_time != 0)
+	{
+		for (i = 1; i <= app_count; i++)
+		{
+			coun = 0;
+
+			snprintf(sql_buffer, sizeof(sql_buffer), "SELECT %s FROM control_status WHERE (control_id = '%d')", column, i);
+			mysql_query(mysql_con, sql_buffer);
+			mysql_result = mysql_store_result(mysql_con);
+			mysql_row = mysql_fetch_row(mysql_result);
+			for (j = 0; j < sample_time; j++)
+			{
+				coun += atoi(mysql_row[j]);
+			}
+			buff[i - 1] = coun;
+			printf("buff[%d]: %d ",i ,coun);
+			memset(sql_buffer, 0, sizeof(sql_buffer));
+		}
+		mysql_free_result(mysql_result);
+	}
+	printf("\n");
 	// caculate remain operation timeblock
 	for (i = 0; i < interrupt_num; i++)	//可中斷負載 (Interrupt load)
 	{
@@ -774,7 +845,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 						{
 							power1[(time_block - sample_time) * k + app_count + counter + i][(i * variable) + h + (variable - (varying_num * 2))] = -1.0 * (((float)varying_t_d[h][i]) * (varying_p_d[h][m]));
 							power1[(time_block - sample_time) * k + app_count + counter + i][((i + m) * variable) + h + (variable - varying_num)] = 1.0;    //輔助變數Pa 
-							printf("| [%d] [%d] [%d] [%f]|  \n", (time_block - sample_time) * k + app_count + counter + i, ((i + m) * variable) + h + (variable - varying_num), (i * variable) + h + (variable - (varying_num * 2)),  -1.0 * (((float)varying_t_d[h][i]) * (varying_p_d[h][m])));
+							// printf("| [%d] [%d] [%d] [%f]|  \n", (time_block - sample_time) * k + app_count + counter + i, ((i + m) * variable) + h + (variable - varying_num), (i * variable) + h + (variable - (varying_num * 2)),  -1.0 * (((float)varying_t_d[h][i]) * (varying_p_d[h][m])));
 							// printf("%d * %d + %d + %d + %d = %d ", (time_block - sample_time), k, app_count, counter, i, (time_block - sample_time) * k + app_count + counter + i);
 							// printf("(%d + %d) * %d + %d + %d = %d \n", i, m, variable, h, interrupt_num, (i + m)*variable + h + (interrupt_num + uninterrupt_num));
 						}
@@ -1039,9 +1110,11 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	// }
 
 	/*============================== 將決策變數結果輸出 ==================================*/
+	// int l=0;
 	for (i = 1; i <= variable; i++)
 	{
 		h = i;
+		// l = variable - (app_count - i);
 
 		if (sample_time == 0)
 		{
@@ -1056,6 +1129,21 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 					snprintf(sql_buffer, sizeof(sql_buffer), "INSERT INTO control_history (id,status,schedule) VALUES(%d,%d,%d)", position[i - 1], (int)s[j], 1);
 					mysql_query(mysql_con, sql_buffer);
 				}
+				// else if ((i > interrupt_num + uninterrupt_num) && (i <= app_count)) //sometimes varying load will have weird
+				// {
+				// 	s[j] = glp_mip_col_val(mip, l);
+				// 	// printf("%d. variable:%d  value:%f\n",j,i,s[j]);
+				// 	if (s[j] > 0.0)
+				// 	{
+				// 		s[j] = 1.0;
+				// 	}
+				// 	if (j == noo)
+				// 	{
+				// 		snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE now_status set status = %d where id=%d ", (int)s[j], position[i - 1]);
+				// 		mysql_query(mysql_con, sql_buffer);
+				// 	}
+				// }
+				// l = (l + variable);
 				h = (h + variable);
 			}
 
@@ -1064,7 +1152,66 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			mysql_query(mysql_con, sql_buffer);
 			memset(sql_buffer, 0, sizeof(sql_buffer));
 		}
+
+		if (sample_time != 0)
+		{
+			snprintf(sql_buffer, sizeof(sql_buffer), "SELECT %s FROM control_status WHERE (control_id = '%d')", column, i);
+			mysql_query(mysql_con, sql_buffer);
+			mysql_result = mysql_store_result(mysql_con);
+			mysql_row = mysql_fetch_row(mysql_result);
+			for (k = 0; k < sample_time; k++)
+			{
+				s[k] = atof(mysql_row[k]);
+				printf("%.2f  ",s[k]);
+			}
+			memset(sql_buffer, 0, sizeof(sql_buffer));
+			printf("\n");
+			for (j = 0; j < (time_block - sample_time); j++)
+			{
+				s[j + sample_time] = glp_mip_col_val(mip, h);
+
+				if (i <= interrupt_num+uninterrupt_num && j== 0)
+				{
+					snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE now_status set status = %d where id=%d ", (int)s[j+sample_time], position[i-1]);
+					// printf("%s\n",sql_buffer);
+					mysql_query(mysql_con, sql_buffer);
+				}
+				else if ((i > interrupt_num+uninterrupt_num) && (i <= app_count))
+				{
+					// s[j+ sample_time] = glp_mip_col_val(mip,l);
+					// printf("%d. variable:%d  value:%f\n",j,i,s[j+ sample_time]);
+					if(s[j+ sample_time]>0.0){s[j+ sample_time]=1.0;}
+					if(j==0)
+					{
+						snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE now_status set status = %d where id=%d ", (int)s[j + sample_time], position[i-1]);
+						// printf("%s\n",sql_buffer);
+						mysql_query(mysql_con, sql_buffer);
+					}
+				}
+				// l = (l + variable);
+				h = (h + variable);
+			}
+
+			snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE control_status set A0 = '%.3f', A1 = '%.3f', A2 = '%.3f', A3 = '%.3f', A4 = '%.3f', A5 = '%.3f', A6 = '%.3f', A7 = '%.3f', A8 = '%.3f', A9 = '%.3f', A10 = '%.3f', A11 = '%.3f', A12 = '%.3f', A13 = '%.3f', A14 = '%.3f', A15 = '%.3f', A16 = '%.3f', A17 = '%.3f', A18 = '%.3f', A19 = '%.3f', A20 = '%.3f', A21 = '%.3f', A22 = '%.3f', A23 = '%.3f', A24 = '%.3f', A25 = '%.3f', A26 = '%.3f', A27 = '%.3f', A28 = '%.3f', A29 = '%.3f', A30 = '%.3f', A31 = '%.3f', A32 = '%.3f', A33 = '%.3f', A34 = '%.3f', A35 = '%.3f', A36 = '%.3f', A37 = '%.3f', A38 = '%.3f', A39 = '%.3f', A40 = '%.3f', A41 = '%.3f', A42 = '%.3f', A43 = '%.3f', A44 = '%.3f', A45 = '%.3f', A46 = '%.3f', A47 = '%.3f', A48 = '%.3f', A49 = '%.3f', A50 = '%.3f', A51 = '%.3f', A52 = '%.3f', A53 = '%.3f', A54 = '%.3f', A55 = '%.3f', A56 = '%.3f', A57 = '%.3f', A58 = '%.3f', A59 = '%.3f', A60 = '%.3f', A61 = '%.3f', A62 = '%.3f', A63 = '%.3f', A64 = '%.3f', A65 = '%.3f', A66 = '%.3f', A67 = '%.3f', A68 = '%.3f', A69 = '%.3f', A70 = '%.3f', A71 = '%.3f', A72 = '%.3f', A73 = '%.3f', A74 = '%.3f', A75 = '%.3f', A76 = '%.3f', A77 = '%.3f', A78 = '%.3f', A79 = '%.3f', A80 = '%.3f', A81 = '%.3f', A82 = '%.3f', A83 = '%.3f', A84 = '%.3f', A85 = '%.3f', A86 = '%.3f', A87 = '%.3f', A88 = '%.3f', A89 = '%.3f', A90 = '%.3f', A91 = '%.3f', A92 = '%.3f', A93 = '%.3f', A94 = '%.3f', A95 = '%.3f' WHERE equip_id = '%d';", s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8], s[9], s[10], s[11], s[12], s[13], s[14], s[15], s[16], s[17], s[18], s[19], s[20], s[21], s[22], s[23], s[24], s[25], s[26], s[27], s[28], s[29], s[30], s[31], s[32], s[33], s[34], s[35], s[36], s[37], s[38], s[39], s[40], s[41], s[42], s[43], s[44], s[45], s[46], s[47], s[48], s[49], s[50], s[51], s[52], s[53], s[54], s[55], s[56], s[57], s[58], s[59], s[60], s[61], s[62], s[63], s[64], s[65], s[66], s[67], s[68], s[69], s[70], s[71], s[72], s[73], s[74], s[75], s[76], s[77], s[78], s[79], s[80], s[81], s[82], s[83], s[84], s[85], s[86], s[87], s[88], s[89], s[90], s[91], s[92], s[93], s[94], s[95], i);
+			mysql_query(mysql_con, sql_buffer);
+			memset(sql_buffer, 0, sizeof(sql_buffer));
+
+			for (j = 0; j < sample_time; j++)
+			{
+				s[j] = 0;
+			}
+			snprintf(sql_buffer, sizeof(sql_buffer), "INSERT INTO real_status (%s, equip_id) VALUES('%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%.3f','%d');"
+				, column, s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8], s[9], s[10], s[11], s[12], s[13], s[14], s[15], s[16], s[17], s[18], s[19], s[20], s[21], s[22], s[23], s[24], s[25], s[26], s[27], s[28], s[29], s[30], s[31], s[32], s[33], s[34], s[35], s[36], s[37], s[38], s[39], s[40], s[41], s[42], s[43], s[44], s[45], s[46], s[47], s[48], s[49], s[50], s[51], s[52], s[53], s[54], s[55], s[56], s[57], s[58], s[59], s[60], s[61], s[62], s[63], s[64], s[65], s[66], s[67], s[68], s[69], s[70], s[71], s[72], s[73], s[74], s[75], s[76], s[77], s[78], s[79], s[80], s[81], s[82], s[83], s[84], s[85], s[86], s[87], s[88], s[89], s[90], s[91], s[92], s[93], s[94], s[95], i);
+			mysql_query(mysql_con, sql_buffer);
+			memset(sql_buffer, 0, sizeof(sql_buffer));
+
+		}
 	}
-	//end
+	glp_delete_prob(mip);
+
+	delete[] ia, ja, ar, s;
+	delete[] power1;
+
+	return;
 }
 
