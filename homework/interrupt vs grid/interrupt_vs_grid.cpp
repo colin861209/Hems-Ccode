@@ -27,11 +27,15 @@ char column[400] = "A0,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13,A14,A15,A16,A1
 MYSQL *mysql_con = mysql_init(NULL);
 MYSQL_RES *mysql_result;
 MYSQL_ROW mysql_row;
+using namespace std;
+MYSQL_ROW mysql_row_function();
+float turn_float(int row_num);
+int turn_int(int row_num);
 
-int main(void) {
-    
-    
-    if ((mysql_real_connect(mysql_con, "140.124.42.70", "root", "fuzzy314", "wang", 6666, NULL, 0)) == NULL) {
+int main(void)
+{
+
+	if ((mysql_real_connect(mysql_con, "140.124.42.70", "root", "fuzzy314", "wang", 6666, NULL, 0)) == NULL) {
 
 		printf("Failed to connect to Mysql!\n");
 		system("pause");
@@ -42,21 +46,12 @@ int main(void) {
 	mysql_set_character_set(mysql_con, "utf8");
 
     // get count = 3 of interrupt group 
-    snprintf(sql_buffer, sizeof(sql_buffer), "SELECT count(*) AS numcols FROM load_list WHERE group_id=1 && number>=3 && number<6 "); 
-	mysql_query(mysql_con, sql_buffer);
-	mysql_result = mysql_store_result(mysql_con);
-	mysql_row = mysql_fetch_row(mysql_result);
-	interrupt_num = atoi(mysql_row[0]); // 3
-	mysql_free_result(mysql_result);
+    snprintf(sql_buffer, sizeof(sql_buffer), "SELECT count(*) AS numcols FROM load_list WHERE group_id=1 && number>=3 && number<6 ");
+	interrupt_num = turn_int(0);
 	printf("interruptable app num:%d\n", interrupt_num);
 
 	snprintf(sql_buffer, sizeof(sql_buffer), "SELECT value FROM `LP_BASE_PARM` WHERE parameter_id = %d", 13);
-	mysql_query(mysql_con, sql_buffer);
-	mysql_result = mysql_store_result(mysql_con);
-	mysql_row = mysql_fetch_row(mysql_result);
-	Pgrid_max = atof(mysql_row[0]);	
-	mysql_free_result(mysql_result);
-
+	Pgrid_max = turn_float(0);
 	printf("Pgrid_max:%.2f\n", Pgrid_max);
 
     app_count = interrupt_num;  // 3
@@ -67,12 +62,9 @@ int main(void) {
     for (i = 1; i < interrupt_num + 1; i++) {
 
 		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT start_time, end_time, operation_time, power1 FROM load_list WHERE group_id = 1 ORDER BY number ASC LIMIT %d,1", i + 1);
-		mysql_query(mysql_con, sql_buffer);
-		mysql_result = mysql_store_result(mysql_con);
-		mysql_row = mysql_fetch_row(mysql_result);
-		for (j = 0; j < 4; j++) 
-        { INT_power[i - 1][j] = atof(mysql_row[j]);	}
-		mysql_free_result(mysql_result);
+		mysql_row_function();
+		for (j = 0; j < 4; j++)
+		{INT_power[i - 1][j] = atof(mysql_row[j]);}
 
 	}
 	
@@ -101,33 +93,31 @@ int main(void) {
 		interrupt_end[i] = ((int)(INT_power[i][1] * divide)) - 1;
 		interrupt_ot[i] = ((int)(INT_power[i][2] * divide));
 		interrupt_p[i] = INT_power[i][3];
-		
-		printf("%d  %d   %d  %.3f  ", interrupt_start[i], interrupt_end[i], interrupt_ot[i], interrupt_p[i]);
-		printf("\n");
+		cout<<interrupt_start[i]<<"\t"<<interrupt_end[i]<<"\t"<<interrupt_ot[i]<<"\t"<<interrupt_p[i]<<"\n";
+
 	
     }
     // price
     for (i = 1; i < 25; i++) {
 
 		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT price_value FROM price WHERE price_period = %d", i - 1);
-		mysql_query(mysql_con, sql_buffer);
-		mysql_result = mysql_store_result(mysql_con);
-		mysql_row = mysql_fetch_row(mysql_result);
-		price[i - 1] = atof(mysql_row[0]);					
+		// mysql_row_function();
+		// price[i - 1] = atof(mysql_row[0]);		
+		price[i - 1] = turn_float(0);			
 		memset(sql_buffer, 0, sizeof(sql_buffer));
-		mysql_free_result(mysql_result);
+
 
 	}
 
 	for (i = 0; i < app_count; i++) {
 		snprintf(sql_buffer, sizeof(sql_buffer), "select number from load_list WHERE group_id<>0 ORDER BY group_id ASC,number ASC LIMIT %d,1", i);
-		mysql_query(mysql_con, sql_buffer);
-		mysql_result = mysql_store_result(mysql_con);
-		mysql_row = mysql_fetch_row(mysql_result);
-		position[i] = atoi(mysql_row[j]);
-		mysql_free_result(mysql_result);
+		// mysql_row_function();
+		// position[i] = atoi(mysql_row[0]);
+		position[i] = turn_int(0);
+		cout<<position[i]<<" ";
 	}
 
+	cout << "\npostion finish " << endl;
     GLPK(interrupt_start, interrupt_end, interrupt_ot, interrupt_reot, interrupt_p, app_count, price, position);
 }
 
@@ -220,12 +210,6 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			}
 		}
 	}
-	// for(i = 3; i < (time_block - sample_time) * 1 + app_count; i++) {
-	// 	for(j = 0; j < variable * (time_block - sample_time); j++) {
-	// 		printf("%d  ", (int)(power1[i][j]));
-	// 	}
-	// 	printf("\n");
-	// }
 
 	// 決定是否輸出市電(Decide whether to buy electricity from utility)
 	for (i = 0; i < (time_block - sample_time); i++)
@@ -254,7 +238,6 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 				for (i = (interrupt_start[h] - sample_time); i <= (interrupt_end[h] - sample_time); i++)
 				{
 					power1[app_count + i][i*variable + h] = interrupt_p[h];
-					printf("[%d][%d] = [%.1f] %dyes\n",app_count + i, i*variable + h, interrupt_p[h],h);
 				}
 			}
 			else if ((interrupt_start[h] - sample_time) < 0)
@@ -266,12 +249,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			}
 		}
 	}
-	for(i = 47; i < 50; i++) {
-		for(j = (time_block - sample_time); j < variable*(time_block - sample_time); j++) {
-			printf("%.1f ", (float)(power1[i][j]));
-		}
-		printf("\n");
-	}
+	
 	/*============================== 宣告限制式條件範圍(row) ===============================*/
 	// GLPK讀列從1開始
 	// 限制式-家庭負載最低耗能
@@ -393,3 +371,27 @@ void *new2d(int h, int w, int size)
 	return p;
 }
 
+MYSQL_ROW mysql_row_function()
+{
+
+	mysql_query(mysql_con, sql_buffer);
+	mysql_result = mysql_store_result(mysql_con);
+	mysql_row = mysql_fetch_row(mysql_result);
+	mysql_free_result(mysql_result);
+	return mysql_row;
+}
+
+float turn_float(int row_num) {
+	
+	mysql_row = mysql_row_function();
+	float result = atof(mysql_row[row_num]);
+	return result;
+}
+
+int turn_int(int row_num)
+{
+
+	mysql_row = mysql_row_function();
+	float result = atoi(mysql_row[row_num]);
+	return result;
+}
