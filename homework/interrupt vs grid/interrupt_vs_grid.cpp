@@ -22,16 +22,10 @@ char sql_buffer[2000] = { '\0' };
 
 time_t t = time(NULL);
 struct tm now_time = *localtime(&t);
+using namespace std;
 
 char column[400] = "A0,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13,A14,A15,A16,A17,A18,A19,A20,A21,A22,A23,A24,A25,A26,A27,A28,A29,A30,A31,A32,A33,A34,A35,A36,A37,A38,A39,A40,A41,A42,A43,A44,A45,A46,A47,A48,A49,A50,A51,A52,A53,A54,A55,A56,A57,A58,A59,A60,A61,A62,A63,A64,A65,A66,A67,A68,A69,A70,A71,A72,A73,A74,A75,A76,A77,A78,A79,A80,A81,A82,A83,A84,A85,A86,A87,A88,A89,A90,A91,A92,A93,A94,A95";
 
-// MYSQL *mysql_con = mysql_init(NULL);
-// MYSQL_RES *mysql_result;
-// MYSQL_ROW mysql_row;
-using namespace std;
-// MYSQL_ROW fetch_row_value();
-// float turn_vaule_to_float(int row_num);
-// int turn_value_to_int(int row_num);
 
 int main(void)
 {
@@ -52,18 +46,18 @@ int main(void)
 	printf("interruptable app num:%d\n", interrupt_num);
 
 	snprintf(sql_buffer, sizeof(sql_buffer), "SELECT value FROM `LP_BASE_PARM` WHERE parameter_id = %d", 13);
-	Pgrid_max = turn_vaule_to_float(0);
+	Pgrid_max = turn_value_to_float(0);
 	printf("Pgrid_max:%.2f\n", Pgrid_max);
 
     app_count = interrupt_num;  // 3
 	variable = app_count + 1;  // 買電狀態
 	int *position = new int[app_count];
-    float **INT_power = NEW2D(interrupt_num, 4, float);
+	float **INT_power = NEW2D(interrupt_num, 4, float);
 
     for (i = 1; i < interrupt_num + 1; i++) {
 
 		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT start_time, end_time, operation_time, power1 FROM load_list WHERE group_id = 1 ORDER BY number ASC LIMIT %d,1", i + 1);
-		mysql_row = fetch_row_value();
+		fetch_row_value();
 		for (j = 0; j < 4; j++)
 		{INT_power[i - 1][j] = turn_float(j);}
 
@@ -104,7 +98,7 @@ int main(void)
 		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT price_value FROM price WHERE price_period = %d", i - 1);
 		// fetch_row_value();
 		// price[i - 1] = atof(mysql_row[0]);		
-		price[i - 1] = turn_vaule_to_float(0);			
+		price[i - 1] = turn_value_to_float(0);			
 		memset(sql_buffer, 0, sizeof(sql_buffer));
 
 
@@ -381,14 +375,14 @@ void *new2d(int h, int w, int size)
 // 	return mysql_row;
 // }
 
-// float turn_vaule_to_float(int row_num) {
+// float turn_value_to_float(int row_num) {
 	
 // 	mysql_row = fetch_row_value();
 // 	float result = atof(mysql_row[row_num]);
 // 	return result;
 // }
 
-// int turn_vaule_to_int(int row_num) {
+// int turn_value_to_int(int row_num) {
 
 // 	mysql_row = fetch_row_value();
 // 	float result = atoi(mysql_row[row_num]);
