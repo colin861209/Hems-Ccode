@@ -8,6 +8,7 @@
 #include <iostream>
 #include <mysql/mysql.h>
 // #include "HEMS.h" 
+#include "SQLFunction.h" 
 
 #define NEW2D(H, W, TYPE) (TYPE **)new2d(H, W, sizeof(TYPE))
 void *new2d(int, int, int);
@@ -24,13 +25,13 @@ struct tm now_time = *localtime(&t);
 
 char column[400] = "A0,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11,A12,A13,A14,A15,A16,A17,A18,A19,A20,A21,A22,A23,A24,A25,A26,A27,A28,A29,A30,A31,A32,A33,A34,A35,A36,A37,A38,A39,A40,A41,A42,A43,A44,A45,A46,A47,A48,A49,A50,A51,A52,A53,A54,A55,A56,A57,A58,A59,A60,A61,A62,A63,A64,A65,A66,A67,A68,A69,A70,A71,A72,A73,A74,A75,A76,A77,A78,A79,A80,A81,A82,A83,A84,A85,A86,A87,A88,A89,A90,A91,A92,A93,A94,A95";
 
-MYSQL *mysql_con = mysql_init(NULL);
-MYSQL_RES *mysql_result;
-MYSQL_ROW mysql_row;
+// MYSQL *mysql_con = mysql_init(NULL);
+// MYSQL_RES *mysql_result;
+// MYSQL_ROW mysql_row;
 using namespace std;
-MYSQL_ROW mysql_row_function();
-float turn_float(int row_num);
-int turn_int(int row_num);
+// MYSQL_ROW fetch_row_value();
+// float turn_vaule_to_float(int row_num);
+// int turn_value_to_int(int row_num);
 
 int main(void)
 {
@@ -47,11 +48,11 @@ int main(void)
 
     // get count = 3 of interrupt group 
     snprintf(sql_buffer, sizeof(sql_buffer), "SELECT count(*) AS numcols FROM load_list WHERE group_id=1 && number>=3 && number<6 ");
-	interrupt_num = turn_int(0);
+	interrupt_num = turn_value_to_int(0);
 	printf("interruptable app num:%d\n", interrupt_num);
 
 	snprintf(sql_buffer, sizeof(sql_buffer), "SELECT value FROM `LP_BASE_PARM` WHERE parameter_id = %d", 13);
-	Pgrid_max = turn_float(0);
+	Pgrid_max = turn_vaule_to_float(0);
 	printf("Pgrid_max:%.2f\n", Pgrid_max);
 
     app_count = interrupt_num;  // 3
@@ -62,9 +63,9 @@ int main(void)
     for (i = 1; i < interrupt_num + 1; i++) {
 
 		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT start_time, end_time, operation_time, power1 FROM load_list WHERE group_id = 1 ORDER BY number ASC LIMIT %d,1", i + 1);
-		mysql_row_function();
+		mysql_row = fetch_row_value();
 		for (j = 0; j < 4; j++)
-		{INT_power[i - 1][j] = atof(mysql_row[j]);}
+		{INT_power[i - 1][j] = turn_float(j);}
 
 	}
 	
@@ -101,9 +102,9 @@ int main(void)
     for (i = 1; i < 25; i++) {
 
 		snprintf(sql_buffer, sizeof(sql_buffer), "SELECT price_value FROM price WHERE price_period = %d", i - 1);
-		// mysql_row_function();
+		// fetch_row_value();
 		// price[i - 1] = atof(mysql_row[0]);		
-		price[i - 1] = turn_float(0);			
+		price[i - 1] = turn_vaule_to_float(0);			
 		memset(sql_buffer, 0, sizeof(sql_buffer));
 
 
@@ -111,9 +112,9 @@ int main(void)
 
 	for (i = 0; i < app_count; i++) {
 		snprintf(sql_buffer, sizeof(sql_buffer), "select number from load_list WHERE group_id<>0 ORDER BY group_id ASC,number ASC LIMIT %d,1", i);
-		// mysql_row_function();
+		// fetch_row_value();
 		// position[i] = atoi(mysql_row[0]);
-		position[i] = turn_int(0);
+		position[i] = turn_value_to_int(0);
 		cout<<position[i]<<" ";
 	}
 
@@ -371,27 +372,25 @@ void *new2d(int h, int w, int size)
 	return p;
 }
 
-MYSQL_ROW mysql_row_function()
-{
+// MYSQL_ROW fetch_row_value() {
 
-	mysql_query(mysql_con, sql_buffer);
-	mysql_result = mysql_store_result(mysql_con);
-	mysql_row = mysql_fetch_row(mysql_result);
-	mysql_free_result(mysql_result);
-	return mysql_row;
-}
+// 	mysql_query(mysql_con, sql_buffer);
+// 	mysql_result = mysql_store_result(mysql_con);
+// 	mysql_row = mysql_fetch_row(mysql_result);
+// 	mysql_free_result(mysql_result);
+// 	return mysql_row;
+// }
 
-float turn_float(int row_num) {
+// float turn_vaule_to_float(int row_num) {
 	
-	mysql_row = mysql_row_function();
-	float result = atof(mysql_row[row_num]);
-	return result;
-}
+// 	mysql_row = fetch_row_value();
+// 	float result = atof(mysql_row[row_num]);
+// 	return result;
+// }
 
-int turn_int(int row_num)
-{
+// int turn_vaule_to_int(int row_num) {
 
-	mysql_row = mysql_row_function();
-	float result = atoi(mysql_row[row_num]);
-	return result;
-}
+// 	mysql_row = fetch_row_value();
+// 	float result = atoi(mysql_row[row_num]);
+// 	return result;
+// }

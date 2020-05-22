@@ -1,6 +1,6 @@
 CXX = g++
 CC = gcc
-OBJ = interrupt_vs_grid.o 
+OBJ = SQLFunction.o interrupt_vs_grid.o 
 FLAG = -g -Wall -o interrupt_vs_grid
 LIB = -lmysqlclient -lpthread -lglpk
 INCLUDE = -I/usr/include/mysql -L/usr/lib/mysql 
