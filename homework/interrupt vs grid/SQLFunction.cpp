@@ -23,20 +23,20 @@ MYSQL_ROW fetch_row_value() {
 	return 0;
 }
 
-int turn_int(int row_num) { return atoi(mysql_row[row_num]); }
+int turn_int(int col_num) { return atoi(mysql_row[col_num]); }
 
-float turn_float(int row_num) { return atof(mysql_row[row_num]); }
+float turn_float(int col_num) { return atof(mysql_row[col_num]); }
 
-float turn_value_to_float(int row_num) {
+float turn_value_to_float(int col_num) {
 	
 	fetch_row_value();
-	float result = turn_float(row_num);
+	float result = turn_float(col_num);
 	return result;
 }
 
-int turn_value_to_int(int row_num) {
+int turn_value_to_int(int col_num) {
 
 	fetch_row_value();
-	int result = turn_int(row_num);
+	int result = turn_int(col_num);
 	return result;
 }

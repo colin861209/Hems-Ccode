@@ -375,16 +375,16 @@ void *new2d(int h, int w, int size)
 // 	return mysql_row;
 // }
 
-// float turn_value_to_float(int row_num) {
+// float turn_value_to_float(int col_num) {
 	
 // 	mysql_row = fetch_row_value();
-// 	float result = atof(mysql_row[row_num]);
+// 	float result = atof(mysql_row[col_num]);
 // 	return result;
 // }
 
-// int turn_value_to_int(int row_num) {
+// int turn_value_to_int(int col_num) {
 
 // 	mysql_row = fetch_row_value();
-// 	float result = atoi(mysql_row[row_num]);
+// 	float result = atoi(mysql_row[col_num]);
 // 	return result;
 // }
