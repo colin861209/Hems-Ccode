@@ -23,7 +23,7 @@ MYSQL_ROW fetch_row_value() {
 	return 0;
 }
 
-void sent_query(){mysql_query(mysql_con, sql_buffer); }
+void sent_query() { mysql_query(mysql_con, sql_buffer); }
 
 int turn_int(int col_num) { return atoi(mysql_row[col_num]); }
 
