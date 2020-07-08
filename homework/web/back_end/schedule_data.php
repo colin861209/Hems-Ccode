@@ -12,10 +12,10 @@ $timeblock=96;
 $divide =$timeblock/24;
 
 /*---Connect to mySQL---*/
-$servername = "localhost";
+$servername = "140.124.42.70";
 $username = "root";
 $password = "fuzzy314";
-$dbname = "realtime";
+$dbname = "wang";
 $port = "6666";
 $conn = new mysqli($servername, $username, $password, $dbname,$port);
 if ($conn->connect_error) // Check connection

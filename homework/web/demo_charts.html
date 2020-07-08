@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>歡迎蒞臨家庭能源管理系統</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/octicons/3.1.0/octicons.min.css"><!--include ajax CSS file-->
+	<link rel="stylesheet" href="css/font-awesome.min.css">
+	<link rel="stylesheet" href="css/animate.css">
+	<link href="css/prettyPhoto.css" rel="stylesheet">
+	<link href="css/style.css" rel="stylesheet" />		
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body onload="show_value();">
+	<header>		
+		<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+			<div class="navigation">
+				<div class="container">					
+					<div class="navbar-header">
+						<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse.collapse">
+							<span class="sr-only">Toggle navigation</span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+						</button>
+						<div class="navbar-brand">
+							<a href="index.html"><h1>ITLAB<span>HEMS</span></h1></a>
+						</div>
+					</div>
+					
+					<div class="navbar-collapse collapse">							
+						<div class="menu">
+							<ul class="nav nav-tabs" role="tablist">
+								<li role="presentation"><a href="index.html" class="active">可中斷VS市電</a></li>
+								<li role="presentation"><a href="twoLoadVsGrid.html">可中斷+不可中斷VS市電</a></li>
+								<li role="presentation"><a href="threeLoadVsGrid.html">三種負載VS市電</a></li>
+								<li role="presentation"><a href="demo_charts.html">排程結果</a></li>
+								<!-- <li role="presentation"><a href="control_switch.html">家電控制</a></li>
+								<li role="presentation"><a href="set_data.html">參數設定</a></li>
+								<li role="presentation"><a href="solar_data.html">太陽資訊</a></li>			
+								<li role="presentation"><a href="electricity_price.html">電價資訊</a></li>	 -->
+							</ul>
+						</div>
+					</div>						
+				</div>
+			</div>	
+		</nav>		
+	</header>
+	
+	<div id="breadcrumb">
+		<div class="container">	
+			<div class="breadcrumb">							
+				<li><a href="index.html">Home</a></li>
+				<li>排程結果</li>			
+			</div>		
+		</div>	
+	</div>
+			<h3 class="text-center" style="font-weight:bold;">最佳化線性規劃排程結果</h3>
+			<hr>
+
+  	<!-- <div class="col-md-12 col-sm-12 col-xs-12 text-center wow fadeInDown" data-wow-duration="1000ms" data-wow-delay="300ms"">
+        <div class="container col-md-12 col-sm-12 col-xs-12 text-center">
+            <h4 style="font-weight:bold;"">今日預估HEMS能源最佳化資訊</h4>  
+            <table class="table table-bordered">
+            <thead >             
+             <tr class="well">
+                <th style="text-align: center; color:black">預估使用總負載</th>
+                <th style="text-align: center; color:black">預估太陽能</th>
+                <th style="text-align: center; color:black">預估市電</th>
+                <th style="text-align: center; color:black">預估賣電</th>
+                <th style="text-align: center; color:black">預估燃料電池</th>
+
+             </tr>
+            </thead>
+            <tbody>
+              <tr class="alert alert-danger">
+                <td><h3><span id="1"></span>(kWh)</h3></td>
+                <td><h3><span id="2"></span>(kWh)</h3></td>
+                <td><h3><span id="3"></span>(kWh)</h3></td>
+                <td><h3><span id="4"></span>(kWh)</h3></td>
+                <td><h3><span id="5"></span>(kWh)</h3></td>
+              </tr>
+            </tbody>
+            <thead >             
+             <tr class="well">
+                <th style="text-align: center; color:black">預估表燈電價花費</th>
+                <th style="text-align: center; color:black">預估時間電價花費</th>
+                <th style="text-align: center; color:black">預估最佳化總電網花費</th>
+                <th style="text-align: center; color:black">預估最佳化總賣電收益</th>
+                <th style="text-align: center; color:black">預估最佳化總淨花費</th>
+                <th style="text-align: center; color:black">預估最佳化節省效率比</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="alert alert-danger">
+                <td><h3>NT$<span id="6"></span></h3></td>
+                <td><h3>NT$<span id="7"></span></h3></td>
+                <td><h3>NT$<span id="8"></span></h3></td>
+                <td><h3>NT$<span id="9"></span></h3></td>
+                <td><h3>NT$<span id="10"></span></h3></td>
+                <td><h3><span id="11"></span>%</h3></td>
+              </tr>
+            </tbody>
+          </table>
+          <br>
+        </div> 
+     </div>  -->
+<div class="col-md-12 col-sm-12 col-xs-12">
+	<div id="container01" style="min-width: 310px; height: 420px; margin: 0 auto"></div>
+</div> 
+<div class="col-md-12 col-sm-12 col-xs-12">
+	<div id="container02" style="min-width: 310px; height: 420px; margin: 0 auto"></div>
+</div>
+
+     <!-- <div class="col-md-12 col-sm-12 col-xs-12 text-center wow fadeInDown" data-wow-duration="1000ms" data-wow-delay="300ms"">
+        <div class="container col-md-12 col-sm-12 col-xs-12 text-center">
+        	<h4 style="font-weight:bold;"">今日實際HEMS能源最佳化資訊</h4>  
+            <table class="table table-bordered">
+            <thead >             
+             <tr class="well">
+                <th style="text-align: center; color:black">實際使用總負載</th>
+                <th style="text-align: center; color:black">實際太陽能</th>
+                <th style="text-align: center; color:black">實際市電</th>
+                <th style="text-align: center; color:black">實際賣電</th>
+                <th style="text-align: center; color:black">實際燃料電池產電</th>
+
+             </tr>
+            </thead>
+            <tbody>
+              <tr class="alert alert-warning">
+                <td><h3><span id="12"></span>(kWh)</h3></td>
+                <td><h3><span id="13"></span>(kWh)</h3></td>
+                <td><h3><span id="14"></span>(kWh)</h3></td>
+                <td><h3><span id="15"></span>(kWh)</h3></td>
+                <td><h3><span id="16"></span>(kWh)</h3></td>
+              </tr>
+            </tbody>
+            <thead >             
+             <tr class="well">
+                <th style="text-align: center; color:black">實際表燈電價花費</th>
+                <th style="text-align: center; color:black">實際時間電價花費</th>
+                <th style="text-align: center; color:black">實際最佳化總電網花費</th>
+                <th style="text-align: center; color:black">實際最佳化總賣電收益</th>
+                <th style="text-align: center; color:black">實際最佳化總淨花費</th>
+                <th style="text-align: center; color:black">實際最佳化節省效率比</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="alert alert-warning">
+                <td><h3>NT$<span id="17"></span></h3></td>
+                <td><h3>NT$<span id="18"></span></h3></td>
+                <td><h3>NT$<span id="19"></span></h3></td>
+                <td><h3>NT$<span id="20"></span></h3></td>
+                <td><h3>NT$<span id="21"></span></h3></td>
+                <td><h3><span id="22"></span>%</h3></td>
+              </tr>
+            </tbody>
+          </table>
+          <br>
+        </div> 
+     </div> -->
+
+ <!-- <div class="col-md-12 col-sm-12 col-xs-12">
+	<div id="container03" style="min-width: 310px; height: 420px; margin: 0 auto"></div>
+</div>
+<div class="col-md-12 col-sm-12 col-xs-12">
+	<div id="container04" style="min-width: 310px; height: 420px; margin: 0 auto"></div>
+</div> -->
+
+<!-- <div class="col-md-12 col-sm-12 col-xs-12">
+  <div id="container05" style="min-width: 310px; height: 420px; margin: 0 auto"></div>
+</div> -->
+
+
+	<div class="aboutus">
+		<div class="container">
+		</div>
+	</div>
+	
+	
+	<footer>
+		<div class="footer">
+			<div class="container">
+				<div class="social-icon">
+					<div class="col-md-4">
+						<ul class="social-network">
+							<li><a href="#" class="fb tool-tip" title="Facebook"><i class="fa fa-facebook"></i></a></li>
+							<li><a href="#" class="twitter tool-tip" title="Twitter"><i class="fa fa-twitter"></i></a></li>
+							<li><a href="#" class="gplus tool-tip" title="Google Plus"><i class="fa fa-google-plus"></i></a></li>
+							<li><a href="#" class="linkedin tool-tip" title="Linkedin"><i class="fa fa-linkedin"></i></a></li>
+							<li><a href="#" class="ytube tool-tip" title="You Tube"><i class="fa fa-youtube-play"></i></a></li>
+						</ul>	
+					</div>
+				</div>
+				
+				<div class="col-md-4 col-md-offset-4">
+				<div class="copyright">
+						&copy; June  2018 by <a target="_blank" href="http://itlab.ee.ntut.edu.tw/cms/cmsimplexh/" title="ITLAB">ITLAB</a>. All Rights Reserved.
+					</div>
+				</div>						
+			</div>
+			<div class="pull-right">
+				<a href="#home" class="scrollup"><i class="fa fa-angle-up fa-3x"></i></a>
+			</div>
+		</div>
+	</footer>
+	
+   <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+	<script src="js/jquery-2.1.1.min.js"></script>	
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+	<script src="js/jquery.prettyPhoto.js"></script>
+    <script src="js/jquery.isotope.min.js"></script>  
+	<script src="js/wow.min.js"></script>
+	<script src="js/functions.js"></script>
+
+	<script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://highcharts.github.io/export-csv/export-csv.js"></script>
+    <script src="main_js/demo_charts.js"></script>
+	
+  </body>
+</html>
