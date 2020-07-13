@@ -282,20 +282,24 @@ int get_orion()
 			{data[i]=0.0;}
 			else
 			{data[i]=(float)(tmp);}
-			printf("data:%f\n",data[i]);
+			printf("data[%d]:%f\n",i ,data[i]);
 		} 
 		if(socket_timeout!=1) //if no timeout then do below
 		{    
-			Pload=data[0]/10.0*Vsys;
+			Pload=data[0]/10.0*Vsys;	// effect
 			// Pbat=data[1]/10.0*Vsys;  // because have some measure errror..so below function instead 
 			Prect=data[2]/10.0*Vsys;
 			Psys=data[3];
-			P_1=data[4]/10.0*Vsys;
+			P_1=data[4]/10.0*Vsys;	// effect
 			P_2=data[5]/10.0*Vsys;
 			P_3=data[6]/10.0*Vsys;
 			Psolar=data[10]+data[11];
 			Vsys=data[13]/100.0; 
-
+			// I_p1 = Ipvc + Irect - Ibat - Iload from now on 2020/07/10, inverter2(P_1) can't not get the currnet, orion "Load1" cueent (almost 7.xxA)
+			data[4] = (data[9] + data[2] - data[1] - data[0])/10.0;
+			data[0] = data[0] + data[4];
+			Pload=data[0]/10.0*Vsys;
+			P_1=data[4]/10.0*Vsys;
 			Pbat=Prect+Psolar+Pfc-Pload-Psell;
 
 		}
