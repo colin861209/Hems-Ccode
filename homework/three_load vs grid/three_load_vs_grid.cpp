@@ -302,21 +302,6 @@ int main(void)
 
 		snprintf(sql_buffer, sizeof(sql_buffer), "TRUNCATE TABLE real_status"); //clean real_status;
 		sent_query();
-
-		// snprintf(sql_buffer, sizeof(sql_buffer), "SELECT A%d FROM control_status WHERE control_id = 22 ", sample_time);
-		// SOC = turn_value_to_float(0);
-		// printf("LINE %d: SOC = %.2f\n", __LINE__, SOC);
-
-		// snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE `LP_BASE_PARM` SET `value` = '%f'  WHERE parameter_id=25 ", SOC);
-		// sent_query();
-
-		// snprintf(sql_buffer, sizeof(sql_buffer), "SELECT value FROM LP_BASE_PARM WHERE parameter_id = 25"); //get now_SOC
-		// SOC_ini = turn_value_to_float(0);
-		// if (SOC_ini > 90)
-		// 	SOC_ini = 89.8;
-
-		// printf("LINE %d: NOW REAL SOC:%f\n", __LINE__, SOC_ini);
-		// memset(sql_buffer, 0, sizeof(sql_buffer));
 	}
 	else
 	{
@@ -920,14 +905,14 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 				{
 					for (i = (uninterrupt_start[h] - sample_time); i <= ((uninterrupt_end[h] - uninterrupt_reot[h] + 1) - sample_time); i++)
 					{
-						power1[(time_block - sample_time) * 6 + app_count + 1 + counter][i * variable + h + (variable - uninterrupt_num - (varying_num * 2))] = 1.0;
+						power1[(time_block - sample_time) * 3 + app_count + 1 + counter][i * variable + h + (variable - uninterrupt_num - (varying_num * 2))] = 1.0;
 					}
 				}
 				else if ((uninterrupt_start[h] - sample_time) < 0)
 				{
 					for (i = 0; i <= ((uninterrupt_end[h] - uninterrupt_reot[h] + 1) - sample_time); i++)
 					{
-						power1[(time_block - sample_time) * 6 + app_count + 1 + counter][i * variable + h + (variable - uninterrupt_num - (varying_num * 2))] = 1.0;
+						power1[(time_block - sample_time) * 3 + app_count + 1 + counter][i * variable + h + (variable - uninterrupt_num - (varying_num * 2))] = 1.0;
 					}
 				}
 			}
@@ -946,14 +931,14 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 				{
 					for (i = (varying_start[h] - sample_time); i <= ((varying_end[h] - varying_reot[h] + 1) - sample_time); i++)
 					{
-						power1[(time_block - sample_time) * 6 + app_count + 1 + counter][i * variable + h + (variable - (varying_num * 2))] = 1.0;
+						power1[(time_block - sample_time) * 3 + app_count + 1 + counter][i * variable + h + (variable - (varying_num * 2))] = 1.0;
 					}
 				}
 				else if ((varying_start[h] - sample_time) < 0)
 				{
 					for (i = 0; i <= ((varying_end[h] - varying_reot[h] + 1) - sample_time); i++)
 					{
-						power1[(time_block - sample_time) * 6 + app_count + 1 + counter][i * variable + h + (variable - (varying_num * 2))] = 1.0;
+						power1[(time_block - sample_time) * 3 + app_count + 1 + counter][i * variable + h + (variable - (varying_num * 2))] = 1.0;
 					}
 				}
 			}
@@ -967,7 +952,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	{
 		if (uninterrupt_flag[h] == 0)
 		{
-			for (k = (6 + n), m = 0; k < (6 + n) + uninterrupt_reot[h], m < uninterrupt_reot[h]; k++, m++)
+			for (k = (3 + n), m = 0; k < (3 + n) + uninterrupt_reot[h], m < uninterrupt_reot[h]; k++, m++)
 			{
 				if ((uninterrupt_end[h] - sample_time) >= 0)
 				{
@@ -999,7 +984,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 				{
 					for (i = 0; i <= (uninterrupt_end[h] - sample_time); i++)
 					{
-						power1[(time_block - sample_time) * (6 + n) + app_count + 1 + counter + i][i * variable + h + interrupt_num] = 1.0; //???i???_?t???M??????
+						power1[(time_block - sample_time) * (3 + n) + app_count + 1 + counter + i][i * variable + h + interrupt_num] = 1.0; //???i???_?t???M??????
 					}
 				}
 				n += 1;
@@ -1011,7 +996,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	{
 		if (varying_flag[h] == 0) //?b??�X??t????��?�X???
 		{
-			for (k = (6 + n), m = 0; k < (6 + n) + varying_reot[h], m < varying_reot[h]; k++, m++)
+			for (k = (3 + n), m = 0; k < (3 + n) + varying_reot[h], m < varying_reot[h]; k++, m++)
 			{
 				if ((varying_end[h] - sample_time) >= 0)
 				{
@@ -1043,7 +1028,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 				{
 					for (i = 0; i <= (varying_end[h] - sample_time); i++)
 					{
-						power1[(time_block - sample_time) * (6 + n) + app_count + 1 + counter + i][i * variable + h + (interrupt_num + uninterrupt_num)] = 1.0;
+						power1[(time_block - sample_time) * (3 + n) + app_count + 1 + counter + i][i * variable + h + (interrupt_num + uninterrupt_num)] = 1.0;
 					}
 				}
 				n += 1;
@@ -1056,7 +1041,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	{
 		if (varying_flag[h] == 0)
 		{
-			for (k = (6 + n), m = 0; k < (6 + n) + varying_reot[h], m < varying_reot[h]; k++, m++)
+			for (k = (3 + n), m = 0; k < (3 + n) + varying_reot[h], m < varying_reot[h]; k++, m++)
 			{
 				if ((varying_end[h] - sample_time) >= 0)
 				{
@@ -1089,16 +1074,16 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 				{
 					for (i = (varying_start[h] - sample_time); i <= (varying_end[h] - sample_time); i++)
 					{
-						power1[(time_block - sample_time) * (6 + n) + app_count + 1 + counter + i][(i * variable) + h + interrupt_num + uninterrupt_num] = -1.0 * ((float)(varying_t_d[h][i]) * (varying_p_d[h][i + buff[h + interrupt_num + uninterrupt_num]]));
-						power1[(time_block - sample_time) * (6 + n) + app_count + 1 + counter + i][(i * variable) + h + (variable - varying_num)] = 1.0; // ψa j+n
+						power1[(time_block - sample_time) * (3 + n) + app_count + 1 + counter + i][(i * variable) + h + interrupt_num + uninterrupt_num] = -1.0 * ((float)(varying_t_d[h][i]) * (varying_p_d[h][i + buff[h + interrupt_num + uninterrupt_num]]));
+						power1[(time_block - sample_time) * (3 + n) + app_count + 1 + counter + i][(i * variable) + h + (variable - varying_num)] = 1.0; // ψa j+n
 					}
 				}
 				else if ((varying_start[h] - sample_time) < 0)
 				{
 					for (i = 0; i <= (varying_end[h] - sample_time); i++)
 					{
-						power1[(time_block - sample_time) * (6 + n) + app_count + 1 + counter + i][(i * variable) + h + interrupt_num + uninterrupt_num] = -1.0 * ((float)(varying_t_d[h][i]) * (varying_p_d[h][i + buff[h + interrupt_num + uninterrupt_num]]));
-						power1[(time_block - sample_time) * (6 + n) + app_count + 1 + counter + i][(i * variable) + h + (variable - varying_num)] = 1.0; // ψa j+n
+						power1[(time_block - sample_time) * (3 + n) + app_count + 1 + counter + i][(i * variable) + h + interrupt_num + uninterrupt_num] = -1.0 * ((float)(varying_t_d[h][i]) * (varying_p_d[h][i + buff[h + interrupt_num + uninterrupt_num]]));
+						power1[(time_block - sample_time) * (3 + n) + app_count + 1 + counter + i][(i * variable) + h + (variable - varying_num)] = 1.0; // ψa j+n
 					}
 				}
 			}
@@ -1134,8 +1119,8 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	{
 		if (uninterrupt_flag[h] == 0)
 		{
-			glp_set_row_name(mip, ((time_block - sample_time) * 6 + app_count + 1 + counter), "");
-			glp_set_row_bnds(mip, ((time_block - sample_time) * 6 + app_count + 1 + counter), GLP_FX, 1.0, 1.0);
+			glp_set_row_name(mip, ((time_block - sample_time) * 3 + app_count + 1 + counter), "");
+			glp_set_row_bnds(mip, ((time_block - sample_time) * 3 + app_count + 1 + counter), GLP_FX, 1.0, 1.0);
 
 			counter += 1;
 		}
@@ -1146,8 +1131,8 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		if (varying_flag[h] == 0)
 		{
 			//??�X??t???��??��U????, sum = 1
-			glp_set_row_name(mip, ((time_block - sample_time) * 6 + app_count + 1 + counter), "");
-			glp_set_row_bnds(mip, ((time_block - sample_time) * 6 + app_count + 1 + counter), GLP_FX, 1.0, 1.0);
+			glp_set_row_name(mip, ((time_block - sample_time) * 3 + app_count + 1 + counter), "");
+			glp_set_row_bnds(mip, ((time_block - sample_time) * 3 + app_count + 1 + counter), GLP_FX, 1.0, 1.0);
 
 			counter += 1;
 		}
@@ -1159,7 +1144,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		if (uninterrupt_flag[h] == 0)
 		{
 			//???i???_?t???M??????
-			for (k = (6 + n); k < (6 + n) + uninterrupt_reot[h]; k++)
+			for (k = (3 + n); k < (3 + n) + uninterrupt_reot[h]; k++)
 			{
 				for (i = ((time_block - sample_time) * k + app_count + 1 + counter); i < ((time_block - sample_time) * (k + 1) + app_count + 1 + counter); i++)
 				{
@@ -1173,12 +1158,12 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		{
 			if ((uninterrupt_end[h] - sample_time) >= 0)
 			{
-				for (i = ((time_block - sample_time) * (6 + n) + app_count + 1 + counter); i < ((time_block - sample_time) * (6 + n) + app_count + 1 + counter + uninterrupt_reot[h]); i++)
+				for (i = ((time_block - sample_time) * (3 + n) + app_count + 1 + counter); i < ((time_block - sample_time) * (3 + n) + app_count + 1 + counter + uninterrupt_reot[h]); i++)
 				{
 					glp_set_row_name(mip, i, "");
 					glp_set_row_bnds(mip, i, GLP_LO, 1.0, 1.0);
 				}
-				for (i = ((time_block - sample_time) * (6 + n) + app_count + 1 + counter + uninterrupt_reot[h]); i < ((time_block - sample_time) * ((6 + n) + 1) + app_count + 1 + counter); i++)
+				for (i = ((time_block - sample_time) * (3 + n) + app_count + 1 + counter + uninterrupt_reot[h]); i < ((time_block - sample_time) * ((3 + n) + 1) + app_count + 1 + counter); i++)
 				{
 					glp_set_row_name(mip, i, "");
 					glp_set_row_bnds(mip, i, GLP_LO, 0.0, 0.0);
@@ -1193,7 +1178,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		if (varying_flag[h] == 0)
 		{
 
-			for (k = (6 + n); k < (6 + n) + varying_reot[h]; k++)
+			for (k = (3 + n); k < (3 + n) + varying_reot[h]; k++)
 			{
 				for (i = ((time_block - sample_time) * k + app_count + 1 + counter); i < ((time_block - sample_time) * (k + 1) + app_count + 1 + counter); i++)
 				{
@@ -1205,12 +1190,12 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		}
 		if (varying_flag[h] == 1)
 		{
-			for (i = ((time_block - sample_time) * (6 + n) + app_count + 1 + counter); i < (((time_block - sample_time) * (6 + n) + app_count + 1 + counter) + varying_reot[h]); i++)
+			for (i = ((time_block - sample_time) * (3 + n) + app_count + 1 + counter); i < (((time_block - sample_time) * (3 + n) + app_count + 1 + counter) + varying_reot[h]); i++)
 			{
 				glp_set_row_name(mip, i, "");
 				glp_set_row_bnds(mip, i, GLP_LO, 1.0, 1.0);
 			}
-			for (i = (((time_block - sample_time) * (6 + n) + app_count + 1 + counter) + varying_reot[h]); i < ((time_block - sample_time) * ((6 + n) + 1) + app_count + 1 + counter); i++)
+			for (i = (((time_block - sample_time) * (3 + n) + app_count + 1 + counter) + varying_reot[h]); i < ((time_block - sample_time) * ((3 + n) + 1) + app_count + 1 + counter); i++)
 			{
 				glp_set_row_name(mip, i, "");
 				glp_set_row_bnds(mip, i, GLP_LO, 0.0, 0.0);
@@ -1224,7 +1209,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	{
 		if (varying_flag[h] == 0)
 		{
-			for (k = (6 + n); k < (6 + n) + varying_reot[h]; k++)
+			for (k = (3 + n); k < (3 + n) + varying_reot[h]; k++)
 			{
 				for (i = ((time_block - sample_time) * k + app_count + 1 + counter); i < ((time_block - sample_time) * (k + 1) + app_count + 1 + counter); i++)
 				{
@@ -1236,7 +1221,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		}
 		if (varying_flag[h] == 1)
 		{
-			for (i = ((time_block - sample_time) * (6 + n) + app_count + 1 + counter); i < ((time_block - sample_time) * ((6 + n) + 1) + app_count + 1 + counter); i++)
+			for (i = ((time_block - sample_time) * (3 + n) + app_count + 1 + counter); i < ((time_block - sample_time) * ((3 + n) + 1) + app_count + 1 + counter); i++)
 			{
 				glp_set_row_name(mip, i, "");
 				glp_set_row_bnds(mip, i, GLP_LO, 0.0, 0.0);
@@ -1350,7 +1335,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	for (i = 1; i <= variable; i++)
 	{
 		h = i;
-		l = variable - (app_count - i);
+		l = variable - (app_count - i); // get interrupt & varying ra j
 		if (sample_time == 0)
 		{
 			for (j = 0; j < time_block; j++)
@@ -1372,12 +1357,12 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 					snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE now_status set status = %d where id=%d ", (int)s[j], position[i - 1]);
 					sent_query();
 				}
-				else if ((i > interrupt_num + uninterrupt_num) && (i <= app_count)) //sometimes varying load will have weird
+				else if ((i > interrupt_num + uninterrupt_num) && (i <= app_count)) //sometimes varying load will have weird, use power model instead of varying load
 				{
 					s[j] = glp_mip_col_val(mip, l);
-					// printf("%d. variable:%d  value:%f\n",j,i,s[j]);
-					if (s[j] > 0.0)
+					if (s[j] == varying_p_pow[0][0] || s[j] == varying_p_pow[0][1] || s[j] == varying_p_pow[0][2])
 						s[j] = 1.0;
+
 					if (j == noo)
 					{
 						snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE now_status set status = %d where id=%d ", (int)s[j], position[i - 1]);
@@ -1404,10 +1389,6 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 			}
 			memset(sql_buffer, 0, sizeof(sql_buffer));
 			// =-=-=-=-=-=-=-=-=-=- change new result after the sample time -=-=-=-=-=-=-=-=-=-= //
-			printf("UPDATE now_status (load status)\nposition\t\n");
-			for (i = 0; i < sizeof(position) / sizeof(position[0]); i++)
-				printf("%d\t", position[i]);
-			printf("\nstatus\t\n");
 			for (j = 0; j < (time_block - sample_time); j++)
 			{
 				s[j + sample_time] = glp_mip_col_val(mip, h);
@@ -1415,19 +1396,19 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 				if (i <= interrupt_num + uninterrupt_num && j == 0)
 				{
 					snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE now_status set status = %d where id=%d ", (int)s[j + sample_time], position[i - 1]);
-					printf("%d\t", (int)s[j + sample_time]);
+					printf("%s\n", sql_buffer);
 					sent_query();
 				}
-				else if ((i > interrupt_num + uninterrupt_num) && (i <= app_count))
+				else if ((i > interrupt_num + uninterrupt_num) && (i <= app_count)) //sometimes varying load will have weird, use power model instead of varying load
 				{
 					s[j + sample_time] = glp_mip_col_val(mip, l);
-					if (s[j + sample_time] > 0.0)
+					if (s[j + sample_time] == varying_p_pow[0][0] || s[j + sample_time] == varying_p_pow[0][1] || s[j + sample_time] == varying_p_pow[0][2])
 						s[j + sample_time] = 1.0;
 
 					if (j == 0)
 					{
 						snprintf(sql_buffer, sizeof(sql_buffer), "UPDATE now_status set status = %d where id=%d ", (int)s[j + sample_time], position[i - 1]);
-						printf("%d\t", (int)s[j + sample_time]);
+						printf("%s\n", sql_buffer);
 						sent_query();
 					}
 				}
