@@ -16,8 +16,8 @@
 #define P_6 6.41
 
 #define Hydro_Price 0.08
-#define Hydro_Cons 0.04
-#define FC_START_POWER 0.35
+#define Hydro_Cons 0.04 // unit kWh/g
+#define FC_START_POWER 0.35 // Pfc start power
 
 #define NEW2D(H, W, TYPE) (TYPE **)new2d(H, W, sizeof(TYPE))
 
@@ -617,12 +617,13 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		power1[(time_block - sample_time) * 7 + app_count + 1 + i][i*variable + (app_count + 9)] = -1.0;	//Pfc
 	}
 
+	// =-=-=-=-=-=-=- FC part -=-=-=-=-=-=-=
 	//fc constraint
 	for (i = 0; i < (time_block - sample_time); i++)
 	{
-		power1[(time_block - sample_time) * 8 + app_count + 1 + i][i*variable + (app_count + 9)] = 1.0; //Pfc       //Pfc=Pfc_on+Pfc_off
-		power1[(time_block - sample_time) * 8 + app_count + 1 + i][i*variable + (app_count + 11)] = -1.0;	//Pfc_on
-		power1[(time_block - sample_time) * 8 + app_count + 1 + i][i*variable + (app_count + 12)] = -1.0;	//Pfc_off
+		power1[(time_block - sample_time) * 8 + app_count + 1 + i][i*variable + (app_count + 9)] = 1.0;		// Pfc=Pfc_on+Pfc_off
+		power1[(time_block - sample_time) * 8 + app_count + 1 + i][i*variable + (app_count + 11)] = -1.0;	// Pfc_on
+		power1[(time_block - sample_time) * 8 + app_count + 1 + i][i*variable + (app_count + 12)] = -1.0;	// Pfc_off
 	}
 
 	for (i = 0; i < (time_block - sample_time); i++)
@@ -646,24 +647,24 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 
 	for (i = 0; i < (time_block - sample_time); i++)
 	{
-		power1[(time_block - sample_time) * 12 + app_count + 1 + i][i*variable + (app_count + 9)] = 1.0;                                                             //X
+		power1[(time_block - sample_time) * 12 + app_count + 1 + i][i*variable + (app_count + 9)] = 1.0; //Pfc j
 		
 		for (k = 1; k <= piecewise_num; k++)												//X=z1*x1+(x2-x1)*s1...
 		{		
 			power1[(time_block - sample_time) * 12 + app_count + 1 + i][i*variable + (app_count + 13 + k)] = -P_power[k-1];	//z
-			power1[(time_block - sample_time) * 12 + app_count + 1 + i][i*variable + (app_count + 13 + piecewise_num + k)] = -1.0*(P_power[k] - P_power[k-1]);	//s
+			power1[(time_block - sample_time) * 12 + app_count + 1 + i][i*variable + (app_count + 13 + piecewise_num + k)] = -1.0*(P_power[k] - P_power[k-1]);	//λ
 		}
 
 	}
 
 	for (i = 0; i < (time_block - sample_time); i++)
 	{
-		power1[(time_block - sample_time) * 13 + app_count + 1 + i][i*variable + (app_count + 10)] = 1.0;	//Y
+		power1[(time_block - sample_time) * 13 + app_count + 1 + i][i*variable + (app_count + 10)] = 1.0;	//Pfct j
 
 		for (k = 1; k <= piecewise_num; k++)	//Y=z1*y1+(y2-y1)*s1...
 		{
 			power1[(time_block - sample_time) * 13 + app_count + 1 + i][i*variable + (app_count + 13 + k)] = -P_power_all[k-1];	//z
-			power1[(time_block - sample_time) * 13 + app_count + 1 + i][i*variable + (app_count + 13 + piecewise_num + k)] = -1.0*(P_power_all[k] - P_power_all[k-1]);	//s
+			power1[(time_block - sample_time) * 13 + app_count + 1 + i][i*variable + (app_count + 13 + piecewise_num + k)] = -1.0*(P_power_all[k] - P_power_all[k-1]);	//λ
 		}
 
 	}
@@ -672,7 +673,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	{
 		for (k = 1; k <= piecewise_num; k++)												
 		{
-			power1[(time_block - sample_time) * 14 + app_count + 1 + i][i*variable + (app_count + 13 + k)] = 1.0; //z       //z1+z2+z3+......=1                                                      
+			power1[(time_block - sample_time) * 14 + app_count + 1 + i][i*variable + (app_count + 13 + k)] = 1.0; //z       //z1+z2+z3+......=1
 		}
 	}
 
@@ -680,8 +681,8 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 	{
 		for (k = 1; k <= piecewise_num; k++)
 		{
-			power1[(time_block - sample_time) * (14 + k) + app_count + 1 + i][i*variable + (app_count + 13 + k)] = -1.0; //z       //si-zi  <=0  
-			power1[(time_block - sample_time) * (14 + k) + app_count + 1 + i][i*variable + (app_count + 13 + piecewise_num + k)] = 1.0;//s
+			power1[(time_block - sample_time) * (14 + k) + app_count + 1 + i][i*variable + (app_count + 13 + k)] = -1.0; //z       //λi-zi  <=0  
+			power1[(time_block - sample_time) * (14 + k) + app_count + 1 + i][i*variable + (app_count + 13 + piecewise_num + k)] = 1.0;//λ
 		}
 	}
 
@@ -983,6 +984,7 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 		glp_set_row_bnds(mip, ((time_block - sample_time) * 7 + app_count + 1 + i), GLP_UP, 0.0, solar2[i - 1 + sample_time]);   //Pfc
 	}
 
+	// =-=-=-=-=-=-=- FC part -=-=-=-=-=-=-=
 	//pfc=pfc_on+pfc_off
 	for (i = 1; i <= (time_block - sample_time); i++)
 	{
@@ -1203,8 +1205,8 @@ void GLPK(int *interrupt_start, int *interrupt_end, int *interrupt_ot, int *inte
 
 		for (j = 1; j <= piecewise_num; j++)
 		{
-			glp_set_col_bnds(mip, ((app_count + 14 + piecewise_num + j) + i*variable), GLP_LO, 0.0, 0.0);	//s_Pfc /////*******
-			glp_set_col_kind(mip, ((app_count + 14 + piecewise_num + j) + i*variable),	//*******
+			glp_set_col_bnds(mip, ((app_count + 14 + piecewise_num + j) + i*variable), GLP_LO, 0.0, 0.0);	//λ_Pfc /////*******
+			glp_set_col_kind(mip, ((app_count + 14 + piecewise_num + j) + i*variable), GLP_CV);	//*******
 		}
 
 		for (j = 1; j <= uninterrupt_num; j++)

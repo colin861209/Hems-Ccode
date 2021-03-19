@@ -171,7 +171,7 @@ int main(void)
 	ponit_num = 6;
 	variable = app_count + 9 + uninterrupt_num + (varying_num * 2) + 2 + 2 * (ponit_num - 1) + 3;	// = 43
 	//家庭負載狀態變數(app_count)+市電輸出功率變數(1)+決定市電輸出狀態(1)+決定電池輸出功率(1) + 電池充電功率(1) + 電池放電功率(1)    //MUSTMUSTMUST CHANGE(if add rows) 
-	//+ 賣電功率(1)+SOC值(1)+Z(FC的變數)(1)+S(lamada)(1)+不可中斷負載輔助二元變數(uninterrupt_num)+變動負載輔助二元變數(varying_num)+變動負載耗能變數(varying_num)+FC(1)+FC_T(1)+z_Pfc(ponit_num-1)+s_Pfc(ponit_num-1) +Pfc_on(1)+Pfc_off(1)+Pfc_choice(1)
+	//+ 賣電功率(1)+SOC值(1)+Z(電池的變數)(1)+S(lamada)(1)+不可中斷負載輔助二元變數(uninterrupt_num)+變動負載輔助二元變數(varying_num)+變動負載耗能變數(varying_num)+FC(1)+FC_T(1)+z_Pfc(ponit_num-1)+s_Pfc(ponit_num-1) +Pfc_on(1)+Pfc_off(1)+Pfc_choice(1)
 
 	divide = (time_block / 24);	
 	delta_T = 1.0 / (float)divide;
